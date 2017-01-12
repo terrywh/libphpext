@@ -1,11 +1,10 @@
-#include <cstring>
-
+#include "../vendor.h"
 #include "value.h"
 
-#ifndef CORE_TYPES_ARRAY_VALUE_H
-#define CORE_TYPES_ARRAY_VALUE_H
+#ifndef PHPEXT_TYPES_ARRAY_VALUE_H
+#define PHPEXT_TYPES_ARRAY_VALUE_H
 
-namespace core
+namespace phpext
 {
 namespace types
 {
@@ -31,6 +30,8 @@ namespace types
 				zend_hash_del(arr_, key_);
 			}
 			zend_string_release(key_);
+			val_ = nullptr;
+			// ~value
 		}
 	protected:
 		zend_array*  arr_;
@@ -57,6 +58,8 @@ namespace types
 			{ // cleanup empty placeholder
 				zend_hash_index_del(arr_, idx_);
 			}
+			val_ = nullptr;
+			// ~value
 		}
 	protected:
 		zend_array* arr_;
@@ -65,4 +68,4 @@ namespace types
 
 }}
 
-#endif // CORE_TYPES_ARRAY_VALUE_H
+#endif // PHPEXT_TYPES_ARRAY_VALUE_H

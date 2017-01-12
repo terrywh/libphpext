@@ -1,45 +1,54 @@
-#include <zend.h>
+#include "../vendor.h"
+#include "value.h"
 #include "array_value.h"
 
-#ifndef CORE_TYPES_ARRAY_H
-#define CORE_TYPES_ARRAY_H
+#ifndef PHPEXT_TYPES_ARRAY_H
+#define PHPEXT_TYPES_ARRAY_H
 
-namespace core
+namespace phpext
 {
 namespace types
 {
-	
-	class array
+
+	class array: public value
 	{
 	public:
-		array();
-		array(int size);
-		array(zend_array* ht, bool copy = true);
-		array(const array& ht);
-		array(array&& ht);
-		virtual ~array();
+		array(const value& a)
+		:value(a)
+		{
+			assert(a.is_array());
+		}
+		array(value&& a)
+		:value(std::move(a))
+		{
+			assert(a.is_array());
+		}
+		array()
+		:value()
+		{
+			Z_ARRVAL_P(val_) = (zend_array*)emalloc(sizeof(zend_array));
+			_zend_hash_init(Z_ARRVAL_P(val_), 0, ZVAL_PTR_DTOR, false);
+		}
+		array(int size)
+		:value()
+		{
+			Z_ARRVAL_P(val_) = (zend_array*)emalloc(sizeof(zend_array));
+			_zend_hash_init(Z_ARRVAL_P(val_), size, ZVAL_PTR_DTOR, false);
+		}
 		// item access
-		array_value_key operator[](char* key);
-		array_value_idx operator[](int index);
-		std::uint32_t length() const;
-		// refcount
-		inline void addref()
+		array_value_key operator[](char* key)
 		{
-			++GC_REFCOUNT(_array);
+			return array_value_key(Z_ARRVAL_P(val_), key);
 		}
-		// refcount
-		inline void delref()
+		array_value_idx operator[](int index)
 		{
-			--GC_REFCOUNT(_array);
+			return array_value_idx(Z_ARRVAL_P(val_), index);
 		}
-
-		inline zend_array* data() const
+		std::uint32_t length() const
 		{
-			return _array;
+			return zend_hash_num_elements(Z_ARRVAL_P(val_));
 		}
-	protected:
-		zend_array* _array;
 	};
 }}
 
-#endif // CORE_TYPES_ARRAY_H
+#endif // PHPEXT_TYPES_ARRAY_H

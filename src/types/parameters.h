@@ -1,11 +1,10 @@
-#include <zend.h>
-#include <cstdint>
+#include "../vendor.h"
 #include "value.h"
 
-#ifndef CORE_TYPES_PARAMETERS_H
-#define CORE_TYPES_PARAMETERS_H
+#ifndef PHPEXT_TYPES_PARAMETERS_H
+#define PHPEXT_TYPES_PARAMETERS_H
 
-namespace core
+namespace phpext
 {
 namespace types
 {
@@ -22,11 +21,10 @@ namespace types
 			}
 			inline value operator[](std::uint8_t index)
 			{
-				// value destructor will delref
-				// so hereby addref to counter that
+				// value 析构时会进行 Z_TRY_DELREF_P
 				Z_TRY_ADDREF_P(_argv + index);
-				// copy = false to prevent value from malloc another zval
-				return value(_argv + index, /*copy=*/false);
+				// refer = true 时 value 不会进行额外的内存申请
+				return value(_argv + index, /*refer=*/true);
 			};
 			inline std::uint8_t length()
 			{
@@ -39,4 +37,4 @@ namespace types
 }}
 
 
-#endif // CORE_TYPES_PARAMETERS_H
+#endif // PHPEXT_TYPES_PARAMETERS_H
