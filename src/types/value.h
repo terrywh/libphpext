@@ -68,12 +68,14 @@ public:
 	// 布尔相关
 	// -------------------------------------------------------------------------
 	value(bool v);
+	value& to_bool();
 	operator bool();
 	value& operator= (bool b);
 	// 整数
 	// -------------------------------------------------------------------------
 	value(int v);
 	value(std::int64_t v);
+	value& to_long(int base = 10);
 	operator int();
 	operator std::int64_t();
 	value& operator= (int i);
@@ -85,6 +87,7 @@ public:
 	// 浮点
 	// -------------------------------------------------------------------------
 	value(double v);
+	value& to_double();
 	operator double();
 	value& operator= (double d);
 	inline bool is_double() const {
