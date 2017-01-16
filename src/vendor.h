@@ -1,5 +1,4 @@
-#ifndef PHPEXT_VENDOR_H
-#define PHPEXT_VENDOR_H
+#pragma once
 
 #include <exception>
 #include <string>
@@ -13,5 +12,3 @@
 using std::isnan;
 #include <zend.h>
 #include <zend_API.h>
-
-#endif // PHPEXT_VENDOR_H

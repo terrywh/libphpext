@@ -31,6 +31,7 @@ namespace php
 		ZVAL_NEW_STR(val_, zend_string_init(str, len, false));
 		return *this;
 	}
+	// TODO 判定
 	value& value::operator+=(const char* str) {
 		return append_(str, std::strlen(str));
 	}
@@ -49,7 +50,6 @@ namespace php
 		zend_string_release(origin);
 		return *this;
 	}
-
 	value value::substr(int from, int count) {
 		if(count == 0) {
 			count = Z_STRLEN_P(val_);
@@ -69,5 +69,4 @@ namespace php
 		}
 		return value(Z_STRVAL_P(val_) + from, count);
 	}
-	// TODO 判定
 }

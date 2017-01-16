@@ -1,12 +1,9 @@
+#pragma once
+
 #include "../vendor.h"
 #include "value.h"
 
-#ifndef PHPEXT_TYPES_PARAMETERS_H
-#define PHPEXT_TYPES_PARAMETERS_H
-
-namespace phpext
-{
-namespace types
+namespace php
 {
 
 	class parameters
@@ -34,7 +31,4 @@ namespace types
 			zval*        _argv;
 			std::uint8_t _size;
 	};
-}}
-
-
-#endif // PHPEXT_TYPES_PARAMETERS_H
+}

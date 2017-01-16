@@ -1,7 +1,6 @@
-#include "../vendor.h"
+#pragma once
 
-#ifndef PHPEXT_VALUE_H
-#define PHPEXT_VALUE_H
+#include "../vendor.h"
 
 namespace php {
 // @ zend_value / zval 结构参数考 zend/zend_types.h:101
@@ -125,6 +124,10 @@ public:
 	inline bool is_array() const {
 		return Z_TYPE_P(val_) == IS_ARRAY;
 	}
+	// 注：若指定 index/key 对应的 key 不存在会自动创建 UNDEF 类型
+	value operator[] (std::size_t index);
+	value operator[] (const char* key);
+	value operator[] (const std::string& key);
 	// TODO 判定
 	// 回调
 	// -------------------------------------------------------------------------
@@ -157,11 +160,12 @@ protected:
 	// -------------------------------------------------------------------------
 	value& assign_(const char* str, std::size_t len);
 	value& append_(const char* str, std::size_t len);
+	// 数组
+	// -------------------------------------------------------------------------
 	// 回调
 	// -------------------------------------------------------------------------
 	value invoke_(int argc, zval* argv);
+
 };
 
 }
-
-#endif // PHPEXT_VALUE_H

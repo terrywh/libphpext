@@ -1,11 +1,8 @@
+#pragma once
+
 #include "../vendor.h"
 
-#ifndef PHPEXT_TYPES_EXCEPTION_H
-#define PHPEXT_TYPES_EXCEPTION_H
-
-namespace phpext
-{
-namespace types
+namespace php
 {
 	class exception: public std::exception {
 	public:
@@ -23,6 +20,4 @@ namespace types
 		std::string  _message;
 		std::int64_t _code;
 	};
-}}
-
-#endif
+}

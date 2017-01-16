@@ -36,4 +36,35 @@ namespace php {
 		zend_hash_index_del(Z_ARRVAL_P(val_), index);
 	}
 	// 元素
+	static value item_(zval* array, const char* key, std::size_t len) {
+		zend_string* key_ = zend_string_init(key, len, false);
+		zval*        val_ = zend_hash_find(Z_ARRVAL_P(array), key_);
+		if(val_ == nullptr)
+		{
+			zval undefined;
+			ZVAL_UNDEF(&undefined);
+			val_ = _zend_hash_add(Z_ARRVAL_P(array), key_, &undefined);
+		}
+		return value(val_, /*ref=*/true);
+	}
+	static value item_(zval* array, std::size_t index) {
+		zval* val_ = zend_hash_index_find(Z_ARRVAL_P(array), index);
+		if(val_ == nullptr)
+		{
+			zval undefined;
+			ZVAL_UNDEF(&undefined);
+			val_ = _zend_hash_index_add(Z_ARRVAL_P(array), index, &undefined);
+		}
+		return value(val_, /*ref=*/true);
+	}
+
+	value value::operator[] (std::size_t index) {
+		return item_(val_, index);
+	}
+	value value::operator[] (const char* key) {
+		return item_(val_, key, std::strlen(key));
+	}
+	value value::operator[] (const std::string& key) {
+		return item_(val_, key.c_str(), key.length());
+	}
 }
