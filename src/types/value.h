@@ -124,7 +124,7 @@ public:
 	inline bool is_array() const {
 		return Z_TYPE_P(val_) == IS_ARRAY;
 	}
-	// 注：若指定 index/key 对应的 key 不存在会自动创建 UNDEF 类型
+	// 注：若指定 index/key 对应的 key 不存在会自动创建 UNDEF 填充引用
 	value operator[] (std::size_t index);
 	value operator[] (const char* key);
 	value operator[] (const std::string& key);
@@ -150,6 +150,38 @@ public:
 	inline bool is_callable() const	{
 		return zend_is_callable(val_, IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr);
 	}
+	// 对象
+	// -------------------------------------------------------------------------
+	value prop(const char* name);
+	value prop(const std::string& name);
+	value prop(const char* name, std::size_t len);
+	// returns *this;
+	value& prop(const char* name, const value& val);
+	value& prop(const std::string& name, const value& val);
+	value& prop(const char* name, std::size_t len, const value& val);
+
+	value call(const char* name);
+	value call(const std::string& name);
+	value call(const char* name, std::size_t len);
+	template <typename ...Args>
+	value call(const char* name, const Args&... argv) {
+		call(name, std::strlen(name), argv...);
+	}
+	template <typename ...Args>
+	value call(const std::string& name, const Args&... argv) {
+		call(name.c_str(), name.length(), argv...);
+	}
+	template <typename ...Args>
+	value call(const char* name, std::size_t len, const Args&... argv) {
+		value argv1[] = { static_cast<value>(argv)... };
+		std::vector<zval*> argv2;
+		int argc = sizeof...(Args);
+		for(int i=0;i<argc;++i)
+		{
+			argv2.push_back(argv1[i].data());
+		}
+		return call_(name, len, argc, (zval*)argv2.data());
+	}
 protected:
 	// 通用
 	// -------------------------------------------------------------------------
@@ -165,6 +197,9 @@ protected:
 	// 回调
 	// -------------------------------------------------------------------------
 	value invoke_(int argc, zval* argv);
+	// 对象
+	// -------------------------------------------------------------------------
+	value call_(const char* name, std::size_t len, int argc, zval* argv);
 
 };
 

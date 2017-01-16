@@ -2,15 +2,18 @@
 
 namespace php
 {
-	value::value(const char* str):value() {
-		ZVAL_NEW_STR(val_, zend_string_init(str, std::strlen(str), false));
+	value::value(const char* str)
+	:value(str, std::strlen(str)) {
+
+	}
+	value::value(const std::string& str)
+	:value(str.c_str(), str.length()) {
+
 	}
 	value::value(const char* str, std::size_t len):value() {
-		ZVAL_NEW_STR(val_, zend_string_init(str, len, false));
+		ZVAL_STRINGL(val_, str, len);
 	}
-	value::value(const std::string& str):value() {
-		ZVAL_NEW_STR(val_, zend_string_init(str.c_str(), str.length(), false));
-	}
+
 	value& value::to_string() {
 		_convert_to_string(val_); 	// 强制转换
 		return *this;
@@ -28,7 +31,7 @@ namespace php
 	value& value::assign_(const char* str, std::size_t len) {
 		assert(Z_TYPE_P(val_) == IS_STRING);
 		_zval_dtor(val_);
-		ZVAL_NEW_STR(val_, zend_string_init(str, len, false));
+		ZVAL_STRINGL(val_, str, len);
 		return *this;
 	}
 	// TODO 判定
