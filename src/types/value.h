@@ -1,110 +1,25 @@
 #include "../vendor.h"
 
-#ifndef PHPEXT_TYPES_VALUE_H
-#define PHPEXT_TYPES_VALUE_H
+#ifndef PHPEXT_VALUE_H
+#define PHPEXT_VALUE_H
 
-namespace phpext
-{
-namespace types
-{
+namespace php {
 // @ zend_value / zval 结构参数考 zend/zend_types.h:101
 class value {
 public:
-	value(std::nullptr_t)
-	:value()
-	{
-		ZVAL_NULL(val_);
-	}
-	value(bool v)
-	:value()
-	{
-		if(v) ZVAL_TRUE(val_);
-		else ZVAL_FALSE(val_);
-	}
-	value(int v)
-	:value()
-	{
-		ZVAL_LONG(val_, v);
-	}
-	value(std::int64_t v)
-	:value()
-	{
-		ZVAL_LONG(val_, v);
-	}
-	value(double v)
-	:value()
-	{
-		ZVAL_DOUBLE(val_, v);
-	}
-	value(const char* v)
-	:value()
-	{
-		ZVAL_NEW_STR(val_, zend_string_init(v, std::strlen(v), false));
-	}
-	operator bool()
-	{
-		if(Z_TYPE_P(val_) == IS_TRUE) return true;
-		return false;
-	}
-	operator int()
-	{
-		assert(Z_TYPE_P(val_) == IS_LONG);
-		return Z_LVAL_P(val_);
-	}
-	operator std::int64_t()
-	{
-		assert(Z_TYPE_P(val_) == IS_LONG);
-		return Z_LVAL_P(val_);
-	}
-	operator double()
-	{
-		assert(Z_TYPE_P(val_) == IS_DOUBLE);
-		return Z_DVAL_P(val_);
-	}
-	operator const char*()
-	{
-		assert(Z_TYPE_P(val_) == IS_STRING);
-		return Z_STRVAL_P(val_);
-	}
-
-	value(const value& w)
-	{
-		val_ = w.val_;
-		addref();
-	}
-	value(value&& w)
-	{
-		val_ = w.val_;
-		w.val_ = nullptr;
-	}
-	virtual ~value()
-	{
-		if(val_ != nullptr)
-		{
-			zval_dtor(val_);
-			efree(val_);
-		}
-	}
-
-	// assign
-	value& operator=(const value& v)
-	{
-		ZVAL_COPY(val_, v.val_);
-		return *this;
-	}
-	value& operator=(value&& v)
-	{
-		val_ = v.val_;
-		v.val_ = nullptr;
-		return *this;
-	}
-
-	bool operator==(const value& v)
-	{
+	// 通用
+	// -------------------------------------------------------------------------
+	value(zval* v, bool ref = false);
+	value(std::nullptr_t);
+	value(const value& w);
+	value(value&& w);
+	virtual ~value();
+	value& operator=(const value& v);
+	value& operator=(value&& v);
+	inline bool operator==(const value& v) {
 		return Z_PTR_P(val_) == Z_PTR_P(v.val_);
 	}
-	bool is_empty()
-	{
+	inline bool is_empty() {
 		switch(Z_TYPE_P(val_)) {
 			case IS_UNDEF:
 			case IS_NULL:
@@ -121,55 +36,129 @@ public:
 				return false;
 		}
 	}
-	inline bool is_null() const
-	{
+	inline bool is_null() const {
 		return Z_TYPE_P(val_) == IS_NULL;
 	}
-	inline bool is_string() const
-	{
-		return Z_TYPE_P(val_) == IS_STRING;
-	}
-	inline bool is_long() const
-	{
-		return Z_TYPE_P(val_) == IS_LONG;
-	}
-	inline bool is_double() const
-	{
-		return Z_TYPE_P(val_) == IS_DOUBLE;
-	}
-	inline bool is_array() const
-	{
-		return Z_TYPE_P(val_) == IS_ARRAY;
-	}
-	inline bool is_callable() const
-	{
-		return zend_is_callable(val_, IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr);
-	}
-	inline void addref()
-	{
+	inline void addref() {
 		Z_TRY_ADDREF_P(val_); // value may hold non-refcounted types
 	}
-	inline void delref()
-	{
+	inline void delref() {
 		Z_TRY_DELREF_P(val_);
 	}
-	inline zval* data() const
-	{
+	inline std::size_t length() {
+		switch(Z_TYPE_P(val_)) {
+			case IS_UNDEF:
+			case IS_NULL:
+			case IS_FALSE:
+				return 0l;
+			case IS_LONG:
+			case IS_DOUBLE:
+				return 0l;
+			case IS_STRING:
+				return Z_STRLEN_P(val_);
+			case IS_ARRAY:
+				return zend_hash_num_elements(Z_ARRVAL_P(val_));
+			default: // TODO length for other types?
+				return 0;
+		}
+	}
+	inline zval* data() const {
 		return val_;
 	}
+	// 布尔相关
+	// -------------------------------------------------------------------------
+	value(bool v);
+	operator bool();
+	value& operator= (bool b);
+	// 整数
+	// -------------------------------------------------------------------------
+	value(int v);
+	value(std::int64_t v);
+	operator int();
+	operator std::int64_t();
+	value& operator= (int i);
+	value& operator= (std::int64_t l);
+	inline bool is_long() const	{
+		return Z_TYPE_P(val_) == IS_LONG;
+	}
+	// TODO 判定
+	// 浮点
+	// -------------------------------------------------------------------------
+	value(double v);
+	operator double();
+	value& operator= (double d);
+	inline bool is_double() const {
+		return Z_TYPE_P(val_) == IS_DOUBLE;
+	}
+	// TODO 判定
+	// 字符串
+	// -------------------------------------------------------------------------
+	value(const char* str);
+	value(const char* str, std::size_t len);
+	value(const std::string& str);
+	value& to_string();
+	operator const char*();
+	value& operator= (const char* str);
+	value& operator= (const std::string& str);
+	value& operator+=(const char* str);
+	value& operator+=(const std::string& str);
+	// 当 from|count < 0 时，从尾部计数
+	value substr(int from, int count = 0);
+	inline bool is_string() const {
+		return Z_TYPE_P(val_) == IS_STRING;
+	}
+	// TODO 判定
+	// 数组
+	// -------------------------------------------------------------------------
+	static value array(std::size_t size);
+	bool isset(const char* key);
+	bool isset(const char* key, std::size_t len);
+	bool isset(const std::string& key);
+	void unset(const char* key);
+	void unset(const char* key, std::size_t len);
+	void unset(const std::string& key);
+	bool isset(std::size_t idx);
+	void unset(std::size_t idx);
+	inline bool is_array() const {
+		return Z_TYPE_P(val_) == IS_ARRAY;
+	}
+	// TODO 判定
+	// 回调
+	// -------------------------------------------------------------------------
+	static value callable(const char* str);
+	static value callable(const char* str, std::size_t len);
+	static value callable(const std::string& str);
+	template <typename ...Args>
+	value operator() (const Args&... argv)
+	{
+		value argv1[] = { static_cast<value>(argv)... };
+		std::vector<zval*> argv2;
+		int argc = sizeof...(Args);
+		for(int i=0;i<argc;++i)
+		{
+			argv2.push_back(argv1[i].data());
+		}
+		return invoke_(argc, (zval*)argv2.data());
+	}
+	value operator() ();
+	inline bool is_callable() const	{
+		return zend_is_callable(val_, IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr);
+	}
 protected:
-	value()
-	{
-		val_ = (zval*)emalloc(sizeof(zval));
-	}
-	value(zval* v, bool refer = false)
-	{
-		val_ = v;
-		if(!refer) addref();
-	}
+	// 通用
+	// -------------------------------------------------------------------------
+	value();
 	zval* val_;
+	bool  ref_;
+	// 文本
+	// -------------------------------------------------------------------------
+	value& assign_(const char* str, std::size_t len);
+	value& append_(const char* str, std::size_t len);
+	// 回调
+	// -------------------------------------------------------------------------
+	value invoke_(int argc, zval* argv);
 };
 
-}}
+}
 
-#endif // PHPEXT_TYPES_VALUE_H
+#endif // PHPEXT_VALUE_H

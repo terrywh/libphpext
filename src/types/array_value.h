@@ -11,58 +11,67 @@ namespace types
 	class array_value_key: public value
 	{
 	public:
-		array_value_key(zend_array* a, const char* k)
+		array_value_key(zval* array, const char* k)
 		:arr_(a)
 		{
 			key_ = zend_string_init(k, std::strlen(k), false);
-			val_ = zend_hash_find(arr_, key_);
+			val_ = zend_hash_find(Z_ARRVAL_P(arr_), key_);
 			if(val_ == nullptr)
 			{
 				zval undef;
 				ZVAL_UNDEF(&undef);
-				val_ = _zend_hash_add(arr_, key_, &undef);
+				val_ = _zend_hash_add(Z_ARRVAL_P(arr_), key_, &undef);
+			}else{
+				addref();
 			}
 		}
 		virtual ~array_value_key()
 		{
 			if(Z_TYPE_P(val_) == IS_UNDEF)
 			{ // cleanup empty placeholder
-				zend_hash_del(arr_, key_);
+				zend_hash_del(Z_ARRVAL_P(arr_), key_);
+				// delref();
+			}else{
+				delref();
 			}
 			zend_string_release(key_);
 			val_ = nullptr;
 			// ~value
 		}
 	protected:
-		zend_array*  arr_;
+		zval*        arr_;
 		zend_string* key_;
 	};
 
 	class array_value_idx: public value
 	{
 	public:
-		array_value_idx(zend_array* a, zend_ulong i)
+		array_value_idx(zval* a, zend_ulong i)
 		:arr_(a), idx_(i)
 		{
-			val_ = zend_hash_index_find(arr_, idx_);
+			val_ = zend_hash_index_find(Z_ARRVAL_P(arr_), idx_);
 			if(val_ == nullptr)
 			{ // placeholder
 				zval undef;
 				ZVAL_UNDEF(&undef);
-				val_ = _zend_hash_index_add(arr_, idx_, &undef);
+				val_ = _zend_hash_index_add(Z_ARRVAL_P(arr_), idx_, &undef);
+			}else{
+				addref();
 			}
 		}
 		virtual ~array_value_idx()
 		{
 			if(Z_TYPE_P(val_) == IS_UNDEF)
 			{ // cleanup empty placeholder
-				zend_hash_index_del(arr_, idx_);
+				zend_hash_index_del(Z_ARRVAL_P(arr_), idx_);
+			}else{
+				delref();
 			}
 			val_ = nullptr;
 			// ~value
 		}
 	protected:
-		zend_array* arr_;
+		zval*       arr_;
 		zend_ulong  idx_;
 	};
 

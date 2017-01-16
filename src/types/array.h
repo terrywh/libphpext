@@ -13,41 +13,27 @@ namespace types
 	class array: public value
 	{
 	public:
-		array(const value& a)
-		:value(a)
-		{
-			assert(a.is_array());
-		}
-		array(value&& a)
-		:value(std::move(a))
-		{
-			assert(a.is_array());
-		}
-		array()
-		:value()
-		{
-			Z_ARRVAL_P(val_) = (zend_array*)emalloc(sizeof(zend_array));
-			_zend_hash_init(Z_ARRVAL_P(val_), 0, ZVAL_PTR_DTOR, false);
-		}
-		array(int size)
-		:value()
-		{
-			Z_ARRVAL_P(val_) = (zend_array*)emalloc(sizeof(zend_array));
-			_zend_hash_init(Z_ARRVAL_P(val_), size, ZVAL_PTR_DTOR, false);
-		}
+
 		// item access
-		array_value_key operator[](char* key)
+		array_value operator[](const char* key)
 		{
-			return array_value_key(Z_ARRVAL_P(val_), key);
+			zval* v = zend_hash_str_find(Z_ARRVAL_P(val_), key, std::strlen(key));
+			if(v == nullptr) return value(nullptr);
+			else {
+				Z_TRY_ADDREF_P(v);
+				return value(v, /*refer=*/true);
+			}
 		}
-		array_value_idx operator[](int index)
+		array_value operator[](int index)
 		{
-			return array_value_idx(Z_ARRVAL_P(val_), index);
+			zval* v = zend_hash_index_find(Z_ARRVAL_P, index);
+			if(v == nullptr) return value(nullptr);
+			else {
+				Z_TRY_ADDREF_P(v);
+				return value(v, /*refer=*/true);
+			}
 		}
-		std::uint32_t length() const
-		{
-			return zend_hash_num_elements(Z_ARRVAL_P(val_));
-		}
+
 	};
 }}
 
