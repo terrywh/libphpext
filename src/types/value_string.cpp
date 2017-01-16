@@ -54,6 +54,7 @@ namespace php
 		return *this;
 	}
 	value value::substr(int from, int count) {
+		assert(Z_TYPE_P(val_) == IS_STRING);
 		if(count == 0) {
 			count = Z_STRLEN_P(val_);
 		}
@@ -74,27 +75,35 @@ namespace php
 	}
 
 	bool value::operator==(const char* str) {
+		assert(Z_TYPE_P(val_) == IS_STRING);
 		return equal(str, std::strlen(str));
 	}
 	bool value::operator==(const std::string str) {
+		assert(Z_TYPE_P(val_) == IS_STRING);
 		return equal(str.c_str(), str.length());
 	}
 	bool value::equal(const char* str, std::size_t len) {
+		assert(Z_TYPE_P(val_) == IS_STRING);
 		Z_STRLEN_P(val_) == len && std::strncmp(Z_STRVAL_P(val_), str, std::min(Z_STRLEN_P(val_), len));
 	}
 	bool value::operator>(const char* str) {
+		assert(Z_TYPE_P(val_) == IS_STRING);
 		return compare(str, std::strlen(str)) > 0;
 	}
 	bool value::operator>(const std::string str) {
+		assert(Z_TYPE_P(val_) == IS_STRING);
 		return compare(str.c_str(), str.length()) > 0;
 	}
 	bool value::operator<(const char* str) {
+		assert(Z_TYPE_P(val_) == IS_STRING);
 		return compare(str, std::strlen(str)) < 0;
 	}
 	bool value::operator<(const std::string str) {
+		assert(Z_TYPE_P(val_) == IS_STRING);
 		return compare(str.c_str(), str.length()) < 0;
 	}
 	int value::compare(const char* str, std::size_t len) {
+		assert(Z_TYPE_P(val_) == IS_STRING);
 		return std::strncmp(Z_STRVAL_P(val_), str, std::min(Z_STRLEN_P(val_), len))
 			+ Z_STRLEN_P(val_) - len;
 	}

@@ -33,21 +33,27 @@ namespace php
 		ZVAL_LONG(val_, l);
 	}
 	bool value::operator==(int i) const {
+		assert(Z_TYPE_P(val_) == IS_LONG);
 		return Z_LVAL_P(val_) == i;
 	}
 	bool value::operator==(std::int64_t l) const {
+		assert(Z_TYPE_P(val_) == IS_LONG);
 		return Z_LVAL_P(val_) == l;
 	}
 	bool value::operator>(int i) const {
+		assert(Z_TYPE_P(val_) == IS_LONG);
 		return Z_LVAL_P(val_) > i;
 	}
 	bool value::operator<(int i) const {
+		assert(Z_TYPE_P(val_) == IS_LONG);
 		return Z_LVAL_P(val_) < i;
 	}
 	bool value::operator>(std::int64_t l) const {
+		assert(Z_TYPE_P(val_) == IS_LONG);
 		return Z_LVAL_P(val_) > l;
 	}
 	bool value::operator<(std::int64_t l) const {
+		assert(Z_TYPE_P(val_) == IS_LONG);
 		return Z_LVAL_P(val_) < l;
 	}
 	// 浮点
@@ -69,12 +75,15 @@ namespace php
 		ZVAL_DOUBLE(val_, d);
 	}
 	bool value::operator==(double d) const {
+		assert(Z_TYPE_P(val_) == IS_DOUBLE);
 		return Z_DVAL_P(val_) == d;
 	}
 	bool value::operator>(double d) const {
+		assert(Z_TYPE_P(val_) == IS_DOUBLE);
 		return Z_DVAL_P(val_) > d;
 	}
 	bool value::operator<(double d) const {
+		assert(Z_TYPE_P(val_) == IS_DOUBLE);
 		return Z_DVAL_P(val_) < d;
 	}
 }
