@@ -72,4 +72,30 @@ namespace php
 		}
 		return value(Z_STRVAL_P(val_) + from, count);
 	}
+
+	bool value::operator==(const char* str) {
+		return equal(str, std::strlen(str));
+	}
+	bool value::operator==(const std::string str) {
+		return equal(str.c_str(), str.length());
+	}
+	bool value::equal(const char* str, std::size_t len) {
+		Z_STRLEN_P(val_) == len && std::strncmp(Z_STRVAL_P(val_), str, std::min(Z_STRLEN_P(val_), len));
+	}
+	bool value::operator>(const char* str) {
+		return compare(str, std::strlen(str)) > 0;
+	}
+	bool value::operator>(const std::string str) {
+		return compare(str.c_str(), str.length()) > 0;
+	}
+	bool value::operator<(const char* str) {
+		return compare(str, std::strlen(str)) < 0;
+	}
+	bool value::operator<(const std::string str) {
+		return compare(str.c_str(), str.length()) < 0;
+	}
+	int value::compare(const char* str, std::size_t len) {
+		return std::strncmp(Z_STRVAL_P(val_), str, std::min(Z_STRLEN_P(val_), len))
+			+ Z_STRLEN_P(val_) - len;
+	}
 }

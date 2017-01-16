@@ -82,7 +82,13 @@ public:
 	inline bool is_long() const	{
 		return Z_TYPE_P(val_) == IS_LONG;
 	}
-	// TODO 判定
+	// 判定
+	bool operator==(int i) const;
+	bool operator==(std::int64_t l) const;
+	bool operator>(int i) const;
+	bool operator<(int i) const;
+	bool operator>(std::int64_t l) const;
+	bool operator<(std::int64_t l) const;
 	// 浮点
 	// -------------------------------------------------------------------------
 	value(double v);
@@ -92,7 +98,10 @@ public:
 	inline bool is_double() const {
 		return Z_TYPE_P(val_) == IS_DOUBLE;
 	}
-	// TODO 判定
+	// 判定
+	bool operator==(double d) const;
+	bool operator>(double d) const;
+	bool operator<(double d) const;
 	// 字符串
 	// -------------------------------------------------------------------------
 	value(const char* str);
@@ -109,7 +118,15 @@ public:
 	inline bool is_string() const {
 		return Z_TYPE_P(val_) == IS_STRING;
 	}
-	// TODO 判定
+	// 判定
+	bool operator==(const char* str);
+	bool operator==(const std::string str);
+	bool equal(const char* str, std::size_t len);
+	bool operator>(const char* str);
+	bool operator>(const std::string str);
+	bool operator<(const char* str);
+	bool operator<(const std::string str);
+	int compare(const char* str, std::size_t len);
 	// 数组
 	// -------------------------------------------------------------------------
 	static value array(std::size_t size);

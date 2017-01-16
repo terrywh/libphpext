@@ -32,6 +32,24 @@ namespace php
 		_zval_dtor(val_);
 		ZVAL_LONG(val_, l);
 	}
+	bool value::operator==(int i) const {
+		return Z_LVAL_P(val_) == i;
+	}
+	bool value::operator==(std::int64_t l) const {
+		return Z_LVAL_P(val_) == l;
+	}
+	bool value::operator>(int i) const {
+		return Z_LVAL_P(val_) > i;
+	}
+	bool value::operator<(int i) const {
+		return Z_LVAL_P(val_) < i;
+	}
+	bool value::operator>(std::int64_t l) const {
+		return Z_LVAL_P(val_) > l;
+	}
+	bool value::operator<(std::int64_t l) const {
+		return Z_LVAL_P(val_) < l;
+	}
 	// 浮点
 	value::value(double d)
 	:value()
@@ -50,7 +68,13 @@ namespace php
 		_zval_dtor(val_);
 		ZVAL_DOUBLE(val_, d);
 	}
-	// TODO 判定
-	// TODO 运算
-
+	bool value::operator==(double d) const {
+		return Z_DVAL_P(val_) == d;
+	}
+	bool value::operator>(double d) const {
+		return Z_DVAL_P(val_) > d;
+	}
+	bool value::operator<(double d) const {
+		return Z_DVAL_P(val_) < d;
+	}
 }
