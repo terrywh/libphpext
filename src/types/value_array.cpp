@@ -2,10 +2,14 @@
 
 namespace php {
 	// 构建
-	value value::array(std::size_t size) {
+	value value::array(std::size_t size, bool persistent) {
 		value a;
-		ZVAL_NEW_ARR(a.val_);
-		_zend_hash_init(Z_ARRVAL_P(a.val_), size, ZVAL_PTR_DTOR, false); // GC_REFCOUNT(ht) = 1;
+		if(persistent) {
+			ZVAL_NEW_PERSISTENT_ARR(a.val_);
+		}else{
+			ZVAL_NEW_ARR(a.val_);
+		}
+		_zend_hash_init(Z_ARRVAL_P(a.val_), size, ZVAL_PTR_DTOR, persistent); // GC_REFCOUNT(ht) = 1;
 		return std::move(a);
 	}
 	// TODO 使用 initializer_list 构建

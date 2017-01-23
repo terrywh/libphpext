@@ -44,7 +44,7 @@ namespace php {
 		zval nv;
 		value rv(nullptr);
 		ZVAL_STRINGL(&nv, name, len);
-		if(call_user_function(CG(function_table), val_, &nv, rv.data(), argc, argv) == SUCCESS) {
+		if(call_user_function(CG(function_table), val_, &nv, rv.data(), argc, argv) == ZEND_RESULT_CODE::SUCCESS) {
 			return std::move(rv);
 		}
 		throw exception("call to " + std::string(name, len) + " failed", 0);

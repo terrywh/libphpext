@@ -3,15 +3,15 @@
 namespace php
 {
 	value::value(const char* str)
-	:value(str, std::strlen(str)) {
+	:value(str, std::strlen(str), false) {
 
 	}
 	value::value(const std::string& str)
-	:value(str.c_str(), str.length()) {
+	:value(str.c_str(), str.length(), false) {
 
 	}
-	value::value(const char* str, std::size_t len):value() {
-		ZVAL_STRINGL(val_, str, len);
+	value::value(const char* str, std::size_t len, bool persistent):value() {
+		ZVAL_NEW_STR(val_, zend_string_init(str, len, persistent));
 	}
 
 	value& value::to_string() {
@@ -71,7 +71,8 @@ namespace php
 		}else{
 			return value(nullptr);
 		}
-		return value(Z_STRVAL_P(val_) + from, count);
+
+		return value(Z_STRVAL_P(val_) + from, count, GC_FLAGS(Z_STR_P(val_)) & IS_STR_PERSISTENT);
 	}
 
 	bool value::operator==(const char* str) {

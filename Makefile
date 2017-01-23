@@ -7,6 +7,9 @@ TYPES_OBJECT=$(TYPES_SOURCE:%.cpp=%.o)
 TYPES_SOURCE_TEST=$(wildcard test/types_*.cpp)
 TYPES_OBJECT_TEST=$(TYPES_SOURCE_TEST:%.cpp=%.unit)
 
+PARTS_SOURCE=$(wildcard src/parts/*.cpp)
+PARTS_OBJECT=$(PARTS_SOURCE:%.cpp=%.o)
+
 CXXFLAGS=-std=c++14 -g -O0
 INCLUDE=-I/data/vendor/boost/include -I/data/server/php/include/php/Zend -I/data/server/php/include/php/TSRM -I/data/server/php/include/php
 LIBRARY=
@@ -17,11 +20,18 @@ all:
 	echo ${TYPES_OBJECT}
 
 types: ${TYPES_OBJECT}
+
 types-clean:
 	rm -f ${TYPES_OBJECT} ${TYPES_OBJECT_TEST}
 types-test: ${TYPES_OBJECT_TEST}
 # 由于依赖于 php 可执行文件才能运行，这里只能测试代码编译没有问题
 	@echo done
+
+parts: ${PARTS_OBJECT}
+
+parts-clean:
+	rm -f ${PARTS_OBJECT}
+
 %.o: %.cpp
 	g++ ${CXXFLAGS} ${INCLUDE} -c $^ ${LIBRARY} -o $@
 

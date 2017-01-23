@@ -9,11 +9,11 @@ namespace php
 	class parameters
 	{
 		public:
-			parameters()
+			parameters(zend_execute_data* execute_data)
 			{
-				_size = ZEND_CALL_NUM_ARGS(EG(current_execute_data));
+				_size = ZEND_CALL_NUM_ARGS(execute_data);
 				if(_size > 0) {
-					_argv = ZEND_CALL_ARG(EG(current_execute_data), 1);
+					_argv = ZEND_CALL_ARG(execute_data, 1);
 				}
 			}
 			inline value operator[](std::uint8_t index)

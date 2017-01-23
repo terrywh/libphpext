@@ -104,11 +104,12 @@ public:
 	bool operator<(double d) const;
 	// 字符串
 	// -------------------------------------------------------------------------
-	value(const char* str);
-	value(const char* str, std::size_t len);
+	value(const char* str); // 没有 persistent 参数，防止和 str,len 混淆
 	value(const std::string& str);
+	value(const char* str, std::size_t len, bool persistent = false);
 	value& to_string();
 	operator const char*();
+	// 赋值字符串均为 非持久 non-persistent 类型
 	value& operator= (const char* str);
 	value& operator= (const std::string& str);
 	value& operator+=(const char* str);
@@ -129,7 +130,7 @@ public:
 	int compare(const char* str, std::size_t len);
 	// 数组
 	// -------------------------------------------------------------------------
-	static value array(std::size_t size);
+	static value array(std::size_t size, bool persistent = false);
 	bool isset(const char* key);
 	bool isset(const char* key, std::size_t len);
 	bool isset(const std::string& key);
