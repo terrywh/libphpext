@@ -38,20 +38,20 @@ namespace php {
 	int extension_entry::on_module_startup(int type, int module_number) {
 		self_->module_number = module_number;
 		// ini 注册
-		std::std::vector<zend_ini_entry_def> defs(self_->ini_entries_.size() + 1);
-		int index = 0;
-		for(auto i=self_->ini_entries_.begin(); i!= self->ini_entries_.end(); ++i) {
-			i->fill(defs[index++]);
+		std::vector<zend_ini_entry_def> entries(self_->ini_entries_.size() + 1);
+		int i = 0;
+		for(;i<self_->ini_entries_.size();++i) {
+			self_->ini_entries_[i].fill(&entries[i]);
 		}
 		// ini 注册停止条件
-		defs[index].name = nullptr;
-		zend_register_ini_entries(defs, module_number);
+		entries[i].name = nullptr; // zend_register_ini_entries() -> while(entry->name) { zend_string_copy }
+		zend_register_ini_entries(entries.data(), module_number);
 		// 常量注册
-		for(auto i=self_->constant_entries_.begin(); i!= self->constant_entries_.end(); ++i) {
-			zend_constant c;
-			i->fill(&c);
+		zend_constant c;
+		for(i=0;i<self_->constant_entries_.size(); ++i) {
+			self_->constant_entries_[i].fill(&c);
 			c.module_number = module_number;
-			zend_register_constant(&c);
+			zend_register_constant(&c); // -> zend_hash_add_constant -> memcpy
 		}
 		// self.do_register_constants(self._module);
 		// 完成 classes 注册
@@ -80,7 +80,27 @@ namespace php {
 		return *this;
 	}
 	extension_entry& extension_entry::add(const constant_entry& entry) {
-		constant_entries_.push(entry);
+		constant_entries_.push_back(entry);
 		return *this;
+	}
+	extension_entry& extension_entry::add(const function_entry& entry) {
+		function_entries_.push_back(entry);
+		return *this;
+	}
+	static zend_function_entry* function_entries = nullptr;
+	extension_entry::operator zend_module_entry*() {
+		// 函数注册
+		function_entries = (zend_function_entry*)pemalloc(sizeof(zend_function_entry) * (function_entries_.size() + 1), true);
+		int i = 0;
+		for(;i<function_entries_.size();++i) {
+			function_entries_[i].fill(&function_entries[i]);
+		}
+		std::memset(&function_entries[i], 0, sizeof(zend_function_entry));
+		entry_->functions = function_entries;
+		return entry_;
+	}
+
+	extension_entry::~extension_entry() {
+		pefree(function_entries, true);
 	}
 }
