@@ -1,4 +1,5 @@
 #include "value.h"
+#include "exception.h"
 
 namespace php {
 	value value::callable(const char* str) {
@@ -20,13 +21,18 @@ namespace php {
 	}
 	value value::invoke_(int argc, zval* argv)
 	{
-		zend_fcall_info_cache fcc_ = empty_fcall_info_cache;
+		assert( is_callable() );
+		zend_fcall_info_cache fcc_;// = empty_fcall_info_cache;
 		zend_fcall_info       fci_;
 		zend_fcall_info_init(val_, 0, &fci_, &fcc_, nullptr, nullptr);
 		value rv(nullptr);
-		zend_fcall_info_argp(&fci_, argc, argv);
-		zend_fcall_info_call(&fci_, &fcc_, rv.data(), nullptr);
-		zend_fcall_info_args_clear(&fci_, 1);
+		// zend_fcall_info_argp(&fci_, argc, argv);
+		fci_.param_count = argc;
+		fci_.params = argv;
+		if(zend_fcall_info_call(&fci_, &fcc_, rv.data(), nullptr) == FAILURE) {
+			throw new exception("failed to invoke callable", exception::INVOKE_CALLABLE_FAILED);
+		}
+		// zend_fcall_info_args_clear(&fci_, 1);
 		return std::move(rv);
 	}
 }

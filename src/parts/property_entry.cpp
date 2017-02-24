@@ -1,14 +1,22 @@
 #include "property_entry.h"
 
 namespace php {
-	property_entry::property_entry(const std::string& name, const value& val, int access)
-	:value_(val), access_(access) {
+	property_entry::property_entry(const std::string& name, value&& val, int access)
+	: value_(std::move(val))
+	, access_(access) {
 		name_ = zend_string_init(name.c_str(), name.length(), true);
 	}
+	property_entry::property_entry(property_entry&& entry)
+	: name_(entry.name_)
+	, value_(std::move(entry.value_))
+	, access_(entry.access_) {
+	}
 	void property_entry::declare(zend_class_entry* entry) {
-		zend_declare_property_ex(entry,
+		zval property;
+		// property 的数据会被 ZVAL_COPY_VALUE 转存到 property_table 中，需要额外的引用
+		ZVAL_COPY(&property, value_.data());
+		int r = zend_declare_property_ex(entry,
 			name_, // name
-			value_.data(), access_, /* doc_comment */nullptr);
-		value_.addref();
+			&property, access_, /* doc_comment */nullptr);
 	}
 }

@@ -6,28 +6,31 @@
 #include "../types/exception.h"
 
 namespace php {
+	template <value FUNCTION(parameters& params)>
 	class function_entry {
 	public:
-		function_entry(const std::string& name, value (*handler)(parameters& params));
-		void fill(zend_function_entry* entry);
+		static void fill(zend_function_entry* entry, const char* name) {
+			entry->fname   = name;
+			entry->handler = function_entry<FUNCTION>::function_delegate;
+			// TODO arg_info
+			entry->arg_info = nullptr;
+			entry->num_args = 0;
+			entry->flags    = 0;
+		}
 	private:
-		std::string name_;
-		value (*handler_)(parameters& params);
-
-		// 实际函数包装
-		template<value (*handler)(parameters& params)>
-		static void function_handler(zend_execute_data* execute_data, zval* return_value) {
+		static void function_delegate(zend_execute_data* execute_data, zval* return_value) {
 			parameters params(execute_data);
-			value rv(return_value,/*ref=*/true);
+			value rv(nullptr);
 			try {
-				rv = handler(params);
+				rv = FUNCTION(params);
 			}catch(const exception& e) {
-				zend_throw_exception(zend_ce_exception, e.what(), e.code());
+			 	zend_throw_exception(zend_ce_exception, e.what(), e.code());
 			}catch(const std::exception& e){
 				zend_throw_exception(zend_ce_exception, e.what(), -1);
 			}catch(...){
 				zend_throw_exception(zend_ce_exception, "unknown exception", -1);
 			};
+			ZVAL_COPY(return_value, rv.data());
 		}
 	};
 }

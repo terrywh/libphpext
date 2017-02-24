@@ -13,12 +13,12 @@ public:
 	value(const value& w);
 	value(value&& w);
 	virtual ~value();
+
 	value& operator=(const value& v);
 	value& operator=(value&& v);
-	inline bool operator==(const value& v) {
-		return Z_PTR_P(val_) == Z_PTR_P(v.val_);
-	}
+	bool operator==(const value& v) const;
 	inline bool is_empty() {
+		if(ref_ && val_ == nullptr) return true;
 		switch(Z_TYPE_P(val_)) {
 			case IS_UNDEF:
 			case IS_NULL:
@@ -36,7 +36,11 @@ public:
 		}
 	}
 	inline bool is_null() const {
-		return Z_TYPE_P(val_) == IS_NULL;
+		if(ref_) { // 被引用使用的指针可能为空，需要特殊处理
+			return val_ == nullptr || Z_TYPE_P(val_) == IS_NULL;
+		} else {
+			return Z_TYPE_P(val_) == IS_NULL;
+		}
 	}
 	inline void addref() {
 		Z_TRY_ADDREF_P(val_); // value may hold non-refcounted types
@@ -44,23 +48,7 @@ public:
 	inline void delref() {
 		Z_TRY_DELREF_P(val_);
 	}
-	inline std::size_t length() {
-		switch(Z_TYPE_P(val_)) {
-			case IS_UNDEF:
-			case IS_NULL:
-			case IS_FALSE:
-				return 0l;
-			case IS_LONG:
-			case IS_DOUBLE:
-				return 0l;
-			case IS_STRING:
-				return Z_STRLEN_P(val_);
-			case IS_ARRAY:
-				return zend_hash_num_elements(Z_ARRVAL_P(val_));
-			default: // TODO length for other types?
-				return 0;
-		}
-	}
+	std::size_t length();
 	inline zval* data() const {
 		return val_;
 	}
@@ -69,7 +57,6 @@ public:
 	value(bool v);
 	value& to_bool();
 	operator bool();
-	value& operator= (bool b);
 	// 整数
 	// -------------------------------------------------------------------------
 	value(int v);
@@ -77,10 +64,8 @@ public:
 	value& to_long(int base = 10);
 	operator int();
 	operator std::int64_t();
-	value& operator= (int i);
-	value& operator= (std::int64_t l);
 	inline bool is_long() const	{
-		return Z_TYPE_P(val_) == IS_LONG;
+		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_LONG;
 	}
 	// 判定
 	bool operator==(int i) const;
@@ -94,9 +79,8 @@ public:
 	value(double v);
 	value& to_double();
 	operator double();
-	value& operator= (double d);
 	inline bool is_double() const {
-		return Z_TYPE_P(val_) == IS_DOUBLE;
+		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_DOUBLE;
 	}
 	// 判定
 	bool operator==(double d) const;
@@ -110,14 +94,12 @@ public:
 	value& to_string();
 	operator const char*();
 	// 赋值字符串均为 非持久 non-persistent 类型
-	value& operator= (const char* str);
-	value& operator= (const std::string& str);
 	value& operator+=(const char* str);
 	value& operator+=(const std::string& str);
 	// 当 from|count < 0 时，从尾部计数
 	value substr(int from, int count = 0);
 	inline bool is_string() const {
-		return Z_TYPE_P(val_) == IS_STRING;
+		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_STRING;
 	}
 	// 判定
 	bool operator==(const char* str);
@@ -140,7 +122,7 @@ public:
 	bool isset(std::size_t idx);
 	void unset(std::size_t idx);
 	inline bool is_array() const {
-		return Z_TYPE_P(val_) == IS_ARRAY;
+		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_ARRAY;
 	}
 	// 注：若指定 index/key 对应的 key 不存在会自动创建 UNDEF 填充引用
 	value operator[] (std::size_t index);
@@ -156,38 +138,31 @@ public:
 	value operator() (const Args&... argv)
 	{
 		value argv1[] = { static_cast<value>(argv)... };
-		std::vector<zval*> argv2;
+		std::vector<zval> argv2;
 		int argc = sizeof...(Args);
 		for(int i=0;i<argc;++i)
 		{
-			argv2.push_back(argv1[i].data());
+			argv2.push_back(*argv1[i].data());
 		}
 		return invoke_(argc, (zval*)argv2.data());
 	}
 	value operator() ();
 	inline bool is_callable() const	{
-		return zend_is_callable(val_, IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr);
+		return ref_ && val_ == nullptr ? false : zend_is_callable(val_, IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr);
 	}
 	// 对象
 	// -------------------------------------------------------------------------
 	value prop(const char* name);
-	value prop(const std::string& name);
 	value prop(const char* name, std::size_t len);
 	// returns *this;
 	value& prop(const char* name, const value& val);
-	value& prop(const std::string& name, const value& val);
 	value& prop(const char* name, std::size_t len, const value& val);
 
 	value call(const char* name);
-	value call(const std::string& name);
 	value call(const char* name, std::size_t len);
 	template <typename ...Args>
 	value call(const char* name, const Args&... argv) {
 		call(name, std::strlen(name), argv...);
-	}
-	template <typename ...Args>
-	value call(const std::string& name, const Args&... argv) {
-		call(name.c_str(), name.length(), argv...);
 	}
 	template <typename ...Args>
 	value call(const char* name, std::size_t len, const Args&... argv) {
@@ -200,15 +175,29 @@ public:
 		}
 		return call_(name, len, argc, (zval*)argv2.data());
 	}
+	inline bool is_object() const {
+		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_OBJECT;
+	}
+	inline bool is_instance_of(const std::string& class_name) const {
+		if(ref_ && val_ == nullptr) return false;
+		zend_string*      cn = zend_string_init(class_name.c_str(), class_name.length(), false);
+		zend_class_entry* ce = zend_lookup_class(cn);
+		zend_string_release(cn);
+		return instanceof_function(Z_OBJCE_P(val_), ce);
+	}
 protected:
 	// 通用
 	// -------------------------------------------------------------------------
-	value();
+	value()
+	: val_(&value_)
+	, ref_(false) {
+		// 请在申请后立刻为 val_ 赋值
+		// ZVAL_UNDEF(val_);
+	}
 	zval* val_;
 	bool  ref_;
 	// 文本
 	// -------------------------------------------------------------------------
-	value& assign_(const char* str, std::size_t len);
 	value& append_(const char* str, std::size_t len);
 	// 数组
 	// -------------------------------------------------------------------------
@@ -219,6 +208,8 @@ protected:
 	// -------------------------------------------------------------------------
 	value call_(const char* name, std::size_t len, int argc, zval* argv);
 
+private:
+	zval value_;
 };
 
 }

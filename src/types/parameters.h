@@ -16,8 +16,8 @@ namespace php
 					_argv = ZEND_CALL_ARG(execute_data, 1);
 				}
 			}
-			inline value operator[](std::uint8_t index)
-			{
+			inline value operator[](std::uint8_t index) {
+				assert(index < _size);
 				// value 析构时会进行 Z_TRY_DELREF_P
 				Z_TRY_ADDREF_P(_argv + index);
 				// refer = true 时 value 不会进行额外的内存申请

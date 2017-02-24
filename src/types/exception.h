@@ -4,16 +4,21 @@
 
 namespace php
 {
+
 	class exception: public std::exception {
 	public:
-		exception(const std::string& message, std::int64_t code = 0)
+		enum {
+			INVOKE_CALLABLE_FAILED = -1000,
+			INVOKE_METHOD_FAILED   = -1001,
+		};
+		exception(const std::string& message, int code = 0)
 		:_message(message) {
 
 		}
 		virtual const char* what() const noexcept {
 			return _message.c_str();
 		}
-		virtual const std::int64_t code() const noexcept {
+		virtual const int code() const noexcept {
 			return _code;
 		}
 	private:

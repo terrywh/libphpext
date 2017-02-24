@@ -3,6 +3,9 @@
 #include <exception>
 #include <string>
 #include <vector>
+#include <functional>
+#include <memory>
+#include <initializer_list>
 
 #include <cassert>
 #include <cmath>
