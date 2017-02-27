@@ -1,3 +1,5 @@
+#include "../vendor.h"
+#include "../types/value.h"
 #include "ini_entry.h"
 
 namespace php {

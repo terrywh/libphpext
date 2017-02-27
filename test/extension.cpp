@@ -11,7 +11,7 @@ php::value test_function_2(php::parameters& params) {
 }
 
 php::value test_function_3(php::parameters& params) {
-	// TODO 目前还为支持引用方式传参（需要加入参数说明后实现）
+	// 支持引用方式传参（需要加入参数说明）
 	params[0] = 1234;
 	return 12 * 25;
 }
@@ -26,6 +26,10 @@ public:
 	php::value method_2(php::parameters& params) {
 		return prop("property_1");
 	}
+	php::value method_3(php::parameters& params) {
+		params[0] = 123456;
+		return 123456;
+	}
 };
 
 extern "C" {
@@ -38,13 +42,14 @@ extern "C" {
 
 		extension.add<test_function_1>("phpext_function_1");
 		extension.add<test_function_2>("phpext_function_2");
-		extension.add<test_function_3>("phpext_function_3");
+		extension.add<test_function_3>("phpext_function_3", php::arguments()._string("arg_1",true).done());
 
 		php::class_entry<test_class_1> test_class_1_entry("phpext_class_1");
 		test_class_1_entry.add(php::property_entry("property_1", 123456));
 		test_class_1_entry.add(php::property_entry("property_2", 123456, ZEND_ACC_PRIVATE));
 		test_class_1_entry.add<&test_class_1::method_1>("method_1");
 		test_class_1_entry.add<&test_class_1::method_2>("method_2");
+		test_class_1_entry.add<&test_class_1::method_3>("method_3", php::arguments()._string("arg_1", true).done());
 		extension.add(std::move(test_class_1_entry));
 		return extension;
 	}

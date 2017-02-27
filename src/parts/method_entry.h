@@ -1,9 +1,9 @@
 #pragma once
-
 #include "../vendor.h"
 #include "../types/value.h"
 #include "../types/parameters.h"
 #include "../types/exception.h"
+#include "arguments.h"
 
 namespace php {
 	template <class T>
@@ -19,9 +19,15 @@ namespace php {
 		void static fill(zend_function_entry* entry, const char* name, int access) {
 			entry->fname   = name;
 			entry->handler = method_entry<T, FUNCTION>::method_delegate;
-			// TODO arg_info
 			entry->arg_info = nullptr;
 			entry->num_args = 0;
+			entry->flags    = access;
+		}
+		void static fill(zend_function_entry* entry, const char* name, const arguments& info, int access) {
+			entry->fname   = name;
+			entry->handler = method_entry<T, FUNCTION>::method_delegate;
+			entry->arg_info = static_cast<zend_internal_arg_info*>(info);
+			entry->num_args = (std::uint32_t)info.length();
 			entry->flags    = access;
 		}
 

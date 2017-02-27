@@ -2,6 +2,7 @@
 
 #include "../vendor.h"
 #include "value.h"
+#include "exception.h"
 
 namespace php
 {
@@ -17,11 +18,15 @@ namespace php
 				}
 			}
 			inline value operator[](std::uint8_t index) {
-				assert(index < _size);
-				// value 析构时会进行 Z_TRY_DELREF_P
-				Z_TRY_ADDREF_P(_argv + index);
-				// refer = true 时 value 不会进行额外的内存申请
-				return value(_argv + index, /*refer=*/true);
+				if(index >= _size) { // 不允许访问不存在的参数（模拟实现 PHP 内置的参数数量检查）
+					throw exception("function/method parameters missing", exception::PARAMETERS_INSUFFICIENT);
+				}
+				zval* arg = _argv + index;
+				if(Z_TYPE_P(arg) == IS_REFERENCE) {
+					arg = Z_REFVAL_P(arg);
+				}
+				// refer = true 时 value 不会进行额外的内存申请和释放
+				return value(arg, /*refer=*/true);
 			};
 			inline std::uint8_t length()
 			{

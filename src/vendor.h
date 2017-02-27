@@ -18,3 +18,4 @@ using std::isnan;
 #include <zend_ini.h>
 #include <zend_constants.h>
 #include <zend_exceptions.h>
+#include <zend_compile.h>

@@ -1,8 +1,10 @@
 #pragma once
+
 #include "../vendor.h"
 #include "../types/value.h"
 #include "method_entry.h"
 #include "property_entry.h"
+#include "arguments.h"
 
 namespace php {
 	enum {
@@ -27,7 +29,8 @@ namespace php {
 		, parent_class_entry_(entry.parent_class_entry_)
 		// , constant_entries_(std::move(entry.constant_entries_))
 		, property_entries_(std::move(entry.property_entries_))
-		, method_entries_(std::move(entry.method_entries_)) {
+		, method_entries_(std::move(entry.method_entries_))
+		, arguments_(std::move(entry.arguments_)) {
 			entry.name_ = nullptr;
 			entry.parent_class_entry_ = nullptr;
 
@@ -46,6 +49,14 @@ namespace php {
 		class_entry& add(const char* name, int access = ZEND_ACC_PUBLIC) {
 			zend_function_entry entry;
 			method_entry<T,FUNCTION>::fill(&entry, name, access);
+			method_entries_.push_back(entry);
+		}
+		// 方法
+		template <value (T::*FUNCTION)(parameters& params) >
+		class_entry& add(const char* name, arguments&& info, int access = ZEND_ACC_PUBLIC) {
+			zend_function_entry entry;
+			arguments_.emplace_back(std::move(info));
+			method_entry<T,FUNCTION>::fill(&entry, name, arguments_.back(), access);
 			method_entries_.push_back(entry);
 		}
 
@@ -70,6 +81,7 @@ namespace php {
 		// std::vector<constant_entry>      constant_entries_;
 		std::vector<property_entry>      property_entries_;
 		std::vector<zend_function_entry> method_entries_;
+		std::vector<arguments>           arguments_;
 
 
 

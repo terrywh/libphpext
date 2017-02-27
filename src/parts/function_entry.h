@@ -4,6 +4,7 @@
 #include "../types/value.h"
 #include "../types/parameters.h"
 #include "../types/exception.h"
+#include "arguments.h"
 
 namespace php {
 	template <value FUNCTION(parameters& params)>
@@ -12,9 +13,15 @@ namespace php {
 		static void fill(zend_function_entry* entry, const char* name) {
 			entry->fname   = name;
 			entry->handler = function_entry<FUNCTION>::function_delegate;
-			// TODO arg_info
 			entry->arg_info = nullptr;
 			entry->num_args = 0;
+			entry->flags    = 0;
+		}
+		static void fill(zend_function_entry* entry, const char* name, const arguments& argi) {
+			entry->fname   = name;
+			entry->handler = function_entry<FUNCTION>::function_delegate;
+			entry->arg_info = static_cast<zend_internal_arg_info*>(argi);
+			entry->num_args = (std::uint32_t)argi.length();
 			entry->flags    = 0;
 		}
 	private:

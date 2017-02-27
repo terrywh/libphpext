@@ -1,3 +1,12 @@
+#include "../vendor.h"
+#include "../types/value.h"
+#include "../types/parameters.h"
+#include "../types/exception.h"
+#include "ini_entry.h"
+#include "constant_entry.h"
+#include "function_entry.h"
+#include "class_entry.h"
+#include "arguments.h"
 #include "extension_entry.h"
 
 namespace php {

@@ -1,14 +1,5 @@
 #pragma once
 
-#include "../types/value.h"
-#include "../types/parameters.h"
-#include "../types/exception.h"
-
-#include "ini_entry.h"
-#include "constant_entry.h"
-#include "function_entry.h"
-#include "class_entry.h"
-
 namespace php {
 	class extension_entry {
 	public:
@@ -23,6 +14,13 @@ namespace php {
 		extension_entry& add(const char* name) {
 			zend_function_entry entry;
 			function_entry<FUNCTION>::fill(&entry, name);
+			function_entries_.push_back(entry);
+		}
+		template<value FUNCTION(parameters& params)>
+		extension_entry& add(const char* name, arguments&& info) {
+			zend_function_entry entry;
+			arguments_.emplace_back(std::move(info));
+			function_entry<FUNCTION>::fill(&entry, name, arguments_.back());
 			function_entries_.push_back(entry);
 		}
 		// 类
@@ -44,6 +42,7 @@ namespace php {
 		std::vector<constant_entry> constant_entries_;
 		std::vector<zend_function_entry> function_entries_;
 		std::vector<std::shared_ptr<class_entry_base>> class_entries_;
+		std::vector<arguments> arguments_;
 		// 扩展回调函数
 		static int on_module_startup_handler  (int type, int module);
 		static int on_module_shutdown_handler (int type, int module);

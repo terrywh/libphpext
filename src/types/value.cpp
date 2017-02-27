@@ -38,29 +38,27 @@ namespace php
 
 	value& value::operator=(const value& w)
 	{
-		if(val_ != nullptr && !ref_) {
+		if(val_ != nullptr) {
 			_zval_dtor(val_);
 		}
-		val_ = &value_;
-		ref_ = false;
+		if(!ref_ && val_ != &value_) {
+			val_ = &value_;
+			ref_ = false;
+		}
 		ZVAL_COPY(val_, w.val_);
 		return *this;
 	}
 	value& value::operator=(value&& w)
 	{
-		if(val_ != nullptr && !ref_) {
+		if(val_ != nullptr) {
 			_zval_dtor(val_);
 		}
-		if(w.ref_) {
-			val_ = w.val_;
-			ref_ = true;
-			ZVAL_UNDEF(&value_);
-		}else{
+		if(!ref_ && val_ != &value_) {
 			val_ = &value_;
-			ZVAL_COPY_VALUE(val_, w.val_);
-			ZVAL_UNDEF(w.val_);
 			ref_ = false;
 		}
+		ZVAL_COPY_VALUE(val_, w.val_);
+		ZVAL_UNDEF(w.val_);
 		return *this;
 	}
 

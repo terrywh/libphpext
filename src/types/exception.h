@@ -8,8 +8,9 @@ namespace php
 	class exception: public std::exception {
 	public:
 		enum {
-			INVOKE_CALLABLE_FAILED = -1000,
-			INVOKE_METHOD_FAILED   = -1001,
+			INVOKE_CALLABLE_FAILED  = -1000,
+			INVOKE_METHOD_FAILED    = -1001,
+			PARAMETERS_INSUFFICIENT = -1002,
 		};
 		exception(const std::string& message, int code = 0)
 		:_message(message) {
