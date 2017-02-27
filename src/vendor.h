@@ -19,3 +19,4 @@ using std::isnan;
 #include <zend_constants.h>
 #include <zend_exceptions.h>
 #include <zend_compile.h>
+#include <zend_inheritance.h>

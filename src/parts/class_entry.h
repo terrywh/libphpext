@@ -22,7 +22,7 @@ namespace php {
 		class_entry(const char* name)
 		: name_(name)
 		, parent_class_entry_(nullptr) {
-
+			init_handlers();
 		}
 		class_entry(class_entry&& entry)
 		: name_(entry.name_)
@@ -60,9 +60,33 @@ namespace php {
 			method_entries_.push_back(entry);
 		}
 
-		// class_entry& extends(const std::string& class_name) {
-		// 	parent_class_entry_ = zend_lookup_class(class_name);
-		// }
+		class_entry& extends(const std::string& class_name) {
+			zend_string* name = zend_string_init(class_name.c_str(), class_name.length(), 0);
+			parent_class_entry_ = zend_lookup_class(name);
+			zend_string_release(name);
+			
+			if(parent_class_entry_ != nullptr && parent_class_entry_->ce_flags & ZEND_ACC_INTERFACE) {
+				parent_class_entry_ = nullptr;
+			}
+		}
+
+		class_entry& implements(const std::string& interface_name) {
+			zend_string* name = zend_string_init(interface_name.c_str(), interface_name.length(), 0);
+			zend_class_entry* intf = zend_lookup_class(name);
+			zend_string_release(name);
+			if(intf != nullptr && (parent_class_entry_->ce_flags & ZEND_ACC_INTERFACE)) {
+				interfaces_.push_back(intf);
+			}
+		}
+
+		class_entry& use(const std::string& trait_name) {
+			zend_string* name = zend_string_init(trait_name.c_str(), trait_name.length(), 0);
+			zend_class_entry* intf = zend_lookup_class(name);
+			zend_string_release(name);
+			if(intf != nullptr && (parent_class_entry_->ce_flags & ZEND_ACC_TRAIT)) {
+				traits_.push_back(intf);
+			}
+		}
 
 		virtual void declare() override {
 			method_entries_.push_back(zend_function_entry{}); // 结束数组条件
@@ -70,7 +94,15 @@ namespace php {
 			INIT_OVERLOADED_CLASS_ENTRY_EX(ce, name_, std::strlen(name_), method_entries_.data(), nullptr, nullptr, nullptr, nullptr, nullptr);
 			ce.create_object = class_entry<T>::create_object;
 			zend_class_entry* ce_ = zend_register_internal_class_ex(&ce, parent_class_entry_);
-			init_handlers();
+			for(auto i=interfaces_.begin();i!=interfaces_.end();++i) {
+				zend_class_implements(ce_, 1, *i);
+			}
+			interfaces_.clear();
+			for(auto i=traits_.begin();i!=traits_.end();++i) {
+				zend_do_implement_trait(ce_, *i);
+			}
+			traits_.clear();
+			
 			for(auto i=property_entries_.begin();i!=property_entries_.end();++i) {
 				i->declare(ce_);
 			}
@@ -82,8 +114,8 @@ namespace php {
 		std::vector<property_entry>      property_entries_;
 		std::vector<zend_function_entry> method_entries_;
 		std::vector<arguments>           arguments_;
-
-
+		std::vector<zend_class_entry*>   interfaces_;
+		std::vector<zend_class_entry*>   traits_;
 
 		static zend_object_handlers handlers_;
 		void init_handlers() {
