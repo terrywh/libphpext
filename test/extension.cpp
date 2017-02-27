@@ -35,9 +35,9 @@ public:
 extern "C" {
 	ZEND_DLEXPORT zend_module_entry* get_module() {
 		static php::extension_entry extension(EXTENSION_NAME, EXTENSION_VERSION);
-		extension.add(php::ini_entry("phpext.ini_key_1", 11111));
+		extension.add(php::ini_entry("phpext.ini_key_1", 111111));
 		extension.add(php::ini_entry("phpext.ini_key_2", "ini_value_2"));
-		extension.add(php::constant_entry("PHPEXT_CONSTANT_1", 22222));
+		extension.add(php::constant_entry("PHPEXT_CONSTANT_1", 222222));
 		extension.add(php::constant_entry("PHPEXT_CONSTANT_2", "constant_value_2"));
 
 		extension.add<test_function_1>("phpext_function_1");
@@ -45,6 +45,7 @@ extern "C" {
 		extension.add<test_function_3>("phpext_function_3", php::arguments()._string("arg_1",true).done());
 
 		php::class_entry<test_class_1> test_class_1_entry("phpext_class_1");
+		test_class_1_entry.add(php::constant_entry("CONSTANT_1", 333333));
 		test_class_1_entry.add(php::property_entry("property_1", 123456));
 		test_class_1_entry.add(php::property_entry("property_2", 123456, ZEND_ACC_PRIVATE));
 		test_class_1_entry.add<&test_class_1::method_1>("method_1");

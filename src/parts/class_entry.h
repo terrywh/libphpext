@@ -27,7 +27,7 @@ namespace php {
 		class_entry(class_entry&& entry)
 		: name_(entry.name_)
 		, parent_class_entry_(entry.parent_class_entry_)
-		// , constant_entries_(std::move(entry.constant_entries_))
+		, constant_entries_(std::move(entry.constant_entries_))
 		, property_entries_(std::move(entry.property_entries_))
 		, method_entries_(std::move(entry.method_entries_))
 		, arguments_(std::move(entry.arguments_)) {
@@ -35,10 +35,11 @@ namespace php {
 			entry.parent_class_entry_ = nullptr;
 
 		}
-		// class_entry& add(const constant_entry& entry) {
-		// 	constant_entries_.push_back(entry);
-		// 	return *this;
-		// }
+
+		class_entry& add(const constant_entry& entry) {
+			constant_entries_.push_back(entry);
+			return *this;
+		}
 
 		class_entry& add(property_entry&& entry) {
 			property_entries_.emplace_back(std::move(entry));
@@ -94,23 +95,31 @@ namespace php {
 			INIT_OVERLOADED_CLASS_ENTRY_EX(ce, name_, std::strlen(name_), method_entries_.data(), nullptr, nullptr, nullptr, nullptr, nullptr);
 			ce.create_object = class_entry<T>::create_object;
 			zend_class_entry* ce_ = zend_register_internal_class_ex(&ce, parent_class_entry_);
+			// implements
 			for(auto i=interfaces_.begin();i!=interfaces_.end();++i) {
 				zend_class_implements(ce_, 1, *i);
 			}
 			interfaces_.clear();
+			// traits
 			for(auto i=traits_.begin();i!=traits_.end();++i) {
 				zend_do_implement_trait(ce_, *i);
 			}
 			traits_.clear();
-			
+			// 常量声明
+			for(auto i=constant_entries_.begin();i!=constant_entries_.end();++i) {
+				i->declare(ce_);
+			}
+			constant_entries_.clear();
+			// 属性声明
 			for(auto i=property_entries_.begin();i!=property_entries_.end();++i) {
 				i->declare(ce_);
 			}
+			property_entries_.clear();
 		}
 	private:
 		const char*                      name_;
 		zend_class_entry*                parent_class_entry_;
-		// std::vector<constant_entry>      constant_entries_;
+		std::vector<constant_entry>      constant_entries_;
 		std::vector<property_entry>      property_entries_;
 		std::vector<zend_function_entry> method_entries_;
 		std::vector<arguments>           arguments_;

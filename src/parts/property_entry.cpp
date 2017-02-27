@@ -18,7 +18,7 @@ namespace php {
 		// property 的数据会被 ZVAL_COPY_VALUE 转存到 property_table 中，需要额外的引用
 		ZVAL_COPY(&property, value_.data());
 		int r = zend_declare_property_ex(entry,
-			name_, // name
+			name_, // name 单独申请 persistent 文本
 			&property, access_, /* doc_comment */nullptr);
 	}
 }
