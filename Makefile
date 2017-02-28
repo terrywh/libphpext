@@ -7,13 +7,13 @@ PHP_CONFIG=php-config
 TARGET_LIBRARY=libphpext.a
 TARGET_VERSION=0.1.0
 
-TYPES_SOURCE=$(wildcard src/types/*.cpp)
+TYPES_SOURCE=$(wildcard types/*.cpp)
 TYPES_OBJECT=$(TYPES_SOURCE:%.cpp=%.o)
 
-PARTS_SOURCE=$(wildcard src/parts/*.cpp)
+PARTS_SOURCE=$(wildcard parts/*.cpp)
 PARTS_OBJECT=$(PARTS_SOURCE:%.cpp=%.o)
 
-BASES_SOURCE=$(wildcard src/bases/*.cpp)
+BASES_SOURCE=$(wildcard bases/*.cpp)
 BASES_OBJECT=$(BASES_SOURCE:%.cpp=%.o)
 
 TEST_EXTENSION=phpext.so

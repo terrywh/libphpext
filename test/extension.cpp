@@ -1,4 +1,4 @@
-#include "../src/phpext.h"
+#include "../phpext.h"
 
 php::value test_function_1(php::parameters& params) {
 	// php::callable fn = params[0];
