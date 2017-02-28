@@ -42,7 +42,9 @@ extern "C" {
 
 		extension.add<test_function_1>("phpext_function_1");
 		extension.add<test_function_2>("phpext_function_2");
-		extension.add<test_function_3>("phpext_function_3", php::arguments()._string("arg_1",true).done());
+		extension.add<test_function_3>("phpext_function_3", {
+			php::of_string("arg_1", true),
+		});
 
 		php::class_entry<test_class_1> test_class_1_entry("phpext_class_1");
 		test_class_1_entry.add(php::constant_entry("CONSTANT_1", 333333));
@@ -50,7 +52,9 @@ extern "C" {
 		test_class_1_entry.add(php::property_entry("property_2", 123456, ZEND_ACC_PRIVATE));
 		test_class_1_entry.add<&test_class_1::method_1>("method_1");
 		test_class_1_entry.add<&test_class_1::method_2>("method_2");
-		test_class_1_entry.add<&test_class_1::method_3>("method_3", php::arguments()._string("arg_1", true).done());
+		test_class_1_entry.add<&test_class_1::method_3>("method_3", {
+			php::of_string("arg_1", true),
+		});
 		extension.add(std::move(test_class_1_entry));
 		return extension;
 	}

@@ -1,21 +1,18 @@
 #pragma once
 
 namespace php {
+	zend_internal_arg_info of_bool(const char* _name, zend_bool _ref = false, zend_bool _null = false);
+	zend_internal_arg_info of_integer(const char* _name, zend_bool _ref = false, zend_bool _null = false);
+	zend_internal_arg_info of_float(const char* _name, zend_bool _ref = false, zend_bool _null = false);
+	zend_internal_arg_info of_string(const char* _name, zend_bool _ref = false, zend_bool _null = false);
+	zend_internal_arg_info of_array(const char* _name, zend_bool _ref = false, zend_bool _null = false);
+	zend_internal_arg_info of_callable(const char* _name, zend_bool _null = false);
+	zend_internal_arg_info of_object(const char* _name, const char* _class = nullptr, zend_bool _null = false);
+	
 	class arguments {
 	public:
-		arguments();
+		arguments(std::initializer_list<zend_internal_arg_info> argv);
 		arguments(arguments&& info);
-
-		arguments& _bool(const char* _name, zend_bool _ref = false, zend_bool _null = false);
-		arguments& _long(const char* _name, zend_bool _ref = false, zend_bool _null = false);
-		arguments& _double(const char* _name, zend_bool _ref = false, zend_bool _null = false);
-		arguments& _string(const char* _name, zend_bool _ref = false, zend_bool _null = false);
-		arguments& _array(const char* _name, zend_bool _ref = false, zend_bool _null = false);
-		arguments& _callable(const char* _name, zend_bool _null = false);
-		arguments& _object(const char* _name, const char* _class = nullptr, zend_bool _null = false);
-
-		arguments&& done();
-
 		std::size_t length() const;
 		explicit operator zend_internal_arg_info*() const;
 	private:

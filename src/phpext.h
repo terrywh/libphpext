@@ -15,5 +15,4 @@
 #include "parts/class_entry.h"
 #include "parts/extension_entry.h"
 
-
 #include "bases/class_base.h"
