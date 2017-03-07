@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../types/value.h"
-
 namespace php {
 	class class_base {
 	public:
@@ -12,12 +10,8 @@ namespace php {
 		inline void _object_set(zend_object* obj) {
 			ZVAL_OBJ(&val_, obj);
 		}
-		operator value() {
-			std::printf("convert to value\n");
-			return value(&val_);
-		}
-		static zend_class_entry* ce;
 	private:
 		zval val_;
+		friend class value;
 	};
 }

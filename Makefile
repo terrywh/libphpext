@@ -7,48 +7,36 @@ PHP_CONFIG=php-config
 TARGET_LIBRARY=libphpext.a
 TARGET_VERSION=0.1.0
 
-TYPES_SOURCE=$(wildcard types/*.cpp)
-TYPES_OBJECT=$(TYPES_SOURCE:%.cpp=%.o)
-
-PARTS_SOURCE=$(wildcard parts/*.cpp)
-PARTS_OBJECT=$(PARTS_SOURCE:%.cpp=%.o)
-
-BASES_SOURCE=$(wildcard bases/*.cpp)
-BASES_OBJECT=$(BASES_SOURCE:%.cpp=%.o)
+SOURCES=$(wildcard types/*.cpp) $(wildcard parts/*.cpp) $(wildcard bases/*.cpp) $(wildcard funcs/*.cpp)
+OBJECTS=$(SOURCES:%.cpp=%.o)
 
 TEST_EXTENSION=phpext.so
 
 CXXFLAGS=-std=c++14 -fPIC -g -O0
-INCLUDE=-I/data/vendor/boost/include -I/data/server/php/include/php/Zend -I/data/server/php/include/php/TSRM -I/data/server/php/include/php
-LIBRARY=-L/data/vendor/boost/lib
+INCLUDE=`${PHP_CONFIG} --includes`
+LIBRARY=/usr/local/gcc6/lib64/libstdc++.a
 
 
 all: ${TARGET_LIBRARY}
 	@echo done.
 
-clean: types-clean parts-clean test-clean
+clean:
+	rm -f ${TARGET_LIBRARY} ${OBJECTS}
 
-${TARGET_LIBRARY}: ${TYPES_OBJECT} ${PARTS_OBJECT} ${BASES_OBJECT}
+${TARGET_LIBRARY}: ${OBJECTS}
 	ar rcs $@ $^
 
-types: ${TYPES_OBJECT}
-
-types-clean:
-	rm -f ${TYPES_OBJECT}
-
-parts: ${PARTS_OBJECT}
-
-parts-clean:
-	rm -f ${PARTS_OBJECT}
-
 %.o: %.cpp
-	g++ ${CXXFLAGS} ${INCLUDE} -c $^ ${LIBRARY} -o $@
+	g++ ${CXXFLAGS} ${INCLUDE} -c $^ -o $@
 
 ${TEST_EXTENSION}: test/extension.cpp ${TARGET_LIBRARY}
-	g++ ${CXXFLAGS} -shared -DEXTENSION_NAME=\"phpext\" -DEXTENSION_VERSION=\"${TARGET_VERSION}\" ${INCLUDE} test/extension.cpp ${TARGET_LIBRARY} ${LIBRARY} -o phpext.so
-	cp -f ${TEST_EXTENSION} `${PHP_CONFIG} --extension-dir`
+	g++ ${CXXFLAGS} ${INCLUDE} -DEXTENSION_NAME=\"phpext\" -DEXTENSION_VERSION=\"0.1.0\" -c test/extension.cpp -o test/extension.o
+	g++ -shared test/extension.o ${TARGET_LIBRARY} ${LIBRARY} -o phpext.so
 
 test: ${TEST_EXTENSION}
+
+test-install:
+	cp -f ${TEST_EXTENSION} `${PHP_CONFIG} --extension-dir`
 
 test-ini: ${TEST_EXTENSION}
 	php test/extension_ini.php || exit 0

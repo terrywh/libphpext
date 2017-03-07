@@ -1,5 +1,4 @@
-#include "../vendor.h"
-#include "class_base.h"
+#include "../phpext.h"
 
 namespace php {
 	class_base::class_base() {

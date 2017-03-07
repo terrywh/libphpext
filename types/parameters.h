@@ -1,12 +1,7 @@
 #pragma once
 
-#include "../vendor.h"
-#include "value.h"
-#include "exception.h"
-
 namespace php
 {
-
 	class parameters
 	{
 		public:

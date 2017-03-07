@@ -1,5 +1,4 @@
-#include "../vendor.h"
-#include "arguments.h"
+#include "../phpext.h"
 
 namespace php {
 	arguments::arguments(std::initializer_list<zend_internal_arg_info> argv)
@@ -29,7 +28,7 @@ namespace php {
 		info.is_variadic = false;
 		return info;
 	}
-	zend_internal_arg_info of_long(const char* _name, zend_bool _ref, zend_bool _null) {
+	zend_internal_arg_info of_integer(const char* _name, zend_bool _ref, zend_bool _null) {
 		zend_internal_arg_info info;
 		info.name = _name;
 		info.class_name = nullptr;

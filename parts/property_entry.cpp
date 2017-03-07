@@ -1,6 +1,4 @@
-#include "../vendor.h"
-#include "../types/value.h"
-#include "property_entry.h"
+#include "../phpext.h"
 
 namespace php {
 	property_entry::property_entry(const std::string& name, value&& val, int access)

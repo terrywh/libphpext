@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../vendor.h"
-
 namespace php
 {
 
@@ -16,12 +14,14 @@ namespace php
 		:_message(message) {
 
 		}
+
 		virtual const char* what() const noexcept {
 			return _message.c_str();
 		}
 		virtual const int code() const noexcept {
 			return _code;
 		}
+		
 	private:
 		std::string  _message;
 		std::int64_t _code;

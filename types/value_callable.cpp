@@ -1,5 +1,4 @@
-#include "value.h"
-#include "exception.h"
+#include "../phpext.h"
 
 namespace php {
 	value value::callable(const char* str) {

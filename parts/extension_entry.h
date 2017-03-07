@@ -50,6 +50,6 @@ namespace php {
 		static int on_request_shutdown_handler(int type, int module);
 
 
-		zend_module_entry* entry_;
+		zend_module_entry entry_;
 	};
 }

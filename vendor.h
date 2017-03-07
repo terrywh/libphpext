@@ -20,3 +20,4 @@ using std::isnan;
 #include <zend_exceptions.h>
 #include <zend_compile.h>
 #include <zend_inheritance.h>
+#include <zend_smart_str.h>

@@ -1,7 +1,11 @@
-#include "value.h"
-#include "exception.h"
+#include "../phpext.h"
 
 namespace php {
+	value::value(class_base* base)
+	: val_(&value_)
+	, ref_(false) {
+		ZVAL_COPY(val_, &base->val_);
+	}
 	value value::prop(const char* name) {
 		prop(name, std::strlen(name));
 	}

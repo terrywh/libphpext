@@ -1,28 +1,22 @@
 #pragma once
 
-#include "../vendor.h"
-#include "../types/value.h"
-#include "../types/parameters.h"
-#include "../types/exception.h"
-#include "arguments.h"
-
 namespace php {
 	template <value FUNCTION(parameters& params)>
 	class function_entry {
 	public:
-		static void fill(zend_function_entry* entry, const char* name) {
+		static void fill(zend_function_entry* entry, const char* name, int flags = 0) {
 			entry->fname   = name;
 			entry->handler = function_entry<FUNCTION>::function_delegate;
 			entry->arg_info = nullptr;
 			entry->num_args = 0;
-			entry->flags    = 0;
+			entry->flags    = flags;
 		}
-		static void fill(zend_function_entry* entry, const char* name, const arguments& argi) {
+		static void fill(zend_function_entry* entry, const char* name, const arguments& argi, int flags = 0) {
 			entry->fname   = name;
 			entry->handler = function_entry<FUNCTION>::function_delegate;
 			entry->arg_info = static_cast<zend_internal_arg_info*>(argi);
 			entry->num_args = (std::uint32_t)argi.length();
-			entry->flags    = 0;
+			entry->flags    = flags;
 		}
 	private:
 		static void function_delegate(zend_execute_data* execute_data, zval* return_value) {

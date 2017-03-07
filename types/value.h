@@ -2,7 +2,22 @@
 
 #include "../vendor.h"
 
+
 namespace php {
+class class_base;
+
+template <class T>
+class class_wrapper {
+public:
+	T*          cpp;
+	zend_object obj;
+
+	static inline T* from_this(zval* val) {
+		class_wrapper<T>* wrapper = reinterpret_cast<class_wrapper<T>*>((char*)Z_OBJ_P(val) - XtOffsetOf(class_wrapper<T>, obj));
+		return wrapper->cpp;
+	}
+};
+
 // @ zend_value / zval 结构参数考 zend/zend_types.h:101
 class value {
 public:
@@ -91,13 +106,19 @@ public:
 	value(const char* str); // 没有 persistent 参数，防止和 str,len 混淆
 	value(const std::string& str);
 	value(const char* str, std::size_t len, bool persistent = false);
+	value(buffer&& buf);
+	value(const buffer& buf);
+	// 直接构造 zend_string
+	static value string(int size);
 	value& to_string();
 	operator const char*();
+	operator zend_string*();
 	// 赋值字符串均为 非持久 non-persistent 类型
 	value& operator+=(const char* str);
 	value& operator+=(const std::string& str);
 	// 当 from|count < 0 时，从尾部计数
 	value substr(int from, int count = 0);
+	void string_length(unsigned int size);
 	inline bool is_string() const {
 		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_STRING;
 	}
@@ -152,6 +173,7 @@ public:
 	}
 	// 对象
 	// -------------------------------------------------------------------------
+	value(class_base* base);
 	value prop(const char* name);
 	value prop(const char* name, std::size_t len);
 	// returns *this;
@@ -179,11 +201,16 @@ public:
 		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_OBJECT;
 	}
 	inline bool is_instance_of(const std::string& class_name) const {
-		if(ref_ && val_ == nullptr) return false;
+		if(ref_ && val_ == nullptr || Z_TYPE_P(val_) != IS_OBJECT) return false;
 		zend_string*      cn = zend_string_init(class_name.c_str(), class_name.length(), false);
 		zend_class_entry* ce = zend_lookup_class(cn);
 		zend_string_release(cn);
 		return instanceof_function(Z_OBJCE_P(val_), ce);
+	}
+	template <class T>
+	T* native() {
+		if(!is_object()) return nullptr;
+		return class_wrapper<T>::from_this(val_);
 	}
 protected:
 	// 通用

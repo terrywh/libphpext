@@ -1,6 +1,4 @@
-#include "../vendor.h"
-#include "../types/value.h"
-#include "ini_entry.h"
+#include "../phpext.h"
 
 namespace php {
 	ini_entry::ini_entry(const std::string& name, bool val)
