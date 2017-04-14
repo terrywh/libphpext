@@ -62,8 +62,8 @@ namespace php {
 		// constants 可以清理了
 		self->constant_entries_.clear();
 
-		if(self->on_module_startup) {
-			self->on_module_startup(self);
+		for(auto i=self->handler_mst_.begin(); i!=self->handler_mst_.end(); ++i) {
+			if(!(*i)(self)) return ZEND_RESULT_CODE::FAILURE;
 		}
 		return ZEND_RESULT_CODE::SUCCESS;
 	}
@@ -71,20 +71,20 @@ namespace php {
 		if(!self->ini_entries_.empty()) {
 			zend_unregister_ini_entries(module);
 		}
-		if(self->on_module_shutdown) {
-			self->on_module_shutdown(self);
+		for(auto i=self->handler_msd_.begin(); i!=self->handler_msd_.end(); ++i) {
+			if(!(*i)(self)) return ZEND_RESULT_CODE::FAILURE;
 		}
 		return ZEND_RESULT_CODE::SUCCESS;
 	}
 	int extension_entry::on_request_startup_handler (int type, int module) {
-		if(self->on_request_startup) {
-			self->on_request_shutdown(self);
+		for(auto i=self->handler_rst_.begin(); i!=self->handler_rst_.end(); ++i) {
+			if(!(*i)(self)) return ZEND_RESULT_CODE::FAILURE;
 		}
 		return ZEND_RESULT_CODE::SUCCESS;
 	}
 	int extension_entry::on_request_shutdown_handler(int type, int module) {
-		if(self->on_request_shutdown) {
-			self->on_request_shutdown(self);
+		for(auto i=self->handler_rsd_.begin(); i!=self->handler_rsd_.end(); ++i) {
+			if(!(*i)(self)) return ZEND_RESULT_CODE::FAILURE;
 		}
 		return ZEND_RESULT_CODE::SUCCESS;
 	}
@@ -96,6 +96,19 @@ namespace php {
 	extension_entry& extension_entry::add(const constant_entry& entry) {
 		constant_entries_.push_back(entry);
 		return *this;
+	}
+
+	void extension_entry::on_module_startup(std::function<bool (extension_entry*)> handler) {
+		handler_mst_.push_back(handler);
+	}
+	void extension_entry::on_module_shutdown(std::function<bool (extension_entry*)> handler) {
+		handler_msd_.push_back(handler);
+	}
+	void extension_entry::on_request_startup(std::function<bool (extension_entry*)> handler) {
+		handler_rst_.push_back(handler);
+	}
+	void extension_entry::on_request_shutdown(std::function<bool (extension_entry*)> handler) {
+		handler_rsd_.push_back(handler);
 	}
 
 	extension_entry::operator zend_module_entry*() {

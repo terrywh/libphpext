@@ -9,7 +9,7 @@ namespace php {
 		}else{
 			ZVAL_NEW_ARR(a.val_);
 		}
-		_zend_hash_init(Z_ARRVAL_P(a.val_), size, ZVAL_PTR_DTOR, persistent); // GC_REFCOUNT(ht) = 1;
+		_zend_hash_init(Z_ARRVAL_P(a.val_), size, nullptr, persistent); // GC_REFCOUNT(ht) = 1;
 		return std::move(a);
 	}
 	// TODO 使用 initializer_list 构建
@@ -49,9 +49,7 @@ namespace php {
 			ZVAL_UNDEF(&undefined);
 			val_ = _zend_hash_add(Z_ARRVAL_P(array), key_, &undefined);
 		}
-		// value will addref to val_, here we just need 1 ref
 		value rv(val_, /*ref=*/true);
-		rv.delref();
 		return std::move(rv);
 	}
 	static value item_(zval* array, std::size_t index) {
@@ -62,9 +60,7 @@ namespace php {
 			ZVAL_UNDEF(&undefined);
 			val_ = _zend_hash_index_add(Z_ARRVAL_P(array), index, &undefined);
 		}
-		// value will addref to val_, here we just need 1 ref
 		value rv(val_, /*ref=*/true);
-		rv.delref();
 		return std::move(rv);
 	}
 

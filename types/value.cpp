@@ -32,8 +32,10 @@ namespace php
 			ZVAL_UNDEF(&value_);
 		}else{
 			ZVAL_COPY_VALUE(val_, w.val_);
-			ZVAL_UNDEF(w.val_);
 		}
+		w.ref_ = false;
+		w.val_ = &w.value_;
+		ZVAL_UNDEF(w.val_);
 	}
 
 	value& value::operator=(const value& w)
@@ -58,6 +60,8 @@ namespace php
 			ref_ = false;
 		}
 		ZVAL_COPY_VALUE(val_, w.val_);
+		w.ref_ = false;
+		w.val_ = &w.value_;
 		ZVAL_UNDEF(w.val_);
 		return *this;
 	}

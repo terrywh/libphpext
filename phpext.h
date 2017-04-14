@@ -3,7 +3,6 @@
 #include "vendor.h"
 
 #include "funcs/util.h"
-#include "funcs/error.h"
 
 #include "types/buffer.h"
 #include "types/exception.h"

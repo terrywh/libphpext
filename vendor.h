@@ -12,7 +12,7 @@
 #include <cstdint>
 #include <cstring>
 
-using std::isnan;
+// using std::isnan;
 #include <zend.h>
 #include <zend_API.h>
 #include <zend_ini.h>

@@ -12,7 +12,9 @@ OBJECTS=$(SOURCES:%.cpp=%.o)
 
 TEST_EXTENSION=phpext.so
 
-CXXFLAGS=-std=c++14 -fPIC -g -O0
+
+CXX=/usr/bin/g++-4.8.5
+CXXFLAGS=-std=c++11 -fPIC -g -O0
 INCLUDE=`${PHP_CONFIG} --includes`
 LIBRARY=/usr/local/gcc6/lib64/libstdc++.a
 
@@ -27,11 +29,11 @@ ${TARGET_LIBRARY}: ${OBJECTS}
 	ar rcs $@ $^
 
 %.o: %.cpp
-	g++ ${CXXFLAGS} ${INCLUDE} -c $^ -o $@
+	${CXX} ${CXXFLAGS} ${INCLUDE} -c $^ -o $@
 
 ${TEST_EXTENSION}: test/extension.cpp ${TARGET_LIBRARY}
-	g++ ${CXXFLAGS} ${INCLUDE} -DEXTENSION_NAME=\"phpext\" -DEXTENSION_VERSION=\"0.1.0\" -c test/extension.cpp -o test/extension.o
-	g++ -shared test/extension.o ${TARGET_LIBRARY} ${LIBRARY} -o phpext.so
+	${CXX} ${CXXFLAGS} ${INCLUDE} -DEXTENSION_NAME=\"phpext\" -DEXTENSION_VERSION=\"0.1.0\" -c test/extension.cpp -o test/extension.o
+	${CXX} -shared test/extension.o ${TARGET_LIBRARY} ${LIBRARY} -o phpext.so
 
 test: ${TEST_EXTENSION}
 
