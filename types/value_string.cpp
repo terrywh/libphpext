@@ -39,11 +39,13 @@ namespace php
 		return *this;
 	}
 	value::operator zend_string*() {
-		assert( (!ref_ || val_ != nullptr) && Z_TYPE_P(val_) == IS_STRING );
+//		assert( (!ref_ || val_ != nullptr) && Z_TYPE_P(val_) == IS_STRING );
+        if(!is_string()) throw exception("type error: string expected");
 		return Z_STR_P(val_);
 	}
 	value::operator const char*() {
-		assert( (!ref_ || val_ != nullptr) && Z_TYPE_P(val_) == IS_STRING );
+//		assert( (!ref_ || val_ != nullptr) && Z_TYPE_P(val_) == IS_STRING );
+        if(!is_string()) throw exception("type error: string expected");
 		return Z_STRVAL_P(val_);
 	}
 	// TODO 判定
@@ -98,23 +100,28 @@ namespace php
 		Z_STRLEN_P(val_) == len && std::strncmp(Z_STRVAL_P(val_), str, std::min(Z_STRLEN_P(val_), len));
 	}
 	bool value::operator>(const char* str) {
-		assert( is_string() );
+        if(!is_string()) throw exception("type error: string expected");
+		//assert( is_string() );
 		return compare(str, std::strlen(str)) > 0;
 	}
 	bool value::operator>(const std::string str) {
-		assert( is_string() );
+        if(!is_string()) throw exception("type error: string expected");
+		//assert( is_string() );
 		return compare(str.c_str(), str.length()) > 0;
 	}
 	bool value::operator<(const char* str) {
-		assert( is_string() );
+        if(!is_string()) throw exception("type error: string expected");
+		//assert( is_string() );
 		return compare(str, std::strlen(str)) < 0;
 	}
 	bool value::operator<(const std::string str) {
-		assert( is_string() );
+        if(!is_string()) throw exception("type error: string expected");
+		//assert( is_string() );
 		return compare(str.c_str(), str.length()) < 0;
 	}
 	int value::compare(const char* str, std::size_t len) {
-		assert( is_string() );
+		//assert( is_string() );
+        if(!is_string()) throw new exception("type error: string expected");
 		if(Z_STRLEN_P(val_) != len) {
 			return Z_STRLEN_P(val_) - len;
 		}
