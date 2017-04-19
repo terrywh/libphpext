@@ -49,8 +49,10 @@ namespace php {
 			ZVAL_UNDEF(&undefined);
 			val_ = _zend_hash_add(Z_ARRVAL_P(array), key_, &undefined);
 		}
-		value rv(val_, /*ref=*/true);
-		return std::move(rv);
+		zend_string_release(key_);
+		// value rv(val_, /*ref=*/true);
+		// return std::move(rv);
+		return value(val_, /*ref=*/true);
 	}
 	static value item_(zval* array, std::size_t index) {
 		zval* val_ = zend_hash_index_find(Z_ARRVAL_P(array), index);
@@ -60,8 +62,9 @@ namespace php {
 			ZVAL_UNDEF(&undefined);
 			val_ = _zend_hash_index_add(Z_ARRVAL_P(array), index, &undefined);
 		}
-		value rv(val_, /*ref=*/true);
-		return std::move(rv);
+		// value rv(val_, /*ref=*/true);
+		// return std::move(rv);
+		return value(val_, /*ref=*/true);
 	}
 
 	value value::operator[] (std::size_t index) {

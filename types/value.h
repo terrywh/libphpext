@@ -181,21 +181,20 @@ public:
 	value& prop(const char* name, std::size_t len, const value& val);
 
 	value call(const char* name);
-	value call(const char* name, std::size_t len);
+	// value call(const char* name, std::size_t len);
+	// template <typename ...Args>
+	// value call(const char* name, const Args&... argv) {
+	// 	call(name, std::strlen(name), argv...);
+	// }
 	template <typename ...Args>
 	value call(const char* name, const Args&... argv) {
-		call(name, std::strlen(name), argv...);
-	}
-	template <typename ...Args>
-	value call(const char* name, std::size_t len, const Args&... argv) {
 		value argv1[] = { static_cast<value>(argv)... };
-		std::vector<zval*> argv2;
 		int argc = sizeof...(Args);
-		for(int i=0;i<argc;++i)
-		{
-			argv2.push_back(argv1[i].data());
+		std::vector<zval> argv2(argc);
+		for(int i=0;i<argc;++i) {
+			argv2[i] = *argv1[i].val_;
 		}
-		return call_(name, len, argc, (zval*)argv2.data());
+		return call_(name, std::strlen(name), argc, argv2.data());
 	}
 	inline bool is_object() const {
 		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_OBJECT;

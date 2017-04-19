@@ -20,7 +20,7 @@ namespace php {
 	}
 	value value::invoke_(int argc, zval* argv)
 	{
-		assert( is_callable() );
+		if(!is_callable()) throw exception("type error: callable expected");
 		zend_fcall_info_cache fcc_;// = empty_fcall_info_cache;
 		zend_fcall_info       fci_;
 		zend_fcall_info_init(val_, 0, &fci_, &fcc_, nullptr, nullptr);

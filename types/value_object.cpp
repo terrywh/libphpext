@@ -32,19 +32,20 @@ namespace php {
 		return *this;
 	}
 	value value::call(const char* name) {
-		call_(name, std::strlen(name), 0, nullptr);
+		return call_(name, std::strlen(name), 0, nullptr);
 	}
-	value value::call(const char* name, std::size_t len) {
-		call_(name, len, 0, nullptr);
-	}
+	// value value::call(const char* name, std::size_t len) {
+	// 	return call_(name, len, 0, nullptr);
+	// }
 	value value::call_(const char* name, std::size_t len, int argc, zval* argv) {
-		assert( is_object() );
-		zval nv;
+		if(!is_object()) throw exception("type error: object expected");
+		zval vname;
 		value rv(nullptr);
-		ZVAL_STRINGL(&nv, name, len);
-		if(call_user_function(CG(function_table), val_, &nv, rv.data(), argc, argv) == FAILURE) {
+		ZVAL_STRINGL(&vname, name, len);
+		if(call_user_function(CG(function_table), val_, &vname, rv.data(), argc, argv) == FAILURE) {
 			throw exception("faild to invoke method", exception::INVOKE_METHOD_FAILED);
 		}
+		_zval_dtor(&vname);
 		return std::move(rv);
 	}
 }
