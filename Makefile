@@ -16,7 +16,7 @@ TEST_EXTENSION=phpext.so
 CXX=/usr/bin/g++
 CXXFLAGS=-std=c++11 -fPIC -g -O0
 INCLUDE=`${PHP_CONFIG} --includes`
-LIBRARY=/usr/local/gcc6/lib64/libstdc++.a
+LIBRARY=-Wl,-rpath="/usr/local/gcc6/lib64"
 
 
 all: ${TARGET_LIBRARY}

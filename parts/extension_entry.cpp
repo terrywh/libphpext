@@ -33,6 +33,7 @@ namespace php {
 		entry_.handle                = nullptr;
 		entry_.module_number         = 0;
 		entry_.build_id              = ZEND_MODULE_BUILD_ID;
+		// 内部 class
 	}
 	int extension_entry::on_module_startup_handler(int type, int module) {
 		self->module = module;

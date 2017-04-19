@@ -2,8 +2,6 @@
 
 #include "vendor.h"
 
-#include "funcs/util.h"
-
 #include "types/buffer.h"
 #include "types/exception.h"
 #include "types/value.h"
@@ -19,3 +17,6 @@
 #include "parts/extension_entry.h"
 
 #include "bases/class_base.h"
+#include "parts/class_closure.h"
+
+#include "funcs/util.h"

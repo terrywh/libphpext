@@ -1,20 +1,24 @@
 #pragma once
 
-#include "../vendor.h"
-
-
 namespace php {
 class class_base;
+template <class ClassT>
+class class_entry;
+class parameters;
 
 template <class T>
 class class_wrapper {
 public:
-	T*          cpp;
+	T           cpp;
 	zend_object obj;
 
 	static inline T* from_this(zval* val) {
 		class_wrapper<T>* wrapper = reinterpret_cast<class_wrapper<T>*>((char*)Z_OBJ_P(val) - XtOffsetOf(class_wrapper<T>, obj));
-		return wrapper->cpp;
+		return &wrapper->cpp;
+	}
+	static inline T* from_obj(zend_object* obj) {
+		class_wrapper<T>* wrapper = reinterpret_cast<class_wrapper<T>*>((char*)obj - XtOffsetOf(class_wrapper<T>, obj));
+		return &wrapper->cpp;
 	}
 };
 
@@ -82,13 +86,6 @@ public:
 	inline bool is_long() const	{
 		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_LONG;
 	}
-	// 判定
-	bool operator==(int i) const;
-	bool operator==(std::int64_t l) const;
-	bool operator>(int i) const;
-	bool operator<(int i) const;
-	bool operator>(std::int64_t l) const;
-	bool operator<(std::int64_t l) const;
 	// 浮点
 	// -------------------------------------------------------------------------
 	value(double v);
@@ -97,10 +94,6 @@ public:
 	inline bool is_double() const {
 		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_DOUBLE;
 	}
-	// 判定
-	bool operator==(double d) const;
-	bool operator>(double d) const;
-	bool operator<(double d) const;
 	// 字符串
 	// -------------------------------------------------------------------------
 	value(const char* str); // 没有 persistent 参数，防止和 str,len 混淆
@@ -118,19 +111,10 @@ public:
 	value& operator+=(const std::string& str);
 	// 当 from|count < 0 时，从尾部计数
 	value substr(int from, int count = 0);
-	void string_length(unsigned int size);
+	// void string_length(unsigned int size);
 	inline bool is_string() const {
 		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_STRING;
 	}
-	// 判定
-	bool operator==(const char* str);
-	bool operator==(const std::string str);
-	bool equal(const char* str, std::size_t len);
-	bool operator>(const char* str);
-	bool operator>(const std::string str);
-	bool operator<(const char* str);
-	bool operator<(const std::string str);
-	int compare(const char* str, std::size_t len);
 	// 数组
 	// -------------------------------------------------------------------------
 	static value array(std::size_t size, bool persistent = false);
@@ -206,11 +190,17 @@ public:
 		zend_string_release(cn);
 		return instanceof_function(Z_OBJCE_P(val_), ce);
 	}
-	template <class T>
-	T* native() {
-		if(!is_object()) return nullptr;
-		return class_wrapper<T>::from_this(val_);
+	template<class ClassT>
+	inline bool is_instance_of() const {
+		return Z_OBJ_P(val_)->handlers == &class_entry<ClassT>::handlers_;
 	}
+	template <class ClassT>
+	ClassT* native() {
+		if(!is_object()) return nullptr;
+		return class_wrapper<ClassT>::from_this(val_);
+	}
+	// 闭包 closure
+	value(std::function<value (parameters&)> fn);
 protected:
 	// 通用
 	// -------------------------------------------------------------------------
@@ -232,6 +222,7 @@ protected:
 	value invoke_(int argc, zval* argv);
 	// 对象
 	// -------------------------------------------------------------------------
+	value(zend_object* obj);
 	value call_(const char* name, std::size_t len, int argc, zval* argv);
 
 private:

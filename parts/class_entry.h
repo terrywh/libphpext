@@ -101,22 +101,22 @@ namespace php {
 			zend_class_entry ce, *pce = nullptr;
 			INIT_OVERLOADED_CLASS_ENTRY_EX(ce, name_, std::strlen(name_), method_entries_.data(), nullptr, nullptr, nullptr, nullptr, nullptr);
 			// create_object 会在继承动作发生后被重置为父类 create_object
-			// ce.create_object = class_entry<T>::create_object; 
+			// ce.create_object = class_entry<T>::create_object;
 			ce.ce_flags = flags_;
 			if(parent_class_name_) {
 				zend_string*      name = zend_string_init(parent_class_name_, std::strlen(parent_class_name_), 0);
 				pce = zend_lookup_class(name);
 				zend_string_release(name);
 			}
-			zend_class_entry* ce_ = zend_register_internal_class_ex(&ce, pce);
-			ce_->create_object = class_entry<T>::create_object;
+			class_entry_ = zend_register_internal_class_ex(&ce, pce);
+			class_entry_->create_object = class_entry<T>::create_object_handler;
 			// implements
 			for(auto i=interfaces_.begin();i!=interfaces_.end();++i) {
 				zend_string*      name = zend_string_init(i->c_str(), i->length(), 0);
 				zend_class_entry* intf = zend_lookup_class(name);
 				zend_string_release(name);
 				if(intf != nullptr && (intf->ce_flags & ZEND_ACC_TRAIT)) {
-					zend_class_implements(ce_, 1, intf);
+					zend_class_implements(class_entry_, 1, intf);
 				}else{
 					zend_throw_exception(zend_ce_exception, "interface not found", 0);
 				}
@@ -128,7 +128,7 @@ namespace php {
 				zend_class_entry* trai = zend_lookup_class(name);
 				zend_string_release(name);
 				if(trai != nullptr && (trai->ce_flags & ZEND_ACC_TRAIT)) {
-					zend_do_implement_trait(ce_, trai);
+					zend_do_implement_trait(class_entry_, trai);
 				}else{
 					zend_throw_exception(zend_ce_exception, "traits not found", 0);
 				}
@@ -136,15 +136,24 @@ namespace php {
 			traits_.clear();
 			// 常量声明
 			for(auto i=constant_entries_.begin();i!=constant_entries_.end();++i) {
-				i->declare(ce_);
+				i->declare(class_entry_);
 			}
 			constant_entries_.clear();
 			// 属性声明
 			for(auto i=property_entries_.begin();i!=property_entries_.end();++i) {
-				i->declare(ce_);
+				i->declare(class_entry_);
 			}
 			property_entries_.clear();
 		}
+
+		operator zend_class_entry*() const {
+			return class_entry_;
+		}
+
+		static zend_object* create_object() {
+			return create_object_handler(class_entry_);
+		}
+
 	private:
 		const char*                      name_;
 		const char*                      parent_class_name_;
@@ -156,37 +165,38 @@ namespace php {
 		std::vector<std::string> traits_;
 		int flags_;
 
+		static zend_class_entry*    class_entry_;
 		static zend_object_handlers handlers_;
+
 		void init_handlers() {
 			std::memcpy(&handlers_, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 			handlers_.offset    = XtOffsetOf(class_wrapper<T>, obj);
-			handlers_.free_obj  = class_entry<T>::free_object;
-			handlers_.clone_obj = class_entry<T>::clone_object;
+			handlers_.free_obj  = class_entry<T>::free_object_handler;
 		}
-		static zend_object *create_object(zend_class_entry *entry) {
+
+		static zend_object* create_object_handler(zend_class_entry *entry) {
 			auto wrapper = reinterpret_cast<class_wrapper<T>*>(ecalloc(1, sizeof(class_wrapper<T>) + zend_object_properties_size(entry)));
-			wrapper->cpp = new T(); // 创建 C++ 类对象
+			new (wrapper) class_wrapper<T>();
 			zend_object_std_init(&wrapper->obj, entry);
 			object_properties_init(&wrapper->obj, entry);
 			wrapper->obj.handlers = &handlers_;
-			wrapper->cpp->_object_set(&wrapper->obj);
+			wrapper->cpp._object_set(&wrapper->obj);
 			return &wrapper->obj;
 		}
 
-		static void free_object(zend_object* object) {
+		static void free_object_handler(zend_object* object) {
 			auto wrapper = reinterpret_cast<class_wrapper<T>*>((char*)object - XtOffsetOf(class_wrapper<T>, obj));
 			zend_object_std_dtor(&wrapper->obj);
-			delete wrapper->cpp;
+			wrapper->~class_wrapper<T>();
 			// XXX 不太明白，貌似这里不能做释放
 			// efree(wrapper);
 		}
 
-		static zend_object* clone_object(zval* self) {
-			return nullptr;
-		}
+		friend class value;
 	};
-
 
 	template <class T>
 	zend_object_handlers class_entry<T>::handlers_;
+	template <class T>
+	zend_class_entry* class_entry<T>::class_entry_;
 }

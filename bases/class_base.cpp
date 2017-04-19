@@ -2,7 +2,7 @@
 
 namespace php {
 	class_base::class_base() {
-		// ZVAL_UNDEF(&val_);
+		ZVAL_UNDEF(&val_);
 	}
 
 	class_base::class_base(const class_base& base) {
