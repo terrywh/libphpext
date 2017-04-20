@@ -14,7 +14,7 @@ namespace php
 			}
 			inline value operator[](std::uint8_t index) {
 				if(index >= _size) { // 不允许访问不存在的参数（模拟实现 PHP 内置的参数数量检查）
-					throw exception("function/method parameters missing", exception::PARAMETERS_INSUFFICIENT);
+					throw exception("parameters missing", exception::PARAMETERS_INSUFFICIENT);
 				}
 				zval* arg = _argv + index;
 				if(Z_TYPE_P(arg) == IS_REFERENCE) {

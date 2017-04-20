@@ -96,7 +96,6 @@ public:
 	}
 	// 字符串
 	// -------------------------------------------------------------------------
-	value(const char* str); // 没有 persistent 参数，防止和 str,len 混淆
 	value(const std::string& str);
 	value(const char* str, std::size_t len, bool persistent = false);
 	value(buffer&& buf);

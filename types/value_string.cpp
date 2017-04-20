@@ -2,10 +2,6 @@
 
 namespace php
 {
-	value::value(const char* str)
-	: value(str, std::strlen(str), false) {
-
-	}
 	value::value(const std::string& str)
 	: value(str.c_str(), str.length(), false) {
 
