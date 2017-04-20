@@ -23,7 +23,7 @@ namespace php
 				// refer = true 时 value 不会进行额外的内存申请和释放
 				return value(arg, /*refer=*/true);
 			};
-			inline std::uint8_t length()
+			inline std::uint8_t length() const
 			{
 				return _size;
 			}

@@ -6,7 +6,7 @@ namespace php {
 		str_.s = nullptr;
 		smart_str_alloc(&str_, size, false);
 	}
-	
+
 	buffer::~buffer() {
 		smart_str_free(&str_);
 	}
@@ -17,6 +17,11 @@ namespace php {
 		po_ += size;
 		str_.s->len = po_;
 		return p;
+	}
+	
+	char* buffer::rev(int size) {
+		smart_str_alloc(&str_, size, false);
+		return str_.s->val + po_;
 	}
 
 	int buffer::size() const {

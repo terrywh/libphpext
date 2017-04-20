@@ -17,7 +17,16 @@ namespace php {
 	: infos_(std::move(info.infos_)) {
 
 	}
-
+	zend_internal_arg_info of_mixed(const char* _name, zend_bool _ref, zend_bool _null) {
+		zend_internal_arg_info info;
+		info.name = _name;
+		info.class_name = nullptr;
+		info.type_hint = 0;
+		info.pass_by_reference = _ref;
+		info.allow_null = _null;
+		info.is_variadic = false;
+		return info;
+	}
 	zend_internal_arg_info of_bool(const char* _name, zend_bool _ref, zend_bool _null) {
 		zend_internal_arg_info info;
 		info.name = _name;
