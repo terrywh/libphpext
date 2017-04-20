@@ -14,7 +14,7 @@ namespace php {
 		prop(name, std::strlen(name));
 	}
 	value value::prop(const char* name, std::size_t len) {
-		if( is_object() ) throw exception("type error: object expected");
+		if( !is_object() ) throw exception("type error: object expected");
 		zval nv, zv, *pv;
 		ZVAL_STRINGL(&nv, name, len);
 		pv = Z_OBJ_P(val_)->handlers->read_property(val_, &nv, BP_VAR_R, nullptr, &zv);
@@ -27,7 +27,7 @@ namespace php {
 		return prop(name, std::strlen(name), val);
 	}
 	value& value::prop(const char* name, std::size_t len, const value& val) {
-		if( is_object() ) throw exception("type error: object expected");
+		if( !is_object() ) throw exception("type error: object expected");
 		zval nv;
 		ZVAL_STRINGL(&nv, name, len);
 		Z_OBJ_P(val_)->handlers->write_property(val_, &nv, val.data(), nullptr);
@@ -42,7 +42,7 @@ namespace php {
 	// 	return call_(name, len, 0, nullptr);
 	// }
 	value value::call_(const char* name, std::size_t len, int argc, zval* argv) {
-		if( is_object() ) throw exception("type error: object expected");
+		if( !is_object() ) throw exception("type error: object expected");
 		zval vname;
 		value rv(nullptr);
 		ZVAL_STRINGL(&vname, name, len);

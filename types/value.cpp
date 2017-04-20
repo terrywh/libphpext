@@ -117,6 +117,6 @@ namespace php
 	}
 
 	value::~value() {
-		if(!ref_) _zval_dtor(&value_);
+		if(!ref_) _zval_dtor(val_);
 	}
 }

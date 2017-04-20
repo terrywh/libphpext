@@ -19,11 +19,11 @@ namespace php
 	}
 
 	value::operator int() {
-		if( is_long() ) throw exception("type error: long expected");
+		if( !is_long() ) throw exception("type error: long expected");
 		return Z_LVAL_P(val_);
 	}
 	value::operator std::int64_t() {
-		if( is_long() ) throw exception("type error: long expected");
+		if( !is_long() ) throw exception("type error: long expected");
 		return Z_LVAL_P(val_);
 	}
 	// bool value::operator==(int i) const {
@@ -59,7 +59,7 @@ namespace php
 		return *this;
 	}
 	value::operator double() {
-		if( is_double() ) throw exception("type error: double expected");
+		if( !is_double() ) throw exception("type error: double expected");
 		return Z_DVAL_P(val_);
 	}
 	// bool value::operator==(double d) const {

@@ -158,6 +158,12 @@ public:
 	// 对象
 	// -------------------------------------------------------------------------
 	value(class_base* base);
+	template<class ClassT>
+	static value object() {
+		value v;
+		ZVAL_OBJ(v.val_, class_entry<ClassT>::create_object());
+		return std::move(v.val_);
+	}
 	value prop(const char* name);
 	value prop(const char* name, std::size_t len);
 	// returns *this;

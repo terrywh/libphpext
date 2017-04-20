@@ -34,6 +34,9 @@ namespace php {
 		entry_.module_number         = 0;
 		entry_.build_id              = ZEND_MODULE_BUILD_ID;
 		// 内部 class
+		php::class_entry<php::class_closure> class_closure_entry("php\\__closure");
+		class_closure_entry.add<&php::class_closure::__invoke>("__invoke");
+		add(std::move(class_closure_entry));
 	}
 	int extension_entry::on_module_startup_handler(int type, int module) {
 		self->module = module;

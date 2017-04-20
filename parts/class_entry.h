@@ -28,8 +28,7 @@ namespace php {
 		, interfaces_(std::move(entry.interfaces_))
 		, traits_(std::move(entry.traits_))
 		, flags_(entry.flags_) {
-			// entry.name_ = nullptr;
-			// entry.parent_class_entry_ = nullptr;
+
 		}
 
 		class_entry& add(const constant_entry& entry) {
@@ -108,15 +107,15 @@ namespace php {
 				pce = zend_lookup_class(name);
 				zend_string_release(name);
 			}
-			class_entry_ = zend_register_internal_class_ex(&ce, pce);
-			class_entry_->create_object = class_entry<T>::create_object_handler;
+			class_entry<T>::entry_ = zend_register_internal_class_ex(&ce, pce);
+			class_entry<T>::entry_->create_object = class_entry<T>::create_object_handler;
 			// implements
 			for(auto i=interfaces_.begin();i!=interfaces_.end();++i) {
 				zend_string*      name = zend_string_init(i->c_str(), i->length(), 0);
 				zend_class_entry* intf = zend_lookup_class(name);
 				zend_string_release(name);
 				if(intf != nullptr && (intf->ce_flags & ZEND_ACC_TRAIT)) {
-					zend_class_implements(class_entry_, 1, intf);
+					zend_class_implements(class_entry<T>::entry_, 1, intf);
 				}else{
 					zend_throw_exception(zend_ce_exception, "interface not found", 0);
 				}
@@ -128,7 +127,7 @@ namespace php {
 				zend_class_entry* trai = zend_lookup_class(name);
 				zend_string_release(name);
 				if(trai != nullptr && (trai->ce_flags & ZEND_ACC_TRAIT)) {
-					zend_do_implement_trait(class_entry_, trai);
+					zend_do_implement_trait(class_entry<T>::entry_, trai);
 				}else{
 					zend_throw_exception(zend_ce_exception, "traits not found", 0);
 				}
@@ -136,22 +135,18 @@ namespace php {
 			traits_.clear();
 			// 常量声明
 			for(auto i=constant_entries_.begin();i!=constant_entries_.end();++i) {
-				i->declare(class_entry_);
+				i->declare(class_entry<T>::entry_);
 			}
 			constant_entries_.clear();
 			// 属性声明
 			for(auto i=property_entries_.begin();i!=property_entries_.end();++i) {
-				i->declare(class_entry_);
+				i->declare(class_entry<T>::entry_);
 			}
 			property_entries_.clear();
 		}
 
-		operator zend_class_entry*() const {
-			return class_entry_;
-		}
-
 		static zend_object* create_object() {
-			return create_object_handler(class_entry_);
+			return create_object_handler(class_entry<T>::entry_);
 		}
 
 	private:
@@ -165,7 +160,7 @@ namespace php {
 		std::vector<std::string> traits_;
 		int flags_;
 
-		static zend_class_entry*    class_entry_;
+		static zend_class_entry*    entry_;
 		static zend_object_handlers handlers_;
 
 		void init_handlers() {
@@ -198,5 +193,5 @@ namespace php {
 	template <class T>
 	zend_object_handlers class_entry<T>::handlers_;
 	template <class T>
-	zend_class_entry* class_entry<T>::class_entry_;
+	zend_class_entry* class_entry<T>::entry_;
 }

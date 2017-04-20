@@ -39,12 +39,10 @@ namespace php
 		return *this;
 	}
 	value::operator zend_string*() {
-//		assert( (!ref_ || val_ != nullptr) && Z_TYPE_P(val_) == IS_STRING );
         if(!is_string()) throw exception("type error: string expected");
 		return Z_STR_P(val_);
 	}
 	value::operator const char*() {
-//		assert( (!ref_ || val_ != nullptr) && Z_TYPE_P(val_) == IS_STRING );
         if(!is_string()) throw exception("type error: string expected");
 		return Z_STRVAL_P(val_);
 	}
@@ -56,7 +54,7 @@ namespace php
 		return append_(str.c_str(), str.length());
 	}
 	value& value::append_(const char* str, std::size_t len) {
-		if( is_string() ) throw exception("type error: string expected");
+		if( !is_string() ) throw exception("type error: string expected");
 		zend_string *target = zend_string_alloc(Z_STRLEN_P(val_) + len, 0),
 			*origin = Z_STR_P(val_);
 
@@ -68,7 +66,7 @@ namespace php
 		return *this;
 	}
 	value value::substr(int from, int count) {
-		if( is_string() ) throw exception("type error: string expected");
+		if( !is_string() ) throw exception("type error: string expected");
 		if(count == 0) {
 			count = Z_STRLEN_P(val_);
 		}
