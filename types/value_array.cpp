@@ -14,29 +14,29 @@ namespace php {
 	}
 	// TODO 使用 initializer_list 构建
 	// 检测
-	bool value::isset(const char* key) {
-		return isset(key, std::strlen(key));
+	bool value::offsetExists(const char* key) {
+		return offsetExists(key, std::strlen(key));
 	}
-	bool value::isset(const char* key, std::size_t len) {
+	bool value::offsetExists(const char* key, std::size_t len) {
 		return zend_hash_str_exists(Z_ARRVAL_P(val_), key, len);
 	}
-	bool value::isset(const std::string& key) {
-		return isset(key.c_str(), key.length());
+	bool value::offsetExists(const std::string& key) {
+		return offsetExists(key.c_str(), key.length());
 	}
-	bool value::isset(std::size_t index) {
+	bool value::offsetExists(std::size_t index) {
 		return zend_hash_index_exists(Z_ARRVAL_P(val_), index);
 	}
 	// 清理
-	void value::unset(const char* key) {
-		unset(key, std::strlen(key));
+	void value::offsetUnset(const char* key) {
+		offsetUnset(key, std::strlen(key));
 	}
-	void value::unset(const std::string& key) {
-		unset(key.c_str(), key.length());
+	void value::offsetUnset(const std::string& key) {
+		offsetUnset(key.c_str(), key.length());
 	}
-	void value::unset(const char* key, std::size_t len) {
+	void value::offsetUnset(const char* key, std::size_t len) {
 		zend_hash_str_del(Z_ARRVAL_P(val_), key, len);
 	}
-	void value::unset(std::size_t index) {
+	void value::offsetUnset(std::size_t index) {
 		zend_hash_index_del(Z_ARRVAL_P(val_), index);
 	}
 	// 元素

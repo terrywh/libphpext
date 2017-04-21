@@ -118,14 +118,14 @@ public:
 	// 数组
 	// -------------------------------------------------------------------------
 	static value array(std::size_t size, bool persistent = false);
-	bool isset(const char* key);
-	bool isset(const char* key, std::size_t len);
-	bool isset(const std::string& key);
-	void unset(const char* key);
-	void unset(const char* key, std::size_t len);
-	void unset(const std::string& key);
-	bool isset(std::size_t idx);
-	void unset(std::size_t idx);
+	bool offsetExists(const char* key);
+	bool offsetExists(const char* key, std::size_t len);
+	bool offsetExists(const std::string& key);
+	void offsetUnset(const char* key);
+	void offsetUnset(const char* key, std::size_t len);
+	void offsetUnset(const std::string& key);
+	bool offsetExists(std::size_t idx);
+	void offsetUnset(std::size_t idx);
 	inline bool is_array() const {
 		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_ARRAY;
 	}

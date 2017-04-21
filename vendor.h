@@ -21,3 +21,10 @@
 #include <zend_compile.h>
 #include <zend_inheritance.h>
 #include <zend_smart_str.h>
+
+#include <php.h>
+#include <standard/url.h>
+#include <standard/md5.h>
+#include <standard/base64.h>
+#include <standard/sha1.h>
+
