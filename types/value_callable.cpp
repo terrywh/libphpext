@@ -29,7 +29,7 @@ namespace php {
 		fci_.param_count = argc;
 		fci_.params = argv;
 		if(zend_fcall_info_call(&fci_, &fcc_, rv.data(), nullptr) == FAILURE) {
-			throw new exception("failed to invoke callable", exception::INVOKE_CALLABLE_FAILED);
+			throw exception("failed to invoke callable", exception::INVOKE_CALLABLE_FAILED);
 		}
 		// zend_fcall_info_args_clear(&fci_, 1);
 		return std::move(rv);
