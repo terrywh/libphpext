@@ -17,4 +17,14 @@ namespace php {
 	void warn(const std::string& msg);
 	void info(const std::string& msg);
 
+    const char* ini_get(char* name, uint name_len);
+    std::string md5(char* enc_str, uint32_t enc_len);
+    std::string sha1(const unsigned char* enc_str, size_t enc_len);
+
+    std::shared_ptr<zend_string> base64_encode(const unsigned char* enc_str, size_t enc_len);
+    std::shared_ptr<zend_string> base64_decode(const unsigned char* dec_str, size_t dec_len);
+    std::shared_ptr<zend_string> url_encode(const char* enc_str, size_t enc_len);
+    std::shared_ptr<zend_string> url_decode(char* dec_str, size_t& dec_len);
+    std::shared_ptr<php_url> parse_url(const char* url, size_t url_len);
 }
+
