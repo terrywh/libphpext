@@ -25,6 +25,7 @@ extern "C" {
 #include <zend_ini_scanner.h>
 
 #include <php.h>
+#include <standard/php_string.h>
 #include <standard/url.h>
 #include <standard/md5.h>
 #include <standard/base64.h>

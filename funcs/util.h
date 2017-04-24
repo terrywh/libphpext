@@ -35,5 +35,11 @@ namespace php {
     php::value json_decode(char* src, int32_t src_len);
     std::shared_ptr<php_url> parse_url(const char* url, size_t url_len);
     php::value parse_ini_file(char* filename);
-}
 
+	inline char* strtoupper(char* s, size_t len) {
+		return php_strtoupper(s, len);
+	}
+	inline char* strtolower(char* s, size_t len) {
+		return php_strtolower(s, len);
+	}
+}

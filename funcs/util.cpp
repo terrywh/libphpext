@@ -123,7 +123,7 @@ namespace php {
             int is_letter = ((unsigned int) ((l - 'A') ^ (l - 'F' - 1))) >> (8 * sizeof(unsigned int) - 1);
             unsigned char d;
 
-            /* basically (c >= '0' && c <= '9') || (l >= 'A' && l <= 'F') */ 
+            /* basically (c >= '0' && c <= '9') || (l >= 'A' && l <= 'F') */
             if (EXPECTED((((c ^ '0') - 10) >> (8 * sizeof(unsigned int) - 1)) | is_letter)) {
                 d = (l - 0x10 - 0x27 * is_letter) << 4;
             } else {
@@ -149,14 +149,14 @@ namespace php {
     std::shared_ptr<zend_string> hex2bin(unsigned char* src, size_t src_len) {
         if(src_len % 2 != 0) {
             return nullptr;
-        } 
+        }
         return std::shared_ptr<zend_string>(php_hex2bin(src, src_len), zend_string_release);
     }
 
     std::shared_ptr<zend_string> bin2hex(unsigned char* src, size_t src_len) {
         if(src_len % 2 != 0) {
             return nullptr;
-        } 
+        }
         return std::shared_ptr<zend_string>(php_bin2hex(src, src_len), zend_string_release);
     }
 
@@ -183,7 +183,7 @@ namespace php {
         php_json_decode_ex(v.data(), src, src_len, options, depth);
         if(v.is_null())
             return nullptr;
-        else 
+        else
             return std::move(v);
     }
 
@@ -312,7 +312,7 @@ namespace php {
         //php_error_docref(NULL, E_WARNING, "%s", zError(status));
         //return NULL;
     //}
- 
+
     //std::shared_ptr<zend_string> gzencode(char* src, size_t src_len, int level) {
         //return std::shared_ptr<zend_string>(php_zlib_encode(src, src_len, PHP_ZLIB_ENCODING_GZIP, level), zend_string_release);
     //}
@@ -367,5 +367,3 @@ namespace php {
         //return php::value(dst, dst_len);
     /*}*/
 }
-
-
