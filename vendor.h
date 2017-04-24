@@ -27,4 +27,7 @@
 #include <standard/md5.h>
 #include <standard/base64.h>
 #include <standard/sha1.h>
+#include <standard/crc32.h>
+#include <json/php_json.h>
+#include <Zend/zend_ini_scanner.h>
 
