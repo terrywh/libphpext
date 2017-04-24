@@ -31,6 +31,7 @@ public:
 	value(std::nullptr_t);
 	value(const value& w);
 	value(value&& w);
+	void reset(value&& w);
 	virtual ~value();
 
 	value& operator=(const value& v);
@@ -54,12 +55,11 @@ public:
 				return false;
 		}
 	}
+	inline bool is_undefined() {
+		return val_ == nullptr || Z_TYPE_P(val_) == IS_UNDEF;
+	}
 	inline bool is_null() const {
-		if(ref_) { // 被引用使用的指针可能为空，需要特殊处理
-			return val_ == nullptr || Z_TYPE_P(val_) == IS_NULL;
-		} else {
-			return Z_TYPE_P(val_) == IS_NULL;
-		}
+		return val_ == nullptr || Z_TYPE_P(val_) == IS_NULL;
 	}
 	inline void addref() {
 		Z_TRY_ADDREF_P(val_); // value may hold non-refcounted types
@@ -84,7 +84,7 @@ public:
 	operator int();
 	operator std::int64_t();
 	inline bool is_long() const	{
-		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_LONG;
+		return val_ != nullptr && Z_TYPE_P(val_) == IS_LONG;
 	}
 	// 浮点
 	// -------------------------------------------------------------------------
@@ -92,7 +92,7 @@ public:
 	value& to_double();
 	operator double();
 	inline bool is_double() const {
-		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_DOUBLE;
+		return val_ != nullptr && Z_TYPE_P(val_) == IS_DOUBLE;
 	}
 	// 字符串
 	// -------------------------------------------------------------------------
@@ -108,11 +108,12 @@ public:
 	// 赋值字符串均为 非持久 non-persistent 类型
 	value& operator+=(const char* str);
 	value& operator+=(const std::string& str);
+	value& append(const char* str, std::size_t len);
 	// 当 from|count < 0 时，从尾部计数
 	value substr(int from, int count = 0);
 	// void string_length(unsigned int size);
 	inline bool is_string() const {
-		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_STRING;
+		return val_ != nullptr && Z_TYPE_P(val_) == IS_STRING;
 	}
 	// 数组
 	// -------------------------------------------------------------------------
@@ -126,10 +127,12 @@ public:
 	bool offsetExists(std::size_t idx);
 	void offsetUnset(std::size_t idx);
 	inline bool is_array() const {
-		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_ARRAY;
+		return val_ != nullptr && Z_TYPE_P(val_) == IS_ARRAY;
 	}
 	// 注：若指定 index/key 对应的 key 不存在会自动创建 UNDEF 填充引用
-	value operator[] (std::size_t index);
+	value item(const char* key, std::size_t len);
+	value item(std::size_t idx);
+	value operator[] (std::size_t idx);
 	value operator[] (const char* key);
 	value operator[] (const std::string& key);
 	// TODO 判定
@@ -152,7 +155,7 @@ public:
 	}
 	value operator() ();
 	inline bool is_callable() const	{
-		return ref_ && val_ == nullptr ? false : zend_is_callable(val_, IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr);
+		return val_ != nullptr && zend_is_callable(val_, IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr);
 	}
 	// 对象
 	// -------------------------------------------------------------------------
@@ -186,7 +189,7 @@ public:
 		return call_(name, std::strlen(name), argc, argv2.data());
 	}
 	inline bool is_object() const {
-		return ref_ && val_ == nullptr ? false : Z_TYPE_P(val_) == IS_OBJECT;
+		return val_ != nullptr && Z_TYPE_P(val_) == IS_OBJECT;
 	}
 	inline bool is_instance_of(const std::string& class_name) const {
 		if(ref_ && val_ == nullptr || Z_TYPE_P(val_) != IS_OBJECT) return false;
@@ -197,7 +200,7 @@ public:
 	}
 	template<class ClassT>
 	inline bool is_instance_of() const {
-		return Z_OBJ_P(val_)->handlers == &class_entry<ClassT>::handlers_;
+		return val_ != nullptr && Z_OBJ_P(val_)->handlers == &class_entry<ClassT>::handlers_;
 	}
 	template <class ClassT>
 	ClassT* native() {
@@ -217,9 +220,6 @@ protected:
 	}
 	zval* val_;
 	bool  ref_;
-	// 文本
-	// -------------------------------------------------------------------------
-	value& append_(const char* str, std::size_t len);
 	// 数组
 	// -------------------------------------------------------------------------
 	// 回调

@@ -24,6 +24,7 @@ namespace php
 	{
 		ZVAL_COPY(val_, w.val_);
 	}
+
 	value::value(value&& w)
 	: val_(w.ref_ ? w.val_ : &value_)
 	, ref_(w.ref_)
@@ -38,12 +39,27 @@ namespace php
 		ZVAL_UNDEF(w.val_);
 	}
 
-	value& value::operator=(const value& w)
-	{
+	void value::reset(value&& w) {
 		if(val_ != nullptr) {
 			_zval_dtor(val_);
 		}
-		if(!ref_ && val_ != &value_) {
+		ref_ = w.ref_;
+		if(ref_) {
+			val_ = w.val_;
+		}else{
+			val_ = &value_;
+			ZVAL_COPY_VALUE(val_, w.val_);
+		}
+		w.ref_ = false;
+		w.val_ = &w.value_;
+		ZVAL_UNDEF(w.val_);
+	}
+
+	value& value::operator=(const value& w) {
+		if(val_ != nullptr) {
+			_zval_dtor(val_);
+		}
+		if(!ref_) {
 			val_ = &value_;
 			ref_ = false;
 		}
@@ -55,7 +71,7 @@ namespace php
 		if(val_ != nullptr) {
 			_zval_dtor(val_);
 		}
-		if(!ref_ && val_ != &value_) {
+		if(!ref_) {
 			val_ = &value_;
 			ref_ = false;
 		}

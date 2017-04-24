@@ -42,14 +42,13 @@ namespace php
         if(!is_string()) throw exception("type error: string expected");
 		return Z_STRVAL_P(val_);
 	}
-	// TODO 判定
 	value& value::operator+=(const char* str) {
-		return append_(str, std::strlen(str));
+		return append(str, std::strlen(str));
 	}
 	value& value::operator+=(const std::string& str) {
-		return append_(str.c_str(), str.length());
+		return append(str.c_str(), str.length());
 	}
-	value& value::append_(const char* str, std::size_t len) {
+	value& value::append(const char* str, std::size_t len) {
 		if( !is_string() ) throw exception("type error: string expected");
 		zend_string *target = zend_string_alloc(Z_STRLEN_P(val_) + len, 0),
 			*origin = Z_STR_P(val_);

@@ -40,36 +40,35 @@ namespace php {
 		zend_hash_index_del(Z_ARRVAL_P(val_), index);
 	}
 	// 元素
-	static value item_(zval* array, const char* key, std::size_t len) {
-		zend_string* key_ = zend_string_init(key, len, false);
-		zval*        val_ = zend_hash_find(Z_ARRVAL_P(array), key_);
-		if(val_ == nullptr)
-		{
-			zval undefined;
-			ZVAL_UNDEF(&undefined);
-			val_ = _zend_hash_add(Z_ARRVAL_P(array), key_, &undefined);
-		}
-		zend_string_release(key_);
-		return value(val_, /*ref=*/true);
-	}
-	static value item_(zval* array, std::size_t index) {
-		zval* val_ = zend_hash_index_find(Z_ARRVAL_P(array), index);
-		if(val_ == nullptr)
-		{
-			zval undefined;
-			ZVAL_UNDEF(&undefined);
-			val_ = _zend_hash_index_add(Z_ARRVAL_P(array), index, &undefined);
-		}
-		return value(val_, /*ref=*/true);
-	}
-
 	value value::operator[] (std::size_t index) {
-		return item_(val_, index);
+		return item(index);
 	}
 	value value::operator[] (const char* key) {
-		return item_(val_, key, std::strlen(key));
+		return item(key, std::strlen(key));
 	}
 	value value::operator[] (const std::string& key) {
-		return item_(val_, key.c_str(), key.length());
+		return item(key.c_str(), key.length());
+	}
+	value value::item(const char* key, std::size_t len) {
+		zend_string* key_ = zend_string_init(key, len, false);
+		zval*        item = zend_hash_find(Z_ARRVAL_P(val_), key_);
+		if(item == nullptr)
+		{
+			zval def;
+			ZVAL_UNDEF(&def);
+			item = _zend_hash_add(Z_ARRVAL_P(val_), key_, &def);
+		}
+		zend_string_release(key_);
+		return value(item, /*ref=*/true);
+	}
+	value value::item(std::size_t index) {
+		zval* item = zend_hash_index_find(Z_ARRVAL_P(val_), index);
+		if(item == nullptr)
+		{
+			zval def;
+			ZVAL_UNDEF(&def);
+			item = _zend_hash_index_add(Z_ARRVAL_P(val_), index, &def);
+		}
+		return value(item, /*ref=*/true);
 	}
 }
