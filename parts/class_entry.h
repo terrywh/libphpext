@@ -171,7 +171,7 @@ namespace php {
 
 		static zend_object* create_object_handler(zend_class_entry *entry) {
 			auto wrapper = reinterpret_cast<class_wrapper<T>*>(ecalloc(1, sizeof(class_wrapper<T>) + zend_object_properties_size(entry)));
-			new (wrapper) class_wrapper<T>();
+			wrapper->cpp = new class_wrapper<T>();
 			zend_object_std_init(&wrapper->obj, entry);
 			object_properties_init(&wrapper->obj, entry);
 			wrapper->obj.handlers = &handlers_;
@@ -182,7 +182,7 @@ namespace php {
 		static void free_object_handler(zend_object* object) {
 			auto wrapper = reinterpret_cast<class_wrapper<T>*>((char*)object - XtOffsetOf(class_wrapper<T>, obj));
 			zend_object_std_dtor(&wrapper->obj);
-			wrapper->~class_wrapper<T>();
+			delete wrapper->cpp;
 			// XXX 不太明白，貌似这里不能做释放
 			// efree(wrapper);
 		}
