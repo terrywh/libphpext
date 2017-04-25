@@ -9,13 +9,12 @@ namespace php {
 		// 注意：val_ 字段不要初始化（等待 _object_set）
 	}
 
-	value class_base::prop(const char* name) {
+	value class_base::prop(const char* name, std::size_t len) {
 		zval rv;
-		return value( zend_read_property(Z_OBJ(val_)->ce, &val_, name, std::strlen(name), true, &rv) );
+		return value( zend_read_property(Z_OBJ(val_)->ce, &val_, name, len, true, &rv), true );
 	}
 
-	class_base& class_base::prop(const char* name, const value& v) {
-		zend_update_property(Z_OBJ(val_)->ce, &val_, name, std::strlen(name), v.data());
-		return *this;
+	value class_base::prop(const std::string& name) {
+		return prop(name.c_str(), name.length());
 	}
 }

@@ -10,8 +10,8 @@ namespace php {
 			throw exception("object is not yet created");
 		}
 	}
-	value value::prop(const char* name) {
-		prop(name, std::strlen(name));
+	value value::prop(const std::string& name) {
+		return prop(name.c_str(), name.length());
 	}
 	value value::prop(const char* name, std::size_t len) {
 		if( !is_object() ) throw exception("type error: object expected");
@@ -19,28 +19,11 @@ namespace php {
 		ZVAL_STRINGL(&nv, name, len);
 		pv = Z_OBJ_P(val_)->handlers->read_property(val_, &nv, BP_VAR_R, nullptr, &zv);
 		_zval_dtor(&nv);
-		value rv(pv, /*ref*/true);
-		rv.delref(); // value will addref() to pv and we only need on ref
-		return std::move(rv);
+		return value(pv, /*ref*/true);
 	}
-	value& value::prop(const char* name, const value& val) {
-		return prop(name, std::strlen(name), val);
+	value value::call(const std::string& name) {
+		return call_(name.c_str(), name.length(), 0, nullptr);
 	}
-	value& value::prop(const char* name, std::size_t len, const value& val) {
-		if( !is_object() ) throw exception("type error: object expected");
-		zval nv;
-		ZVAL_STRINGL(&nv, name, len);
-		Z_OBJ_P(val_)->handlers->write_property(val_, &nv, val.data(), nullptr);
-		// write_property will addref()
-		_zval_dtor(&nv);
-		return *this;
-	}
-	value value::call(const char* name) {
-		return call_(name, std::strlen(name), 0, nullptr);
-	}
-	// value value::call(const char* name, std::size_t len) {
-	// 	return call_(name, len, 0, nullptr);
-	// }
 	value value::call_(const char* name, std::size_t len, int argc, zval* argv) {
 		if( !is_object() ) throw exception("type error: object expected");
 		zval vname;

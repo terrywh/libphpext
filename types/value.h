@@ -126,6 +126,9 @@ public:
 	void offsetUnset(const std::string& key);
 	bool offsetExists(std::size_t idx);
 	void offsetUnset(std::size_t idx);
+	value offsetGet(std::size_t idx);
+	value offsetGet(const std::string& key);
+	value offsetGet(const char* key, std::size_t len);
 	inline bool is_array() const {
 		return val_ != nullptr && Z_TYPE_P(val_) == IS_ARRAY;
 	}
@@ -166,27 +169,19 @@ public:
 		ZVAL_OBJ(v.val_, class_entry<ClassT>::create_object());
 		return std::move(v.val_);
 	}
-	value prop(const char* name);
+	value prop(const std::string& name);
 	value prop(const char* name, std::size_t len);
-	// returns *this;
-	value& prop(const char* name, const value& val);
-	value& prop(const char* name, std::size_t len, const value& val);
 
-	value call(const char* name);
-	// value call(const char* name, std::size_t len);
-	// template <typename ...Args>
-	// value call(const char* name, const Args&... argv) {
-	// 	call(name, std::strlen(name), argv...);
-	// }
+	value call(const std::string& name);
 	template <typename ...Args>
-	value call(const char* name, const Args&... argv) {
+	value call(const std::string& name, const Args&... argv) {
 		value argv1[] = { static_cast<value>(argv)... };
 		int argc = sizeof...(Args);
 		std::vector<zval> argv2(argc);
 		for(int i=0;i<argc;++i) {
 			argv2[i] = *argv1[i].val_;
 		}
-		return call_(name, std::strlen(name), argc, argv2.data());
+		return call_(name.c_str(), name.length(), argc, argv2.data());
 	}
 	inline bool is_object() const {
 		return val_ != nullptr && Z_TYPE_P(val_) == IS_OBJECT;

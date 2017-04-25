@@ -13,6 +13,10 @@ namespace php {
 
 		int size() const;
 		int capacity() const;
+
+		zend_string* z_str() {
+			return str_.s;
+		}
 	private:
 		smart_str str_;
 		int po_;

@@ -39,6 +39,15 @@ namespace php {
 	void value::offsetUnset(std::size_t index) {
 		zend_hash_index_del(Z_ARRVAL_P(val_), index);
 	}
+	value value::offsetGet(std::size_t idx) {
+		return php::value(zend_hash_index_find(Z_ARRVAL_P(val_), idx),true);
+	}
+	value value::offsetGet(const std::string& key) {
+		return php::value(zend_hash_str_find(Z_ARRVAL_P(val_), key.c_str(), key.length()),true);
+	}
+	value value::offsetGet(const char* key, std::size_t len) {
+		return php::value(zend_hash_str_find(Z_ARRVAL_P(val_), key, len),true);
+	}
 	// 元素
 	value value::operator[] (std::size_t index) {
 		return item(index);
