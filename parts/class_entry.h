@@ -171,11 +171,11 @@ namespace php {
 
 		static zend_object* create_object_handler(zend_class_entry *entry) {
 			auto wrapper = reinterpret_cast<class_wrapper<T>*>(ecalloc(1, sizeof(class_wrapper<T>) + zend_object_properties_size(entry)));
-			wrapper->cpp = new class_wrapper<T>();
+			wrapper->cpp = new T();
 			zend_object_std_init(&wrapper->obj, entry);
 			object_properties_init(&wrapper->obj, entry);
 			wrapper->obj.handlers = &handlers_;
-			wrapper->cpp._object_set(&wrapper->obj);
+			wrapper->cpp->_object_set(&wrapper->obj);
 			return &wrapper->obj;
 		}
 

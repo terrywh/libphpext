@@ -7,7 +7,7 @@ class class_entry;
 class parameters;
 
 template <class T>
-class class_wrapper {
+struct class_wrapper {
 public:
 	T*          cpp;
 	zend_object obj;
