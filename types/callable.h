@@ -19,7 +19,7 @@ namespace php {
 		template <typename ...Args>
 		inline value invoke(const Args&... argv) {
 			value params[] = { static_cast<value>(argv)... };
-			return _invoke(cb_, sizeof...(Args), params);
+			return _invoke(cb_, sizeof...(Args), (zval*)params);
 		}
 		inline value operator()() {
 			return _invoke(cb_, 0, nullptr);
@@ -27,7 +27,7 @@ namespace php {
 		template <typename ...Args>
 		inline value operator()(const Args&... argv) {
 			value params[] = { static_cast<value>(argv)... };
-			return _invoke(cb_, sizeof...(Args), params);
+			return _invoke(cb_, sizeof...(Args), (zval*)params);
 		}
 		friend class value;
 	};

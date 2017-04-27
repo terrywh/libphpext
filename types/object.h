@@ -31,7 +31,7 @@ namespace php {
 		template <typename ...Args>
 		inline value call(const std::string& name, const Args&... argv) {
 			value params[] = { static_cast<value>(argv)... };
-			return _call(obj_, name.c_str(), name.length(), sizeof...(Args), params);
+			return _call(obj_, name.c_str(), name.length(), sizeof...(Args), (zval*)params);
 		}
 		template <class T>
 		inline T* native() {
