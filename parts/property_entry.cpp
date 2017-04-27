@@ -1,22 +1,42 @@
 #include "../phpext.h"
 
 namespace php {
-	property_entry::property_entry(const std::string& name, value&& val, int access)
-	: value_(std::move(val))
-	, access_(access) {
-		name_ = zend_string_init(name.c_str(), name.length(), true);
-	}
+	property_entry::property_entry(const std::string& name, std::nullptr_t v, int access)
+		: name_(zend_string_init(name.c_str(), name.length(), true))
+		, value_(v)
+		, access_(access) {}
+	property_entry::property_entry(const std::string& name, bool v, int access)
+		: name_(zend_string_init(name.c_str(), name.length(), true))
+		, value_(v)
+		, access_(access) {}
+	property_entry::property_entry(const std::string& name, int v, int access)
+		: name_(zend_string_init(name.c_str(), name.length(), true))
+		, value_(v)
+		, access_(access) {}
+	property_entry::property_entry(const std::string& name, std::int64_t v, int access)
+		: name_(zend_string_init(name.c_str(), name.length(), true))
+		, value_(v)
+		, access_(access) {}
+	property_entry::property_entry(const std::string& name, double v, int access)
+		: name_(zend_string_init(name.c_str(), name.length(), true))
+		, value_(v)
+		, access_(access) {}
+	property_entry::property_entry(const std::string& name, const std::string& v, int access)
+		: name_(zend_string_init(name.c_str(), name.length(), true))
+		, value_(v.c_str(), v.length(), true)
+		, access_(access) {}
+
+
 	property_entry::property_entry(property_entry&& entry)
 	: name_(entry.name_)
 	, value_(std::move(entry.value_))
 	, access_(entry.access_) {
+		entry.name_ = nullptr;
+		entry.value_ = nullptr;
+		entry.access_ = 0;
 	}
 	void property_entry::declare(zend_class_entry* entry) {
-		zval property;
-		// property 的数据会被 ZVAL_COPY_VALUE 转存到 property_table 中，需要额外的引用
-		ZVAL_COPY(&property, value_.data());
-		int r = zend_declare_property_ex(entry,
-			name_, // name 单独申请 persistent 文本
-			&property, access_, /* doc_comment */nullptr);
+		zend_declare_property_ex(entry, name_,
+			reinterpret_cast<zval*>(&value_), access_, /* doc_comment */nullptr);
 	}
 }

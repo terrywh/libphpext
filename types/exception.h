@@ -10,18 +10,13 @@ namespace php
 			INVOKE_METHOD_FAILED    = -1001,
 			PARAMETERS_INSUFFICIENT = -1002,
 		};
-		exception(const std::string& message, int code = 0)
-		:_message(message) {
-
-		}
-
-		virtual const char* what() const noexcept {
+		exception(const std::string& message, int code = 0);
+		inline const char* what() const noexcept {
 			return _message.c_str();
 		}
-		virtual const int code() const noexcept {
+		inline const int code() const noexcept {
 			return _code;
 		}
-		
 	private:
 		std::string  _message;
 		std::int64_t _code;

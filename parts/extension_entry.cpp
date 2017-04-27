@@ -34,9 +34,7 @@ namespace php {
 		entry_.module_number         = 0;
 		entry_.build_id              = ZEND_MODULE_BUILD_ID;
 		// 内部 class
-		php::class_entry<php::class_closure> class_closure_entry("php\\__closure");
-		class_closure_entry.add<&php::class_closure::__invoke>("__invoke");
-		add(std::move(class_closure_entry));
+		_register_builtin_class(*this);
 	}
 	int extension_entry::on_module_startup_handler(int type, int module) {
 		self->module = module;
@@ -58,10 +56,8 @@ namespace php {
 		}
 		// classes_entries_ 不能再完成之前清理（zend 引擎会应用其中的内存）
 		// 常量注册
-		zend_constant c;
 		for(i=0;i<self->constant_entries_.size(); ++i) {
-			self->constant_entries_[i].fill(&c, module);
-			zend_register_constant(&c); // -> zend_hash_add_constant -> memcpy
+			self->constant_entries_[i].declare(module);
 		}
 		// constants 可以清理了
 		self->constant_entries_.clear();

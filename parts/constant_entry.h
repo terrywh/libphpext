@@ -5,9 +5,15 @@ namespace php
 
 class constant_entry {
 public:
-	// 常量须使用 持久 persistent 类型值 value（字符串、数组）
-	constant_entry(const std::string& name, const value& val);
-	void fill(zend_constant* entry, int module);
+	constant_entry(const std::string& name, std::nullptr_t v);
+	constant_entry(const std::string& name, bool v);
+	constant_entry(const std::string& name, int v);
+	constant_entry(const std::string& name, std::int64_t v);
+	constant_entry(const std::string& name, double v);
+	constant_entry(const std::string& name, const std::string& v);
+
+
+	void declare(int module);
 	void declare(zend_class_entry* ce);
 private:
 	std::string name_;

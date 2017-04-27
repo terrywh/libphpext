@@ -6,7 +6,7 @@ namespace php {
 	}
 
 	php::value parse_str(const char sep, char* buf, int len) {
-		php::value kv = php::value::array(0);
+		php::array r;
 		char *kbeg,*kend,*vbeg,*vend;
 		int x = 0;
 		for(int i=0;i<len;++i) {
@@ -35,8 +35,7 @@ namespace php {
 						vend = buf+i;
 					}else if(buf[i] == sep) {
 						php_url_decode(vbeg, vend-vbeg+1);
-						php::value item = kv.item(kbeg, kend-kbeg+1);
-						item = php::value(vbeg, vend-vbeg+1);
+						r.at(kbeg, kend-kbeg+1) = php::value(vbeg, vend-vbeg+1);
 						x=0;
 					}
 				break;
@@ -44,9 +43,8 @@ namespace php {
 		}
 		if(x==3) {
 			php_url_decode(vbeg, vend-vbeg+1);
-			php::value item = kv.item(kbeg, kend-kbeg+1);
-			item = php::value(vbeg, vend-vbeg+1);
+			r.at(kbeg, kend-kbeg+1) = php::value(vbeg, vend-vbeg+1);
 		}
-		return kv;
+		return static_cast<zend_array*>(r);
 	}
 }

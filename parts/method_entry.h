@@ -28,17 +28,17 @@ namespace php {
 		// 实际函数包装
 		static void method_delegate(zend_execute_data* execute_data, zval* return_value) {
 			parameters params(execute_data);
-			value rv(nullptr);
+			value& rv = *reinterpret_cast<value*>(return_value);
 			try {
 				rv = (class_wrapper<T>::from_this(getThis())->*FUNCTION)(params);
 			}catch(const exception& e) {
-				zend_throw_exception(nullptr, e.what(), e.code());
+				zend_throw_exception(class_entry<class_exception>::entry(), e.what(), e.code());
 			}catch(const std::exception& e){
-				zend_throw_exception(nullptr, e.what(), -1);
+				zend_throw_exception(class_entry<class_exception>::entry(), e.what(), 0);
 			}catch(...){
-				zend_throw_exception(nullptr, "unknown exception", -1);
+				zend_throw_exception(class_entry<class_exception>::entry(), "unknown exception", 0);
 			};
-			ZVAL_COPY(return_value, rv.data());
+			ZVAL_COPY(return_value, (zval*)&rv);
 		}
 	};
 }

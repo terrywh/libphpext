@@ -6,6 +6,10 @@ namespace php {
 		PROTECTED = ZEND_ACC_PROTECTED,
 		PRIVATE   = ZEND_ACC_PRIVATE,
 	};
+	template <class T, value (T::*FUNCTION)(parameters& params)>
+	class method_entry;
+	template <value FUNCTION(parameters& params)>
+	class function_entry;
 	class class_entry_base {
 	public:
 		virtual void declare() = 0;
@@ -108,13 +112,14 @@ namespace php {
 				zend_string_release(name);
 			}
 			class_entry<T>::entry_ = zend_register_internal_class_ex(&ce, pce);
+			//
 			class_entry<T>::entry_->create_object = class_entry<T>::create_object_handler;
 			// implements
 			for(auto i=interfaces_.begin();i!=interfaces_.end();++i) {
 				zend_string*      name = zend_string_init(i->c_str(), i->length(), 0);
 				zend_class_entry* intf = zend_lookup_class(name);
 				zend_string_release(name);
-				if(intf != nullptr && (intf->ce_flags & ZEND_ACC_TRAIT)) {
+				if(intf != nullptr && (intf->ce_flags & ZEND_ACC_INTERFACE)) {
 					zend_class_implements(class_entry<T>::entry_, 1, intf);
 				}else{
 					zend_throw_exception(zend_ce_exception, "interface not found", 0);
@@ -149,6 +154,10 @@ namespace php {
 			return create_object_handler(class_entry<T>::entry_);
 		}
 
+		static zend_class_entry* entry() {
+			return class_entry<T>::entry_;
+		}
+
 	private:
 		const char*                      name_;
 		const char*                      parent_class_name_;
@@ -167,8 +176,8 @@ namespace php {
 			std::memcpy(&handlers_, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 			handlers_.offset    = XtOffsetOf(class_wrapper<T>, obj);
 			handlers_.free_obj  = class_entry<T>::free_object_handler;
+			handlers_.clone_obj = nullptr;
 		}
-
 		static zend_object* create_object_handler(zend_class_entry *entry) {
 			auto wrapper = reinterpret_cast<class_wrapper<T>*>(ecalloc(1, sizeof(class_wrapper<T>) + zend_object_properties_size(entry)));
 			wrapper->cpp = new T();

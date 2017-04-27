@@ -75,7 +75,7 @@ namespace php {
 	}
 
 	php::value parse_ini_file(char* filename) {
-		php::value v(nullptr);
+		php::value rv;
 
 		zend_file_handle fh;
 		memset(&fh, 0x00, sizeof(fh));
@@ -83,9 +83,9 @@ namespace php {
 		fh.type     = ZEND_HANDLE_FILENAME;
 
 		ZVAL_UNDEF(&BG(active_ini_file_section));
-		if (zend_parse_ini_file(&fh, 0, ZEND_INI_SCANNER_TYPED, (zend_ini_parser_cb_t) php_ini_parser_cb_with_sections, v.data()) == FAILURE) {
-			return nullptr;
-		}
-		return std::move(v);
+		zend_parse_ini_file(&fh, 0, ZEND_INI_SCANNER_TYPED,
+				(zend_ini_parser_cb_t) php_ini_parser_cb_with_sections,
+				reinterpret_cast<zval*>(&rv));
+		return std::move(rv);
 	}
 }

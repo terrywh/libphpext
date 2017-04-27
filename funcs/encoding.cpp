@@ -107,12 +107,8 @@ namespace php {
 	php::value json_decode(char* src, std::size_t src_len) {
 		int32_t depth = PHP_JSON_PARSER_DEFAULT_DEPTH;
 		int32_t options = PHP_JSON_OBJECT_AS_ARRAY;
-		// zval result;
-		php::value v(nullptr);
-		php_json_decode_ex(v.data(), src, src_len, options, depth);
-		if(v.is_null())
-		return nullptr;
-		else
+		php::value v;
+		php_json_decode_ex(reinterpret_cast<zval*>(&v), src, src_len, options, depth);
 		return std::move(v);
 	}
 }
