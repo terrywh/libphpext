@@ -23,6 +23,7 @@ namespace php {
 	}
 	value::value(value&& w) {
 		ZVAL_COPY_VALUE(&value_, &w.value_);
+		ZVAL_UNDEF(&w.value_);
 	}
 	value::value(zend_string* str) {
 		ZVAL_STR(&value_, str);

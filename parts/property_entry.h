@@ -15,7 +15,7 @@ public:
 	property_entry(property_entry&& entry);
 	void declare(zend_class_entry* entry);
 private:
-	zend_string* name_;
+	std::string  name_;
 	value        value_;
 	int          access_;
 };

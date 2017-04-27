@@ -37,10 +37,6 @@ namespace php {
 		void on_module_shutdown(std::function<bool (extension_entry*)> handler);
 		void on_request_startup(std::function<bool (extension_entry*)> handler);
 		void on_request_shutdown(std::function<bool (extension_entry*)> handler);
-		// std::function<void (extension_entry* ext)> on_module_startup;
-		// std::function<void (extension_entry* ext)> on_module_shutdown;
-		// std::function<void (extension_entry* ext)> on_request_startup;
-		// std::function<void (extension_entry* ext)> on_request_shutdown;
 	private:
 		std::vector<ini_entry>      ini_entries_;
 		std::vector<constant_entry> constant_entries_;
