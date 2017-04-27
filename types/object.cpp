@@ -15,8 +15,8 @@ namespace php {
 			zend_objects_destroy_object(obj_);
 		}
 	}
-	object::object(zend_object* obj):obj_(obj) {
-		++GC_REFCOUNT(obj_);
+	object::object(zend_object* obj, bool create):obj_(obj) {
+		if(!create)	++GC_REFCOUNT(obj_);
 	}
 	object::object(zend_class_entry* ce):obj_(zend_objects_new(ce)) {
 	}

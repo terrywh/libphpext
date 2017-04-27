@@ -80,6 +80,10 @@ namespace php {
 		for(auto i=self->handler_rst_.begin(); i!=self->handler_rst_.end(); ++i) {
 			if(!(*i)(self)) return ZEND_RESULT_CODE::FAILURE;
 		}
+		// self->handler_rst_.begin() == self->handler_rst_.end();
+		// std::printf("2. --------------------------------------\n");
+		// std::printf("handler_rst_: %d\n", self->handler_rst_.begin() == self->handler_rst_.end());
+		/// std::printf("2. --------------------------------------\n");
 		return ZEND_RESULT_CODE::SUCCESS;
 	}
 	int extension_entry::on_request_shutdown_handler(int type, int module) {

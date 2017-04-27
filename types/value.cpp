@@ -5,8 +5,7 @@ namespace php {
 		_zval_dtor(&value_);
 	}
 	value::value() {
-		// ZVAL_NULL(&value_);
-		// !!! 立即进行 assign
+		ZVAL_UNDEF(&value_);
 	}
 	value::value(std::nullptr_t v) {
 		ZVAL_NULL(&value_);
@@ -93,8 +92,8 @@ namespace php {
 			assert("object is not yet set");
 		}
 	}
-	value::value(std::function<value (parameters&)> fn)
-		:value(class_entry<class_closure>::create_object()) {
+	value::value(std::function<value (parameters&)> fn) {
+		ZVAL_OBJ(&value_, class_entry<class_closure>::create_object());
 		class_closure* c = native<class_closure>();
 		c->fn_ = fn;
 	}

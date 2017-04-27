@@ -73,18 +73,18 @@ namespace php {
 		}
 		// 函数
 		template<value FUNCTION(parameters& params)>
-		class_entry& add(const char* name, int access = ZEND_ACC_PUBLIC) {
+		class_entry& add(const char* name, int access = ZEND_ACC_PUBLIC | ZEND_ACC_STATIC) {
 			zend_function_entry entry;
-			function_entry<FUNCTION>::fill(&entry, name, access |= ZEND_ACC_STATIC);
+			function_entry<FUNCTION>::fill(&entry, name, access);
 			method_entries_.push_back(entry);
 			return *this;
 		}
 		// 函数
 		template<value FUNCTION(parameters& params)>
-		class_entry& add(const char* name, arguments&& info, int access = ZEND_ACC_PUBLIC) {
+		class_entry& add(const char* name, arguments&& info, int access = ZEND_ACC_PUBLIC | ZEND_ACC_STATIC) {
 			zend_function_entry entry;
 			arguments_.emplace_back(std::move(info));
-			function_entry<FUNCTION>::fill(&entry, name, arguments_.back(), access |= ZEND_ACC_STATIC);
+			function_entry<FUNCTION>::fill(&entry, name, arguments_.back(), access);
 			method_entries_.push_back(entry);
 			return *this;
 		}
@@ -98,10 +98,24 @@ namespace php {
 			traits_.push_back(trait_name);
 			return *this;
 		}
-
+		static value default_destruct(parameters& params) {
+			return nullptr;
+		}
 		virtual void declare() override {
+			bool destruct_found = false;
+			for(auto i=method_entries_.begin();i!=method_entries_.end();++i) {
+				if(std::strcmp(i->fname, ZEND_DESTRUCTOR_FUNC_NAME) == 0) {
+					destruct_found = true;
+					break;
+				}
+			}
+			if(!destruct_found) {
+				add<default_destruct>(ZEND_DESTRUCTOR_FUNC_NAME, ZEND_ACC_PUBLIC);
+			}
 			method_entries_.push_back(zend_function_entry{}); // 结束数组条件
 			zend_class_entry ce, *pce = nullptr;
+
+
 			INIT_OVERLOADED_CLASS_ENTRY_EX(ce, name_, std::strlen(name_), method_entries_.data(), nullptr, nullptr, nullptr, nullptr, nullptr);
 			// create_object 会在继承动作发生后被重置为父类 create_object
 			// ce.create_object = class_entry<T>::create_object;
@@ -192,7 +206,7 @@ namespace php {
 			auto wrapper = reinterpret_cast<class_wrapper<T>*>((char*)object - XtOffsetOf(class_wrapper<T>, obj));
 			zend_object_std_dtor(&wrapper->obj);
 			delete wrapper->cpp;
-			// XXX 不太明白，貌似这里不能做释放
+			// !!!! object dtor_obj -> efree
 			// efree(wrapper);
 		}
 

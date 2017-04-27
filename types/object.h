@@ -7,10 +7,10 @@ namespace php {
 		zend_object* obj_;
 		// !!! 仅允许调用类成员函数
 		static value _call(zend_object* obj, const char* name, std::size_t len, int argc, zval argv[]);
-		object(zend_object* obj);
 		object(zend_class_entry* ce);
 	public:
 		~object();
+		object(zend_object* obj, bool create = false);
 		static object clone(const object& obj);
 		object(const object& obj);
 		object(object&& obj);
@@ -18,7 +18,7 @@ namespace php {
 		object(const std::string& name);
 		template<class T>
 		static object create() {
-			return object(zend_objects_new(class_entry<T>::entry()));
+			return object(class_entry<T>::create_object(), true);
 		}
 		value& prop(const char* name, std::size_t len);
 		inline value& prop(const std::string& name) {
