@@ -25,11 +25,11 @@ namespace php {
 			try {
 				rv = FUNCTION(params);
 			}catch(const exception& e) {
-			 	zend_throw_exception(class_entry<class_exception>::entry(), e.what(), e.code());
+			 	zend_throw_exception(nullptr, e.what(), e.code());
 			}catch(const std::exception& e){
-				zend_throw_exception(class_entry<class_exception>::entry(), e.what(), 0);
+				zend_throw_exception(nullptr, e.what(), 0);
 			}catch(...){
-				zend_throw_exception(class_entry<class_exception>::entry(), "unknown exception", 0);
+				zend_throw_exception(nullptr, "unknown exception", 0);
 			};
 		}
 	};
