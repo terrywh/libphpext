@@ -2,7 +2,6 @@
 
 namespace php {
 	class value;
-
 	class callable {
 	private:
 		zval cb_;

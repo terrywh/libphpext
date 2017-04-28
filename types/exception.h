@@ -1,8 +1,6 @@
 #pragma once
 
-namespace php
-{
-
+namespace php {
 	class exception: public std::exception {
 	public:
 		enum {

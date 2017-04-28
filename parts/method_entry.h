@@ -1,9 +1,4 @@
 #pragma once
-#include "../vendor.h"
-#include "../types/value.h"
-#include "../types/parameters.h"
-#include "../types/exception.h"
-#include "arguments.h"
 
 namespace php {
 	template <class T, value (T::*FUNCTION)(parameters& params)>

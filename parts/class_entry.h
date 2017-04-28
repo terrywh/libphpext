@@ -1,11 +1,6 @@
 #pragma once
 
 namespace php {
-	enum {
-		PUBLIC    = ZEND_ACC_PUBLIC,
-		PROTECTED = ZEND_ACC_PROTECTED,
-		PRIVATE   = ZEND_ACC_PRIVATE,
-	};
 	template <class T, value (T::*FUNCTION)(parameters& params)>
 	class method_entry;
 	template <value FUNCTION(parameters& params)>
