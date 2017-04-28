@@ -177,10 +177,10 @@ namespace php {
 		case IS_LONG:
 			return Z_LVAL(value_);
 		case IS_DOUBLE:
-			zend_error(E_USER_NOTICE, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(IS_DOUBLE));
+			zend_error_noreturn(E_USER_NOTICE, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(IS_DOUBLE));
 			return Z_DVAL(value_);
 		default: // TODO 其它类型？
-			zend_error(E_USER_WARNING, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(Z_TYPE(value_)));
+			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(Z_TYPE(value_)));
 			return 0;
 		}
 	}
@@ -191,31 +191,31 @@ namespace php {
 		case IS_LONG:
 			return Z_LVAL(value_);
 		case IS_DOUBLE:
-			zend_error(E_USER_NOTICE, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(IS_DOUBLE));
+			zend_error_noreturn(E_USER_NOTICE, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(IS_DOUBLE));
 			return Z_DVAL(value_);
 		default: // TODO 其它类型？
-			zend_error(E_USER_WARNING, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(Z_TYPE(value_)));
+			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(Z_TYPE(value_)));
 			return 0l;
 		}
 	}
 	value::operator double() const {
 		switch(Z_TYPE(value_)) {
 		case IS_FALSE:
-			zend_error(E_USER_NOTICE, "type of %s expected, %s given",
+			zend_error_noreturn(E_USER_NOTICE, "type of %s expected, %s given",
 				zend_get_type_by_const(IS_DOUBLE), zend_get_type_by_const(IS_FALSE));
 			return 0.;
 		case IS_TRUE:
-			zend_error(E_USER_NOTICE, "type of %s expected, %s given",
+			zend_error_noreturn(E_USER_NOTICE, "type of %s expected, %s given",
 				zend_get_type_by_const(IS_DOUBLE), zend_get_type_by_const(IS_TRUE));
 			return 1.;
 		case IS_LONG:
-			zend_error(E_USER_NOTICE, "type of %s expected, %s given",
+			zend_error_noreturn(E_USER_NOTICE, "type of %s expected, %s given",
 				zend_get_type_by_const(IS_DOUBLE), zend_get_type_by_const(IS_LONG));
 			return Z_LVAL(value_);
 		case IS_DOUBLE:
 			return Z_DVAL(value_);
 		default: // TODO 其它类型？
-			zend_error(E_USER_WARNING, "type of %s expected, %s given",
+			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given",
 				zend_get_type_by_const(IS_DOUBLE), zend_get_type_by_const(Z_TYPE(value_)));
 			return 0.;
 		}
@@ -225,7 +225,7 @@ namespace php {
 		case IS_STRING:
 			return std::string(Z_STRVAL(value_), Z_STRLEN(value_));
 		default:
-			zend_error(E_USER_WARNING, "type of %s expected, %s given",
+			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given",
 				zend_get_type_by_const(IS_STRING), zend_get_type_by_const(Z_TYPE(value_)));
 			return std::string();
 		}
@@ -235,7 +235,7 @@ namespace php {
 		case IS_STRING:
 			return Z_STR(value_);
 		default:
-			zend_error(E_USER_WARNING, "type of %s expected, %s given",
+			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given",
 				zend_get_type_by_const(IS_STRING), zend_get_type_by_const(Z_TYPE(value_)));
 			return nullptr;
 		}
@@ -248,7 +248,7 @@ namespace php {
 		case IS_ARRAY:
 			return Z_ARRVAL(value_);
 		default:
-			zend_error(E_USER_WARNING, "type of %s expected, %s given",
+			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given",
 				zend_get_type_by_const(IS_ARRAY), zend_get_type_by_const(Z_TYPE(value_)));
 			return nullptr;
 		}
@@ -261,7 +261,7 @@ namespace php {
 		case IS_OBJECT:
 			return Z_OBJ(value_);
 		default:
-			zend_error(E_USER_WARNING, "type of %s expected, %s given",
+			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given",
 				zend_get_type_by_const(IS_OBJECT), zend_get_type_by_const(Z_TYPE(value_)));
 			return nullptr;
 		}

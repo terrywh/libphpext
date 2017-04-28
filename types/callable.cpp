@@ -1,10 +1,10 @@
 #include "../phpext.h"
 
 namespace php {
-	value callable::__invoke(zval* cb, int argc, zval argv[]) {
+	value callable::__invoke(zval* cb, int argc, zval argv[], bool silent) {
 		value rv;
-		if(FAILURE == call_user_function_ex(EG(function_table), nullptr, cb, (zval*)&rv, argc, argv, 1, nullptr)) {
-			zend_error(E_USER_ERROR, "failed to invoke callalbe '%s'", zval_get_string(cb));
+		if(FAILURE == call_user_function_ex(EG(function_table), nullptr, cb, (zval*)&rv, argc, argv, 1, nullptr) && !silent) {
+			zend_error_noreturn(E_USER_ERROR, "failed to invoke callalbe '%s'", zval_get_string(cb));
 		}
 		return std::move(rv);
 	}
