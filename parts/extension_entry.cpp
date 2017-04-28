@@ -63,7 +63,7 @@ namespace php {
 		self->constant_entries_.clear();
 
 		for(auto i=self->handler_mst_.begin(); i!=self->handler_mst_.end(); ++i) {
-			if(!(*i)(self)) return ZEND_RESULT_CODE::FAILURE;
+			if(!(*i)(*self)) return ZEND_RESULT_CODE::FAILURE;
 		}
 		return ZEND_RESULT_CODE::SUCCESS;
 	}
@@ -72,13 +72,13 @@ namespace php {
 			zend_unregister_ini_entries(module);
 		}
 		for(auto i=self->handler_msd_.begin(); i!=self->handler_msd_.end(); ++i) {
-			if(!(*i)(self)) return ZEND_RESULT_CODE::FAILURE;
+			if(!(*i)(*self)) return ZEND_RESULT_CODE::FAILURE;
 		}
 		return ZEND_RESULT_CODE::SUCCESS;
 	}
 	int extension_entry::on_request_startup_handler (int type, int module) {
 		for(auto i=self->handler_rst_.begin(); i!=self->handler_rst_.end(); ++i) {
-			if(!(*i)(self)) return ZEND_RESULT_CODE::FAILURE;
+			if(!(*i)(*self)) return ZEND_RESULT_CODE::FAILURE;
 		}
 		// self->handler_rst_.begin() == self->handler_rst_.end();
 		// std::printf("2. --------------------------------------\n");
@@ -88,7 +88,7 @@ namespace php {
 	}
 	int extension_entry::on_request_shutdown_handler(int type, int module) {
 		for(auto i=self->handler_rsd_.begin(); i!=self->handler_rsd_.end(); ++i) {
-			if(!(*i)(self)) return ZEND_RESULT_CODE::FAILURE;
+			if(!(*i)(*self)) return ZEND_RESULT_CODE::FAILURE;
 		}
 		return ZEND_RESULT_CODE::SUCCESS;
 	}
@@ -102,16 +102,16 @@ namespace php {
 		return *this;
 	}
 
-	void extension_entry::on_module_startup(std::function<bool (extension_entry*)> handler) {
+	void extension_entry::on_module_startup(std::function<bool (extension_entry&)> handler) {
 		handler_mst_.push_back(handler);
 	}
-	void extension_entry::on_module_shutdown(std::function<bool (extension_entry*)> handler) {
+	void extension_entry::on_module_shutdown(std::function<bool (extension_entry&)> handler) {
 		handler_msd_.push_back(handler);
 	}
-	void extension_entry::on_request_startup(std::function<bool (extension_entry*)> handler) {
+	void extension_entry::on_request_startup(std::function<bool (extension_entry&)> handler) {
 		handler_rst_.push_back(handler);
 	}
-	void extension_entry::on_request_shutdown(std::function<bool (extension_entry*)> handler) {
+	void extension_entry::on_request_shutdown(std::function<bool (extension_entry&)> handler) {
 		handler_rsd_.push_back(handler);
 	}
 

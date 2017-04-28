@@ -33,20 +33,20 @@ namespace php {
 
 		operator zend_module_entry*();
 
-		void on_module_startup(std::function<bool (extension_entry*)> handler);
-		void on_module_shutdown(std::function<bool (extension_entry*)> handler);
-		void on_request_startup(std::function<bool (extension_entry*)> handler);
-		void on_request_shutdown(std::function<bool (extension_entry*)> handler);
+		void on_module_startup(std::function<bool (extension_entry&)> handler);
+		void on_module_shutdown(std::function<bool (extension_entry&)> handler);
+		void on_request_startup(std::function<bool (extension_entry&)> handler);
+		void on_request_shutdown(std::function<bool (extension_entry&)> handler);
 	private:
 		std::vector<ini_entry>      ini_entries_;
 		std::vector<constant_entry> constant_entries_;
 		std::vector<zend_function_entry> function_entries_;
 		std::vector<std::shared_ptr<class_entry_base>> class_entries_;
 		std::vector<arguments> arguments_;
-		std::vector<std::function<bool(extension_entry*)>> handler_rsd_;
-		std::vector<std::function<bool(extension_entry*)>> handler_rst_;
-		std::vector<std::function<bool(extension_entry*)>> handler_mst_;
-		std::vector<std::function<bool(extension_entry*)>> handler_msd_;
+		std::vector<std::function<bool(extension_entry&)>> handler_rsd_;
+		std::vector<std::function<bool(extension_entry&)>> handler_rst_;
+		std::vector<std::function<bool(extension_entry&)>> handler_mst_;
+		std::vector<std::function<bool(extension_entry&)>> handler_msd_;
 
 
 		// 扩展回调函数
