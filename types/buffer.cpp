@@ -12,7 +12,7 @@ namespace php {
 		, po_(buf.po_) {
 		buf.str_.s = nullptr;
 		buf.str_.a = 0;
-		buf.po_ = 0; 
+		buf.po_ = 0;
 	}
 
 	// 需要放入指定大小的 buffer，返回放入位置

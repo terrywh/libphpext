@@ -43,7 +43,7 @@ namespace php {
 		}
 		template <class T>
 		inline T* native() {
-			return class_wrapper<T>::from_this(obj_);
+			return class_wrapper<T>::from_obj(obj_);
 		};
 		friend class value;
 	};
