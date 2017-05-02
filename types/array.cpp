@@ -39,5 +39,45 @@ namespace php {
 		zend_string_release(key_);
 		return *item;
 	}
+    array_iterator array::begin() { 
+        return std::move(array_iterator(*this)); 
+    }
+    array_iterator array::end() { 
+        return std::move(array_iterator(*this, arr_->nNumUsed)); 
+    }
 
+    array_iterator& array_iterator::operator++() { 
+        if( pos >= end) return *this;
+        zval* z = nullptr;
+        do {
+            z = &(b + ++pos)->val;
+        } while(Z_TYPE_P(z) == IS_UNDEF && pos < end);
+        return *this; 
+    }
+    array_iterator  array_iterator::operator++(int) { 
+        if( pos >= end) return *this;
+        array_iterator ai = *this;
+        zval* z = nullptr;
+        do {
+            z = &(b + ++pos)->val;
+        } while(Z_TYPE_P(z) == IS_UNDEF && pos < end);
+        return ai; 
+    }
+    array_iterator& array_iterator::operator--() { 
+        if(pos == 0) return *this;
+        zval* z = nullptr;
+        do {
+            z = &(b + --pos)->val;
+        } while(Z_TYPE_P(z) == IS_UNDEF && pos > 0);
+        return *this; 
+    }
+    array_iterator  array_iterator::operator--(int) { 
+        if(pos == 0) return *this;
+        array_iterator ai = *this; 
+        zval* z = nullptr;
+        do {
+            z = &(b + --pos)->val;
+        } while(Z_TYPE_P(z) == IS_UNDEF && pos > 0);
+        return ai; 
+    }
 }
