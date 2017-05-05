@@ -1,4 +1,4 @@
-#pragma
+#pragma once
 
 namespace php {
 	class value;
@@ -45,6 +45,9 @@ namespace php {
 		inline T* native() {
 			return class_wrapper<T>::from_obj(obj_);
 		};
+		inline zend_object* data() {
+			return obj_;
+		}
 		friend class value;
 	};
 }

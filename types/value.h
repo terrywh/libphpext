@@ -45,6 +45,7 @@ namespace php {
 		value(class_base* base);
 		// 闭包 closure
 		value(std::function<value (parameters&)> fn);
+		value clone();
 		// -------------------------------------------------------------------------
 		inline zend_uchar type() const {
 			return Z_TYPE(value_);
@@ -79,13 +80,6 @@ namespace php {
 		inline void delref() {
 			Z_TRY_DELREF(value_);
 		}
-		inline operator zval*() {
-			return &value_;
-		}
-		// bool is_true() const;
-		// inline bool is_false() const {
-		// 	return !is_true();
-		// }
 		bool is_true() const;
 		operator int() const;
 		operator std::int64_t() const;

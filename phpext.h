@@ -12,6 +12,7 @@
 #include "types/buffer.h"
 #include "types/array.h"
 #include "types/object.h"
+#include "types/generator.h"
 #include "types/callable.h"
 #include "types/parameters.h"
 

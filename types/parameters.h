@@ -4,6 +4,7 @@ namespace php {
 	class parameters {
 		public:
 			parameters(zend_execute_data* execute_data);
+			parameters(int argc, zval argv[]);
 			value& operator[](std::uint8_t index);
 			inline std::uint8_t length() const {
 				return _size;

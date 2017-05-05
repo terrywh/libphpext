@@ -97,6 +97,11 @@ namespace php {
 		class_closure* c = native<class_closure>();
 		c->fn_ = fn;
 	}
+	value value::clone() {
+		value rv;
+		ZVAL_DUP(&rv.value_, &value_);
+		return std::move(rv);
+	}
 	bool value::is_empty() const {
 		switch(Z_TYPE(value_)) {
 			case IS_UNDEF:

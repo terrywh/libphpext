@@ -23,6 +23,7 @@ extern "C" {
 #include <zend_inheritance.h>
 #include <zend_smart_str.h>
 #include <zend_ini_scanner.h>
+#include <zend_generators.h>
 
 #include <php.h>
 #include <standard/php_string.h>
