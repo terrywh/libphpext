@@ -253,7 +253,7 @@ namespace php {
 		}
 	}
 	value::operator string() {
-		return Z_STR(value_);
+		return static_cast<zend_string*>(*this);
 	}
 	value::operator zend_array*() {
 		switch(Z_TYPE(value_)) {
@@ -266,7 +266,7 @@ namespace php {
 		}
 	}
 	value::operator array() {
-		return Z_ARRVAL(value_);
+		return static_cast<zend_array*>(*this);
 	}
 	value::operator zend_object*() {
 		switch(Z_TYPE(value_)) {
@@ -279,13 +279,19 @@ namespace php {
 		}
 	}
 	value::operator object() {
-		return Z_OBJ(value_);
+		return static_cast<zend_object*>(*this);
 	}
 	value::operator callable() {
-		return &value_;
+		if(is_callable()) return &value_;
+		zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given",
+			zend_get_type_by_const(IS_OBJECT), zend_get_type_by_const(Z_TYPE(value_)));
+		return nullptr;
 	}
 	value::operator zend_refcounted*() {
-		return Z_COUNTED(value_);
+		if(Z_REFCOUNTED(value_)) return Z_COUNTED(value_);
+		zend_error_noreturn(E_USER_WARNING, "recounted expected, %s given",
+			zend_get_type_by_const(Z_TYPE(value_)));
+		return nullptr;
 	}
 	value& value::operator=(const value& v) {
 		_zval_dtor(&value_);

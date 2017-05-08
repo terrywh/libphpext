@@ -49,4 +49,10 @@ namespace php {
 		rv = (value*)zend_read_property(obj_->ce, &objv, name, len, false, &defv);
 		return *rv;
 	}
+	bool object::is_instance_of(const std::string& class_name) const {
+		zend_string*      cn = zend_string_init(class_name.c_str(), class_name.length(), false);
+		zend_class_entry* ce = zend_lookup_class(cn);
+		zend_string_release(cn);
+		return instanceof_function(obj_->ce, ce);
+	}
 }

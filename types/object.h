@@ -41,6 +41,11 @@ namespace php {
 			value params[] = { static_cast<value>(argv)... };
 			return __call(obj_, name.c_str(), name.length(), sizeof...(Args), (zval*)params, true);
 		}
+		bool is_instance_of(const std::string& class_name) const;
+		template<class T>
+		inline bool is_instance_of() const {
+			return obj_->handlers == &class_entry<T>::handlers_;
+		}
 		template <class T>
 		inline T* native() {
 			return class_wrapper<T>::from_obj(obj_);
