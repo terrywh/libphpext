@@ -16,7 +16,12 @@ namespace php {
 		inline void _object_set(zend_object* obj) {
 			ZVAL_OBJ(&value_, obj);
 		}
-
+		inline void addref() {
+			Z_ADDREF(value_);
+		}
+		inline void delref() {
+			Z_DELREF(value_);
+		}
 		friend class value;
 	};
 }
