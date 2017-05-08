@@ -61,7 +61,7 @@ namespace php {
 
     class array_iterator {
         public:
-            typedef std::pair<zend_string*, php::value>  value_type;
+            typedef std::pair<std::string, php::value>  value_type;
             typedef value_type& reference;
             typedef size_t      size_type;
             typedef ptrdiff_t   difference_type;
@@ -78,12 +78,10 @@ namespace php {
             array_iterator& operator--();
             array_iterator  operator--(int);
 
-            bool operator==(array_iterator& ai) const { if(b == ai.b && pos == ai.pos){ return true; } return false; }
-            bool operator!=(array_iterator& ai) const { if(b != ai.b || pos != ai.pos){ return true; } return false; }
-
-            reference operator*()  { return val_ = std::move(value_type(b->key, b->val)); }
-            pointer   operator->() { return &(val_ = std::move(value_type(b->key, b->val))); }
+            reference operator*()  { return val_   = std::move(value_type(std::move(std::string(b->key->val, b->key->len)), b->val));  }
+            pointer   operator->() { return &(val_ = std::move(value_type(std::move(std::string(b->key->val, b->key->len)), b->val))); }
             array_iterator operator=(const array& arr) { b = arr.arr_->arData; pos = arr.arr_->nNumUsed; return *this;}
+            array_iterator operator=(array&& arr) { b = arr.arr_->arData; pos = arr.arr_->nNumUsed; return *this;}
 
             array_iterator  operator+(size_t n)  { 
                 array_iterator tmp(*this); 
@@ -97,6 +95,8 @@ namespace php {
                 return tmp; 
             }
             array_iterator& operator-=(size_t n) { while(n--) --*this; return *this; }
+            friend bool operator==(const array_iterator& lhs, const array_iterator& rhs);
+            friend bool operator!=(const array_iterator& lhs, const array_iterator& rhs);
 
         private:
             value_type  val_;

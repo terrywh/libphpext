@@ -80,4 +80,17 @@ namespace php {
         } while(Z_TYPE_P(z) == IS_UNDEF && pos > 0);
         return ai; 
     }
+
+    bool operator==(const array_iterator& lhs, const array_iterator& rhs) { 
+        if(lhs.b == rhs.b && lhs.pos == rhs.pos) {
+            return true;
+        }
+        return false;
+    }
+    bool operator!=(const array_iterator& lhs, const array_iterator& rhs) {
+        if(lhs.b != rhs.b || lhs.pos != rhs.pos) {
+            return true;
+        }
+        return false;
+    }
 }

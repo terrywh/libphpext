@@ -21,6 +21,9 @@ namespace php {
 		inline int capacity() const {
 			return str_.a;
 		}
+		inline operator char*() {
+			return str_.s->val;
+		}
 		inline operator zend_string*() {
 			return str_.s;
 		}
