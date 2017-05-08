@@ -97,6 +97,13 @@ namespace php {
 		class_closure* c = native<class_closure>();
 		c->fn_ = fn;
 	}
+	value::value(const callable& cb) {
+		ZVAL_COPY(&value_, &cb.cb_);
+	}
+	value::value(callable&& cb) {
+		ZVAL_COPY_VALUE(&value_, &cb.cb_);
+		ZVAL_UNDEF(&cb.cb_);
+	}
 	value value::clone() {
 		value rv;
 		ZVAL_DUP(&rv.value_, &value_);
@@ -276,6 +283,9 @@ namespace php {
 	}
 	value::operator callable() {
 		return &value_;
+	}
+	value::operator zend_refcounted*() {
+		return Z_COUNTED(value_);
 	}
 	value& value::operator=(const value& v) {
 		_zval_dtor(&value_);

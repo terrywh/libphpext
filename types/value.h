@@ -45,6 +45,8 @@ namespace php {
 		value(class_base* base);
 		// 闭包 closure
 		value(std::function<value (parameters&)> fn);
+		value(const callable& cb);
+		value(callable&& cb);
 		value clone();
 		// -------------------------------------------------------------------------
 		inline zend_uchar type() const {
@@ -73,6 +75,9 @@ namespace php {
 		inline bool is_callable() {
 			return zend_is_callable(&value_, IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr);
 		}
+		inline bool is_refcounted() const {
+			return Z_REFCOUNTED(value_);
+		}
 		std::size_t length() const;
 		inline void addref() {
 			Z_TRY_ADDREF(value_);
@@ -96,6 +101,7 @@ namespace php {
 		operator object();
 		// !!! 次数返回的是对当前对象的引用 GC_REFCOUNT()++
 		operator callable();
+		operator zend_refcounted*();
 		bool to_bool();
 		long to_long(int base = 10);
 		double to_double();
@@ -110,6 +116,7 @@ namespace php {
 		inline T* native() {
 			return Z_TYPE(value_) == IS_OBJECT ? class_wrapper<T>::from_this(&value_) : nullptr;
 		};
+
 		value& operator =(const value& v);
 		value& operator =(value&& v);
 	};
