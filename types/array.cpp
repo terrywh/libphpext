@@ -13,7 +13,7 @@ namespace php {
 	array::array(const array& arr):arr_(arr.arr_) {
 		++GC_REFCOUNT(arr_);
 	}
-	array::array(array& arr):arr_(arr.arr_) {
+	array::array(array&& arr):arr_(arr.arr_) {
 		arr.arr_ = nullptr;
 	}
 	array::array(zend_array* arr):arr_(arr) {
@@ -47,7 +47,7 @@ namespace php {
     }
 
     array_iterator& array_iterator::operator++() { 
-        if( pos >= end) return *this;
+        assert(pos < end);   // throw
         zval* z = nullptr;
         do {
             z = &(b + ++pos)->val;
@@ -81,6 +81,10 @@ namespace php {
         return ai; 
     }
 
+    array_iterator::reference array_iterator::operator*()  { 
+        return val_   = value_type(std::string((b + pos)->key->val, (b + pos)->key->len), (b + pos)->val);  }
+    array_iterator::pointer   array_iterator::operator->() { 
+        return &(val_ = value_type(std::string((b + pos)->key->val, (b + pos)->key->len), (b + pos)->val)); }
     bool operator==(const array_iterator& lhs, const array_iterator& rhs) { 
         if(lhs.b == rhs.b && lhs.pos == rhs.pos) {
             return true;

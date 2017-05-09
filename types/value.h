@@ -45,6 +45,8 @@ namespace php {
 		value(class_base* base);
 		// 闭包 closure
 		value(std::function<value (parameters&)> fn);
+		value(const callable& cb);
+		value(callable&& cb);
 		value clone();
 		// -------------------------------------------------------------------------
 		inline zend_uchar type() const {
