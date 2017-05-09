@@ -2,7 +2,7 @@
 
 namespace php {
 	class value;
-    class array_iterator;
+	class array_iterator;
 	class array {
 	private:
 		zend_array* arr_;
@@ -67,49 +67,49 @@ namespace php {
 		friend class array_iterator;
 	};
 
-    class array_iterator {
-        public:
-            typedef std::pair<std::string, php::value>  value_type;
-            typedef value_type& reference;
-            typedef size_t      size_type;
-            typedef ptrdiff_t   difference_type;
-            typedef value_type* pointer;
-        public:
-            array_iterator(array arr) : b(arr.arr_->arData), end(arr.arr_->nNumUsed) { }
-            array_iterator(array arr, size_t pos) : b(arr.arr_->arData), pos(pos), end(arr.arr_->nNumUsed) { }
-            array_iterator(const array_iterator& ai):b(ai.b), pos(ai.pos), end(ai.end) {}
-            array_iterator(array_iterator&& ai):b(ai.b), pos(ai.pos), end(ai.end) {}
-            ~array_iterator() {};
+	class array_iterator {
+	public:
+		typedef std::pair<std::string, php::value>  value_type;
+		typedef value_type& reference;
+		typedef size_t      size_type;
+		typedef ptrdiff_t   difference_type;
+		typedef value_type* pointer;
+	public:
+		array_iterator(array arr) : b(arr.arr_->arData), end(arr.arr_->nNumUsed) { }
+		array_iterator(array arr, size_t pos) : b(arr.arr_->arData), pos(pos), end(arr.arr_->nNumUsed) { }
+		array_iterator(const array_iterator& ai):b(ai.b), pos(ai.pos), end(ai.end) {}
+		array_iterator(array_iterator&& ai):b(ai.b), pos(ai.pos), end(ai.end) {}
+		~array_iterator() {};
 
-            array_iterator& operator++();
-            array_iterator  operator++(int);
-            array_iterator& operator--();
-            array_iterator  operator--(int);
+		array_iterator& operator++();
+		array_iterator  operator++(int);
+		array_iterator& operator--();
+		array_iterator  operator--(int);
 
-            reference operator*();
-            pointer   operator->();
-            array_iterator operator=(const array& arr) { b = arr.arr_->arData; pos = arr.arr_->nNumUsed; return *this;}
-            array_iterator operator=(array&& arr) { b = arr.arr_->arData; pos = arr.arr_->nNumUsed; return *this;}
+		reference operator*();
+		pointer   operator->();
+		array_iterator operator=(const array& arr) { b = arr.arr_->arData; pos = arr.arr_->nNumUsed; return *this;}
+		array_iterator operator=(array&& arr) { b = arr.arr_->arData; pos = arr.arr_->nNumUsed; return *this;}
 
-            array_iterator  operator+(size_t n)  {
-                array_iterator tmp(*this);
-                while(n--)++tmp;
-                return tmp;
-            }
-            array_iterator& operator+=(size_t n) { while(n--) ++*this; return *this; }
-            array_iterator  operator-(size_t n)  {
-                array_iterator tmp(*this);
-                while(n--)--tmp;
-                return tmp;
-            }
-            array_iterator& operator-=(size_t n) { while(n--) --*this; return *this; }
-            friend bool operator==(const array_iterator& lhs, const array_iterator& rhs);
-            friend bool operator!=(const array_iterator& lhs, const array_iterator& rhs);
+		array_iterator  operator+(size_t n)  {
+			array_iterator tmp(*this);
+			while(n--)++tmp;
+			return tmp;
+		}
+		array_iterator& operator+=(size_t n) { while(n--) ++*this; return *this; }
+		array_iterator  operator-(size_t n)  {
+			array_iterator tmp(*this);
+			while(n--)--tmp;
+			return tmp;
+		}
+		array_iterator& operator-=(size_t n) { while(n--) --*this; return *this; }
+		friend bool operator==(const array_iterator& lhs, const array_iterator& rhs);
+		friend bool operator!=(const array_iterator& lhs, const array_iterator& rhs);
 
-        private:
-            value_type  val_;
-            Bucket*     b    = nullptr;
-            size_t      pos  = 0;
-            size_t      end  = 0;
-    };
+	private:
+		value_type  val_;
+		Bucket*     b    = nullptr;
+		size_t      pos  = 0;
+		size_t      end  = 0;
+	};
 }

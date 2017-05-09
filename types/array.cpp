@@ -39,12 +39,12 @@ namespace php {
 		zend_string_release(key_);
 		return *item;
 	}
-    array_iterator array::begin() {
-        return std::move(array_iterator(*this));
-    }
-    array_iterator array::end() {
-        return std::move(array_iterator(*this, arr_->nNumUsed));
-    }
+	array_iterator array::begin() {
+		return std::move(array_iterator(*this));
+	}
+	array_iterator array::end() {
+		return std::move(array_iterator(*this, arr_->nNumUsed));
+	}
 
 	array& array::operator=(const array& a) {
 		arr_ = a.arr_;
@@ -56,58 +56,62 @@ namespace php {
 		a.arr_ = nullptr;
 		return *this;
 	}
-    array_iterator& array_iterator::operator++() {
-        assert(pos < end);   // throw
-        zval* z = nullptr;
-        do {
-            z = &(b + ++pos)->val;
-        } while(Z_TYPE_P(z) == IS_UNDEF && pos < end);
-        return *this;
-    }
-    array_iterator  array_iterator::operator++(int) {
-        assert(pos < end);   // throw
-        //if( pos >= end) return *this;
-        array_iterator ai = *this;
-        zval* z = nullptr;
-        do {
-            z = &(b + ++pos)->val;
-        } while(Z_TYPE_P(z) == IS_UNDEF && pos < end);
-        return ai;
-    }
-    array_iterator& array_iterator::operator--() {
-        assert(pos > 0);   // throw
-        //if(pos == 0) return *this;
-        zval* z = nullptr;
-        do {
-            z = &(b + --pos)->val;
-        } while(Z_TYPE_P(z) == IS_UNDEF && pos > 0);
-        return *this;
-    }
-    array_iterator  array_iterator::operator--(int) {
-        assert(pos > 0);   // throw
-        //if(pos == 0) return *this;
-        array_iterator ai = *this;
-        zval* z = nullptr;
-        do {
-            z = &(b + --pos)->val;
-        } while(Z_TYPE_P(z) == IS_UNDEF && pos > 0);
-        return ai;
-    }
+	array_iterator& array_iterator::operator++() {
+		assert(pos < end);   // throw
+		zval* z = nullptr;
+		do {
+			z = &(b + ++pos)->val;
+		} while(Z_TYPE_P(z) == IS_UNDEF && pos < end);
+		return *this;
+	}
+	array_iterator  array_iterator::operator++(int) {
+		assert(pos < end);
+		array_iterator ai = *this;
+		zval* z = nullptr;
+		do {
+			z = &(b + ++pos)->val;
+		} while(Z_TYPE_P(z) == IS_UNDEF && pos < end);
+		return ai;
+	}
+	array_iterator& array_iterator::operator--() {
+		assert(pos > 0);   // throw
+		//if(pos == 0) return *this;
+		zval* z = nullptr;
+		do {
+			z = &(b + --pos)->val;
+		} while(Z_TYPE_P(z) == IS_UNDEF && pos > 0);
+		return *this;
+	}
+	array_iterator  array_iterator::operator--(int) {
+		assert(pos > 0);
+		array_iterator ai = *this;
+		zval* z = nullptr;
+		do {
+			z = &(b + --pos)->val;
+		} while(Z_TYPE_P(z) == IS_UNDEF && pos > 0);
+		return ai;
+	}
 
-    array_iterator::reference array_iterator::operator*()  { 
-        return val_   = value_type(std::string((b + pos)->key->val, (b + pos)->key->len), (b + pos)->val);  }
-    array_iterator::pointer   array_iterator::operator->() { 
-        return &(val_ = value_type(std::string((b + pos)->key->val, (b + pos)->key->len), (b + pos)->val)); }
-    bool operator==(const array_iterator& lhs, const array_iterator& rhs) { 
-        if(lhs.b == rhs.b && lhs.pos == rhs.pos) {
-            return true;
-        }
-        return false;
-    }
-    bool operator!=(const array_iterator& lhs, const array_iterator& rhs) {
-        if(lhs.b != rhs.b || lhs.pos != rhs.pos) {
-            return true;
-        }
-        return false;
-    }
+	array_iterator::reference array_iterator::operator*() {
+		return val_ = value_type(
+			std::string((b + pos)->key->val, (b + pos)->key->len),
+			(b + pos)->val);
+	}
+	array_iterator::pointer   array_iterator::operator->() {
+		return &(val_ = value_type(
+			std::string((b + pos)->key->val, (b + pos)->key->len),
+			(b + pos)->val));
+	}
+	bool operator==(const array_iterator& lhs, const array_iterator& rhs) {
+		if(lhs.b == rhs.b && lhs.pos == rhs.pos) {
+			return true;
+		}
+		return false;
+	}
+	bool operator!=(const array_iterator& lhs, const array_iterator& rhs) {
+		if(lhs.b != rhs.b || lhs.pos != rhs.pos) {
+			return true;
+		}
+		return false;
+	}
 }

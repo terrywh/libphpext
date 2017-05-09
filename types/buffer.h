@@ -15,7 +15,7 @@ namespace php {
 		char* put(int size);
 		// 需要放入最大 size 大小（未实际放入，可能与 size 不同）
 		char* rev(int size);
-        char* data() {
+		inline char* data() {
 			return str_.s->val;
 		}
 		inline int size() const {
