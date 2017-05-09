@@ -33,6 +33,14 @@ namespace php {
 		inline static string concat(const string& s1, const string& s2) {
 			return string(concat(s1.str_, s2.str_));
 		}
+		inline std::uint32_t addref() {
+			return ++GC_REFCOUNT(str_);
+		}
+		inline std::uint32_t delref() {
+			return --GC_REFCOUNT(str_);
+		}
+		string& operator=(const string& cb);
+		string& operator=(string&& cb);
 		friend class value;
 	};
 }

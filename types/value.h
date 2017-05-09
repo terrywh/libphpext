@@ -79,11 +79,17 @@ namespace php {
 			return Z_REFCOUNTED(value_);
 		}
 		std::size_t length() const;
-		inline void addref() {
-			Z_TRY_ADDREF(value_);
+		inline std::uint32_t addref() {
+			if(Z_REFCOUNTED(value_)) {
+				return Z_ADDREF(value_);
+			}
+			return 1;
 		}
-		inline void delref() {
-			Z_TRY_DELREF(value_);
+		inline std::uint32_t delref() {
+			if(Z_REFCOUNTED(value_)) {
+				return Z_DELREF(value_);
+			}
+			return 1;
 		}
 		bool is_true() const;
 		operator int() const;
@@ -106,17 +112,19 @@ namespace php {
 		long to_long(int base = 10);
 		double to_double();
 		zend_string* to_string();
+		// 下面方法 object 对象也具有，这里仅为了简化使用过程
+		// ---------------------------------------------------------------------
 		bool is_instance_of(const std::string& class_name) const;
 		template<class T>
 		inline bool is_instance_of() const {
 			return Z_TYPE(value_) == IS_OBJECT &&
-				Z_OBJ(value_)->handlers == &class_entry<T>::handlers_;
+			Z_OBJ(value_)->handlers == &class_entry<T>::handlers_;
 		}
 		template <class T>
 		inline T* native() {
 			return Z_TYPE(value_) == IS_OBJECT ? class_wrapper<T>::from_this(&value_) : nullptr;
 		};
-
+		// ---------------------------------------------------------------------
 		value& operator =(const value& v);
 		value& operator =(value&& v);
 	};

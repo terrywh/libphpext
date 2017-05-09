@@ -6,18 +6,18 @@ namespace php {
 		zend_hash_copy(a2.arr_, a1.arr_, nullptr);
 	}
 	array::~array() {
-		if(arr_ != nullptr && --GC_REFCOUNT(arr_) == 0) {
+		if(arr_ != nullptr && delref() == 0) {
 			zend_array_destroy(arr_);
 		}
 	}
 	array::array(const array& arr):arr_(arr.arr_) {
-		++GC_REFCOUNT(arr_);
+		addref();
 	}
 	array::array(array& arr):arr_(arr.arr_) {
 		arr.arr_ = nullptr;
 	}
 	array::array(zend_array* arr):arr_(arr) {
-		++GC_REFCOUNT(arr_);
+		addref();
 	}
 	array::array(std::size_t size) {
 		arr_ = (zend_array*)emalloc(sizeof(zend_array));
@@ -39,49 +39,58 @@ namespace php {
 		zend_string_release(key_);
 		return *item;
 	}
-    array_iterator array::begin() { 
-        return std::move(array_iterator(*this)); 
+    array_iterator array::begin() {
+        return std::move(array_iterator(*this));
     }
-    array_iterator array::end() { 
-        return std::move(array_iterator(*this, arr_->nNumUsed)); 
+    array_iterator array::end() {
+        return std::move(array_iterator(*this, arr_->nNumUsed));
     }
-
-    array_iterator& array_iterator::operator++() { 
+	array& array::operator=(const array& a) {
+		arr_ = a.arr_;
+		addref();
+		return *this;
+	}
+	array& array::operator=(array&& a) {
+		arr_ = a.arr_;
+		a.arr_ = nullptr;
+		return *this;
+	}
+    array_iterator& array_iterator::operator++() {
         if( pos >= end) return *this;
         zval* z = nullptr;
         do {
             z = &(b + ++pos)->val;
         } while(Z_TYPE_P(z) == IS_UNDEF && pos < end);
-        return *this; 
+        return *this;
     }
-    array_iterator  array_iterator::operator++(int) { 
+    array_iterator  array_iterator::operator++(int) {
         if( pos >= end) return *this;
         array_iterator ai = *this;
         zval* z = nullptr;
         do {
             z = &(b + ++pos)->val;
         } while(Z_TYPE_P(z) == IS_UNDEF && pos < end);
-        return ai; 
+        return ai;
     }
-    array_iterator& array_iterator::operator--() { 
+    array_iterator& array_iterator::operator--() {
         if(pos == 0) return *this;
         zval* z = nullptr;
         do {
             z = &(b + --pos)->val;
         } while(Z_TYPE_P(z) == IS_UNDEF && pos > 0);
-        return *this; 
+        return *this;
     }
-    array_iterator  array_iterator::operator--(int) { 
+    array_iterator  array_iterator::operator--(int) {
         if(pos == 0) return *this;
-        array_iterator ai = *this; 
+        array_iterator ai = *this;
         zval* z = nullptr;
         do {
             z = &(b + --pos)->val;
         } while(Z_TYPE_P(z) == IS_UNDEF && pos > 0);
-        return ai; 
+        return ai;
     }
 
-    bool operator==(const array_iterator& lhs, const array_iterator& rhs) { 
+    bool operator==(const array_iterator& lhs, const array_iterator& rhs) {
         if(lhs.b == rhs.b && lhs.pos == rhs.pos) {
             return true;
         }

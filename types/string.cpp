@@ -7,13 +7,13 @@ namespace php {
 		}
 	}
 	string::string(zend_string* str):str_(str) {
-		++GC_REFCOUNT(str_);
+		addref();
 	}
 	string string::clone(const string& str) {
 		return string(str.c_str(), str.length());
 	}
 	string::string(const string& str):str_(str.str_) {
-		++GC_REFCOUNT(str_);
+		addref();
 	}
 	string::string(string&& str):str_(str.str_) {
 		str.str_ = nullptr;
@@ -35,5 +35,15 @@ namespace php {
 		std::memcpy(s3->val, s1->val, s1->len);
 		std::memcpy(s3->val + s1->len, s2->val, s2->len);
 		return s3;
+	}
+	string& string::operator=(const string& cb) {
+		str_ = cb.str_;
+		addref();
+		return *this;
+	}
+	string& string::operator=(string&& cb) {
+		str_ = cb.str_;
+		cb.str_ = nullptr;
+		return *this;
 	}
 }

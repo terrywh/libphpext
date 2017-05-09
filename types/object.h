@@ -53,6 +53,14 @@ namespace php {
 		inline zend_object* data() {
 			return obj_;
 		}
+		inline std::uint32_t addref() {
+			return ++GC_REFCOUNT(obj_);
+		}
+		inline std::uint32_t delref() {
+			return --GC_REFCOUNT(obj_);
+		}
+		object& operator=(const object& cb);
+		object& operator=(object&& cb);
 		friend class value;
 	};
 }

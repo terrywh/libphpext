@@ -52,9 +52,17 @@ namespace php {
 		// array_iterator end()
 		// array_iterator erase(const array_iterator& i);
 		// TODO erase(iterator) -> next iterator
-        array_iterator begin();
-        array_iterator end();
+		array_iterator begin();
+		array_iterator end();
 
+		inline std::uint32_t addref() {
+			return ++GC_REFCOUNT(arr_);
+		}
+		inline std::uint32_t delref() {
+			return --GC_REFCOUNT(arr_);
+		}
+		array& operator=(const array& a);
+		array& operator=(array&& a);
 		friend class value;
 		friend class array_iterator;
 	};
@@ -83,16 +91,16 @@ namespace php {
             array_iterator operator=(const array& arr) { b = arr.arr_->arData; pos = arr.arr_->nNumUsed; return *this;}
             array_iterator operator=(array&& arr) { b = arr.arr_->arData; pos = arr.arr_->nNumUsed; return *this;}
 
-            array_iterator  operator+(size_t n)  { 
-                array_iterator tmp(*this); 
-                while(n--)++tmp; 
-                return tmp; 
+            array_iterator  operator+(size_t n)  {
+                array_iterator tmp(*this);
+                while(n--)++tmp;
+                return tmp;
             }
             array_iterator& operator+=(size_t n) { while(n--) ++*this; return *this; }
-            array_iterator  operator-(size_t n)  { 
-                array_iterator tmp(*this); 
-                while(n--)--tmp; 
-                return tmp; 
+            array_iterator  operator-(size_t n)  {
+                array_iterator tmp(*this);
+                while(n--)--tmp;
+                return tmp;
             }
             array_iterator& operator-=(size_t n) { while(n--) --*this; return *this; }
             friend bool operator==(const array_iterator& lhs, const array_iterator& rhs);
@@ -105,4 +113,3 @@ namespace php {
             size_t      end  = 0;
     };
 }
-

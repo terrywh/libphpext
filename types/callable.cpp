@@ -26,4 +26,13 @@ namespace php {
 		ZVAL_COPY_VALUE(&cb_, &cb.cb_);
 		ZVAL_UNDEF(&cb.cb_);
 	}
+	callable& callable::operator=(const callable& cb) {
+		ZVAL_COPY(&cb_, &cb.cb_);
+		return *this;
+	}
+	callable& callable::operator=(callable&& cb) {
+		ZVAL_COPY_VALUE(&cb_, &cb.cb_);
+		ZVAL_UNDEF(&cb.cb_);
+		return *this;
+	}
 }

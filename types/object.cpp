@@ -11,12 +11,12 @@ namespace php {
 		return std::move(rv);
 	}
 	object::~object() {
-		if(obj_ != nullptr && --GC_REFCOUNT(obj_) == 0) {
+		if(obj_ != nullptr && delref() == 0) {
 			zend_objects_destroy_object(obj_);
 		}
 	}
 	object::object(zend_object* obj, bool create):obj_(obj) {
-		if(!create)	++GC_REFCOUNT(obj_);
+		if(!create) addref();
 	}
 	object::object(zend_class_entry* ce):obj_(zend_objects_new(ce)) {
 	}
@@ -54,5 +54,15 @@ namespace php {
 		zend_class_entry* ce = zend_lookup_class(cn);
 		zend_string_release(cn);
 		return instanceof_function(obj_->ce, ce);
+	}
+	object& object::operator=(const object& o) {
+		obj_ = o.obj_;
+		addref();
+		return *this;
+	}
+	object& object::operator=(object&& o) {
+		obj_ = o.obj_;
+		o.obj_ = nullptr;
+		return *this;
 	}
 }

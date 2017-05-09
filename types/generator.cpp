@@ -3,17 +3,17 @@
 namespace php {
 	generator::~generator() {
 		zend_object* obj = (zend_object*)gen_;
-		if(obj != nullptr && --GC_REFCOUNT(obj) == 0) {
+		if(obj != nullptr && delref() == 0) {
 			zend_objects_destroy_object(obj);
 		}
 	}
 	generator::generator(zend_object* obj)
 	: gen_((zend_generator*)obj) {
-		++GC_REFCOUNT(obj);
+		addref();
 	}
 	generator::generator(const generator& obj)
 	: gen_(obj.gen_) {
-		++GC_REFCOUNT((zend_object*)gen_);
+		addref();
 	}
 	generator::generator(generator&& obj)
 	: gen_(obj.gen_) {
@@ -107,5 +107,15 @@ namespace php {
 		zend_generator_ensure_initialized(gen_);
 		zend_generator_get_current(gen_);
 		return EXPECTED(gen_->execute_data != NULL);
+	}
+	generator& generator::operator=(const generator& g) {
+		gen_ = g.gen_;
+		addref();
+		return *this;
+	}
+	generator& generator::operator=(generator&& g) {
+		gen_ = g.gen_;
+		g.gen_ = nullptr;
+		return *this;
 	}
 }
