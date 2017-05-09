@@ -10,7 +10,7 @@ namespace php {
 	public:
 		~array();
 		array(const array& arr);
-		array(array& arr);
+		array(array&& arr);
 		array(std::size_t size = 0);
 		inline std::size_t length() const {
 			return zend_hash_num_elements(arr_);
@@ -86,8 +86,8 @@ namespace php {
             array_iterator& operator--();
             array_iterator  operator--(int);
 
-            reference operator*()  { return val_   = std::move(value_type(std::move(std::string(b->key->val, b->key->len)), b->val));  }
-            pointer   operator->() { return &(val_ = std::move(value_type(std::move(std::string(b->key->val, b->key->len)), b->val))); }
+            reference operator*();
+            pointer   operator->();
             array_iterator operator=(const array& arr) { b = arr.arr_->arData; pos = arr.arr_->nNumUsed; return *this;}
             array_iterator operator=(array&& arr) { b = arr.arr_->arData; pos = arr.arr_->nNumUsed; return *this;}
 

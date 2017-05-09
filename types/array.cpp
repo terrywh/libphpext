@@ -13,7 +13,7 @@ namespace php {
 	array::array(const array& arr):arr_(arr.arr_) {
 		addref();
 	}
-	array::array(array& arr):arr_(arr.arr_) {
+	array::array(array&& arr):arr_(arr.arr_) {
 		arr.arr_ = nullptr;
 	}
 	array::array(zend_array* arr):arr_(arr) {
@@ -45,6 +45,7 @@ namespace php {
     array_iterator array::end() {
         return std::move(array_iterator(*this, arr_->nNumUsed));
     }
+
 	array& array::operator=(const array& a) {
 		arr_ = a.arr_;
 		addref();
@@ -56,7 +57,7 @@ namespace php {
 		return *this;
 	}
     array_iterator& array_iterator::operator++() {
-        if( pos >= end) return *this;
+        assert(pos < end);   // throw
         zval* z = nullptr;
         do {
             z = &(b + ++pos)->val;
@@ -64,7 +65,8 @@ namespace php {
         return *this;
     }
     array_iterator  array_iterator::operator++(int) {
-        if( pos >= end) return *this;
+        assert(pos < end);   // throw
+        //if( pos >= end) return *this;
         array_iterator ai = *this;
         zval* z = nullptr;
         do {
@@ -73,7 +75,8 @@ namespace php {
         return ai;
     }
     array_iterator& array_iterator::operator--() {
-        if(pos == 0) return *this;
+        assert(pos > 0);   // throw
+        //if(pos == 0) return *this;
         zval* z = nullptr;
         do {
             z = &(b + --pos)->val;
@@ -81,7 +84,8 @@ namespace php {
         return *this;
     }
     array_iterator  array_iterator::operator--(int) {
-        if(pos == 0) return *this;
+        assert(pos > 0);   // throw
+        //if(pos == 0) return *this;
         array_iterator ai = *this;
         zval* z = nullptr;
         do {
@@ -90,7 +94,11 @@ namespace php {
         return ai;
     }
 
-    bool operator==(const array_iterator& lhs, const array_iterator& rhs) {
+    array_iterator::reference array_iterator::operator*()  { 
+        return val_   = value_type(std::string((b + pos)->key->val, (b + pos)->key->len), (b + pos)->val);  }
+    array_iterator::pointer   array_iterator::operator->() { 
+        return &(val_ = value_type(std::string((b + pos)->key->val, (b + pos)->key->len), (b + pos)->val)); }
+    bool operator==(const array_iterator& lhs, const array_iterator& rhs) { 
         if(lhs.b == rhs.b && lhs.pos == rhs.pos) {
             return true;
         }
