@@ -12,8 +12,14 @@ namespace php {
 	}
 	object::~object() {
 		if(obj_ != nullptr && delref() == 0) {
+			zend_objects_store_del(obj_);
+		}
+	}
+	void object::reset() {
+		if(obj_ != nullptr && delref() == 0) {
 			zend_objects_destroy_object(obj_);
 		}
+		obj_ = nullptr;
 	}
 	object::object(zend_object* obj, bool create):obj_(obj) {
 		if(!create) addref();

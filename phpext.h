@@ -27,7 +27,8 @@
 #include "parts/extension_entry.h"
 
 #include "funcs/util.h"
-#include "funcs/parser.h"
-#include "funcs/parser_ini.h"
+#include "funcs/string_parser.h"
+#include "funcs/parse_url.h"
+#include "funcs/parse_ini.h"
 #include "funcs/hash.h"
 #include "funcs/encoding.h"

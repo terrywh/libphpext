@@ -9,10 +9,10 @@ namespace php {
 
 	const char* ini_get(char* name, uint name_len);
 
-	inline char* strtoupper(char* s, size_t len) {
-		return php_strtoupper(s, len);
+	inline void strtoupper(char* s, size_t len) {
+		php_strtoupper(s, len);
 	}
-	inline char* strtolower(char* s, size_t len) {
-		return php_strtolower(s, len);
+	inline void strtolower(char* s, size_t len) {
+		php_strtolower(s, len);
 	}
 }

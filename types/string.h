@@ -8,6 +8,7 @@ namespace php {
 		string(zend_string* str);
 	public:
 		~string();
+		void reset();
 		string():str_(nullptr) {}
 		static string clone(const string& str);
 		string(const string& str);

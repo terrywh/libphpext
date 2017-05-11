@@ -6,6 +6,7 @@
 #include <functional>
 #include <memory>
 #include <initializer_list>
+#include <streambuf>
 
 #include <cassert>
 #include <cmath>

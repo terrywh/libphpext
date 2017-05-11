@@ -4,7 +4,7 @@ namespace php {
 	generator::~generator() {
 		zend_object* obj = (zend_object*)gen_;
 		if(obj != nullptr && delref() == 0) {
-			zend_objects_destroy_object(obj);
+			zend_objects_store_del(obj);
 		}
 	}
 	generator::generator(zend_object* obj)
@@ -77,7 +77,7 @@ namespace php {
 		zend_generator* root = zend_generator_get_current(gen_);
 		/* Put sent value in the target VAR slot, if it is used */
 		if (root->send_target) {
-			ZVAL_COPY(root->send_target, (zval*)&v);
+			// ZVAL_COPY(root->send_target, (zval*)&v);
 		}
 		zend_generator_resume(gen_);
 	}

@@ -6,6 +6,12 @@ namespace php {
 			zend_string_release(str_); // --GC_REFCOUNT(str_) == 0 -> zend_string_free
 		}
 	}
+	void string::reset() {
+		if(str_ != nullptr) {
+			zend_string_release(str_); // --GC_REFCOUNT(str_) == 0 -> zend_string_free
+		}
+		str_ = nullptr;
+	}
 	string::string(zend_string* str):str_(str) {
 		addref();
 	}

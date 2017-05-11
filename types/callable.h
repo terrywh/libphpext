@@ -9,6 +9,10 @@ namespace php {
 		callable(zval* callable);
 	public:
 		~callable();
+		void reset();
+		callable() {
+			ZVAL_UNDEF(&cb_);
+		}
 		callable(const callable& cb);
 		callable(callable&& cb);
 

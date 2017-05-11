@@ -16,6 +16,10 @@ namespace php {
 	callable::~callable() {
 		_zval_dtor(&cb_);
 	}
+	void callable::reset() {
+		_zval_dtor(&cb_);
+		ZVAL_UNDEF(&cb_);
+	}
 	callable::callable(zval* cb) {
 		ZVAL_COPY(&cb_, cb);
 	}

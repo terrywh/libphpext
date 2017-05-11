@@ -10,6 +10,12 @@ namespace php {
 			zend_array_destroy(arr_);
 		}
 	}
+	void array::reset() {
+		if(arr_ != nullptr && delref() == 0) {
+			zend_array_destroy(arr_);
+		}
+		arr_ = nullptr;
+	}
 	array::array(const array& arr):arr_(arr.arr_) {
 		addref();
 	}

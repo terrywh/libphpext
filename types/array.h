@@ -9,6 +9,8 @@ namespace php {
 		array(zend_array* arr);
 	public:
 		~array();
+		void reset();
+		array():arr_(nullptr) {}
 		array(const array& arr);
 		array(array&& arr);
 		array(std::size_t size = 0);

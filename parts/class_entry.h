@@ -1,6 +1,8 @@
 #pragma once
 
 namespace php {
+	class value;
+	class object;
 	template <class T, value (T::*FUNCTION)(parameters& params)>
 	class method_entry;
 	template <value FUNCTION(parameters& params)>
@@ -204,8 +206,9 @@ namespace php {
 			// !!!! object dtor_obj -> efree
 			// efree(wrapper);
 		}
-
+		// 下面类需要访问 handlers_ 私有成员（is_instance_of）
 		friend class value;
+		friend class object;
 	};
 
 	template <class T>

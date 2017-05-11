@@ -10,6 +10,8 @@ namespace php {
 		object(zend_class_entry* ce);
 	public:
 		~object();
+		void reset();
+		object(): obj_(nullptr) {}
 		object(zend_object* obj, bool create = false);
 		static object clone(const object& obj);
 		object(const object& obj);
