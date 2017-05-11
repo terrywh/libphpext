@@ -17,7 +17,7 @@ namespace php {
 	}
 	void object::reset() {
 		if(obj_ != nullptr && delref() == 0) {
-			zend_objects_destroy_object(obj_);
+			zend_objects_store_del(obj_);
 		}
 		obj_ = nullptr;
 	}

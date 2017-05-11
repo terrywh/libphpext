@@ -77,7 +77,7 @@ namespace php {
 		zend_generator* root = zend_generator_get_current(gen_);
 		/* Put sent value in the target VAR slot, if it is used */
 		if (root->send_target) {
-			// ZVAL_COPY(root->send_target, (zval*)&v);
+			ZVAL_COPY(root->send_target, (zval*)&v);
 		}
 		zend_generator_resume(gen_);
 	}
