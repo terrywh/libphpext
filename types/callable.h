@@ -2,44 +2,35 @@
 
 namespace php {
 	class value;
-	class callable {
+	class callable : public value {
 	private:
-		zval cb_;
 		static value __invoke(zval* callable, int argc, zval argv[], bool silent);
-		callable(zval* callable);
 	public:
-		~callable();
-		void reset();
-		callable() {
-			ZVAL_UNDEF(&cb_);
-		}
-		callable(const callable& cb);
-		callable(callable&& cb);
+		callable(): value() {}
+		callable(const callable& cb): value(cb) {}
+		callable(callable&& cb): value(std::move(cb)) {}
 
 		inline value invoke(bool silent) {
-			return __invoke(&cb_, 0, nullptr, silent);
+			return __invoke(&value_, 0, nullptr, silent);
 		}
 		template <typename ...Args>
 		inline value invoke(bool silent, const Args&... argv) {
 			value params[] = { static_cast<value>(argv)... };
-			return __invoke(&cb_, sizeof...(Args), (zval*)params, silent);
+			return __invoke(&value_, sizeof...(Args), (zval*)params, silent);
 		}
 		inline value operator()() {
-			return __invoke(&cb_, 0, nullptr, false);
+			return __invoke(&value_, 0, nullptr, false);
 		}
 		template <typename ...Args>
 		inline value operator()(const Args&... argv) {
 			value params[] = { static_cast<value>(argv)... };
-			return __invoke(&cb_, sizeof...(Args), (zval*)params, false);
+			return __invoke(&value_, sizeof...(Args), (zval*)params, false);
 		}
 		inline std::uint32_t addref() {
-			return Z_ADDREF(cb_);
+			return Z_ADDREF(value_);
 		}
 		inline std::uint32_t delref() {
-			return Z_DELREF(cb_);
+			return Z_DELREF(value_);
 		}
-		callable& operator=(const callable& cb);
-		callable& operator=(callable&& cb);
-		friend class value;
 	};
 }

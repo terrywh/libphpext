@@ -2,46 +2,28 @@
 
 namespace php {
 	class value;
-	class string {
-	private:
-		zend_string* str_;
-		string(zend_string* str);
+	class string : public value {
 	public:
-		~string();
-		void reset();
-		string():str_(nullptr) {}
-		static string clone(const string& str);
-		string(const string& str);
-		string(string&& str);
-		string(std::size_t size, bool persistent=false);
-		string(const char* val, std::size_t len, bool persistent=false);
-		string(const std::string& str);
-
-		inline std::size_t length() const {
-			return str_->len;
+		string(): value() {}
+		string(std::size_t size, bool persistent=false)
+			: value(zend_string_alloc(size, persistent), true) {}
+		string(const char* val, std::size_t len, bool persistent=false)
+			: value(zend_string_init(val, len, persistent), true) {}
+		string(const std::string& str)
+			: value(zend_string_init(str.c_str(), str.length(), false), true) {}
+		inline const char* c_str() const {
+			return Z_STRVAL(value_);
 		}
 		inline char* data() {
-			return str_->val;
-		}
-		inline const char* c_str() const {
-			return str_->val;
+			return Z_STRVAL(value_);
 		}
 		inline operator zend_string*() {
-			return str_;
+			return Z_STR(value_);
 		}
-		string substr(std::size_t pos, std::size_t count = -1);
-		static zend_string* concat(zend_string* s1, zend_string* s2);
-		inline static string concat(const string& s1, const string& s2) {
-			return string(concat(s1.str_, s2.str_));
+		std::size_t& length() {
+			return Z_STRLEN(value_);
 		}
-		inline std::uint32_t addref() {
-			return ++GC_REFCOUNT(str_);
-		}
-		inline std::uint32_t delref() {
-			return --GC_REFCOUNT(str_);
-		}
-		string& operator=(const string& cb);
-		string& operator=(string&& cb);
-		friend class value;
+		string substr(std::size_t pos, std::size_t count = 0);
+		static string concat(const string& s1, const string& s2);
 	};
 }

@@ -11,7 +11,7 @@ namespace php {
 		php_verror(NULL, "", E_USER_ERROR, format, args);
 		va_end(args);
 	}
-	
+
 	void warn(const std::string& msg) {
 		zend_error(E_USER_WARNING, msg.c_str());
 	}
@@ -37,6 +37,17 @@ namespace php {
 
 	const char* ini_get(char* name, uint name_len) {
 		return zend_ini_string(name, name_len, 0);
+	}
+
+	php::string strtoupper(char* str, size_t len) {
+		php::string s(str, len);
+		php_strtoupper(s.data(), len);
+		return std::move(s);
+	}
+	php::string strtolower(char* str, size_t len) {
+		php::string s(str, len);
+		php_strtolower(s.data(), len);
+		return std::move(s);
 	}
 
 }

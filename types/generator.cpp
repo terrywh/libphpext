@@ -1,24 +1,6 @@
 #include "../phpext.h"
 
 namespace php {
-	generator::~generator() {
-		zend_object* obj = (zend_object*)gen_;
-		if(obj != nullptr && delref() == 0) {
-			zend_objects_store_del(obj);
-		}
-	}
-	generator::generator(zend_object* obj)
-	: gen_((zend_generator*)obj) {
-		addref();
-	}
-	generator::generator(const generator& obj)
-	: gen_(obj.gen_) {
-		addref();
-	}
-	generator::generator(generator&& obj)
-	: gen_(obj.gen_) {
-		obj.gen_ = nullptr;
-	}
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
 	static void inline zend_generator_ensure_initialized(zend_generator *generator) {
 		if (UNEXPECTED(Z_TYPE(generator->value) == IS_UNDEF) && EXPECTED(generator->execute_data) && EXPECTED(generator->node.parent == NULL)) {
@@ -53,6 +35,7 @@ namespace php {
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
 	value generator::current() {
 		value rv;
+		zend_generator* gen_ = reinterpret_cast<zend_generator*>(Z_OBJ(value_));
 		zend_generator_ensure_initialized(gen_);
 		zend_generator* root = zend_generator_get_current(gen_);
 		if (EXPECTED(gen_->execute_data != NULL && Z_TYPE(root->value) != IS_UNDEF)) {
@@ -64,11 +47,13 @@ namespace php {
 	}
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
 	void generator::next() {
+		zend_generator* gen_ = reinterpret_cast<zend_generator*>(Z_OBJ(value_));
 		zend_generator_ensure_initialized(gen_);
 		zend_generator_resume(gen_);
 	}
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
 	void generator::send(const php::value& v) {
+		zend_generator* gen_ = reinterpret_cast<zend_generator*>(Z_OBJ(value_));
 		zend_generator_ensure_initialized(gen_);
 		/* The generator is already closed, thus can't send anything */
 		if (UNEXPECTED(!gen_->execute_data)) {
@@ -83,6 +68,7 @@ namespace php {
 	}
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
 	void generator::throw_exception(const php::value& e) {
+		zend_generator* gen_ = reinterpret_cast<zend_generator*>(Z_OBJ(value_));
 		zval exception;
 		ZVAL_DUP(&exception, const_cast<zval*>(reinterpret_cast<const zval*>(&e)));
 		zend_generator_ensure_initialized(gen_);
@@ -104,18 +90,9 @@ namespace php {
 	}
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
 	bool generator::valid() {
+		zend_generator* gen_ = reinterpret_cast<zend_generator*>(Z_OBJ(value_));
 		zend_generator_ensure_initialized(gen_);
 		zend_generator_get_current(gen_);
 		return EXPECTED(gen_->execute_data != NULL);
-	}
-	generator& generator::operator=(const generator& g) {
-		gen_ = g.gen_;
-		addref();
-		return *this;
-	}
-	generator& generator::operator=(generator&& g) {
-		gen_ = g.gen_;
-		g.gen_ = nullptr;
-		return *this;
 	}
 }

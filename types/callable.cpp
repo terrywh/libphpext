@@ -13,30 +13,4 @@ namespace php {
 		}
 		return std::move(rv);
 	}
-	callable::~callable() {
-		_zval_dtor(&cb_);
-	}
-	void callable::reset() {
-		_zval_dtor(&cb_);
-		ZVAL_UNDEF(&cb_);
-	}
-	callable::callable(zval* cb) {
-		ZVAL_COPY(&cb_, cb);
-	}
-	callable::callable(const callable& cb) {
-		ZVAL_COPY(&cb_, &cb.cb_);
-	}
-	callable::callable(callable&& cb) {
-		ZVAL_COPY_VALUE(&cb_, &cb.cb_);
-		ZVAL_UNDEF(&cb.cb_);
-	}
-	callable& callable::operator=(const callable& cb) {
-		ZVAL_COPY(&cb_, &cb.cb_);
-		return *this;
-	}
-	callable& callable::operator=(callable&& cb) {
-		ZVAL_COPY_VALUE(&cb_, &cb.cb_);
-		ZVAL_UNDEF(&cb.cb_);
-		return *this;
-	}
 }

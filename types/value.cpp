@@ -1,90 +1,16 @@
 #include "../phpext.h"
 
 namespace php {
-	value::~value() {
-		_zval_dtor(&value_);
+	// 字符串
+	// -------------------------------------------------------------------------
+	value::value(buffer&& b) {
+		ZVAL_STR(&value_, b.str_.s);
+		b.str_.s = nullptr;
+		b.str_.a = 0;
+		b.po_ = 0;
 	}
-	value::value() {
-		ZVAL_UNDEF(&value_);
-	}
-	value::value(std::nullptr_t v) {
-		ZVAL_NULL(&value_);
-	}
-	value::value(const zval& v) {
-		ZVAL_COPY(&value_, &v);
-	}
-	value::value(zval&& v) {
-		ZVAL_COPY_VALUE(&value_, &v);
-		ZVAL_UNDEF(&v);
-	}
-	value::value(const value& w) {
-		ZVAL_COPY(&value_, &w.value_);
-	}
-	value::value(value&& w) {
-		ZVAL_COPY_VALUE(&value_, &w.value_);
-		ZVAL_UNDEF(&w.value_);
-	}
-	value::value(zend_string* str) {
-		ZVAL_STR(&value_, str);
-		zval_addref_p(&value_);
-	}
-	value::value(const string& str) {
-		ZVAL_STR(&value_, str.str_);
-		zval_addref_p(&value_);
-	}
-	value::value(string&& str) {
-		ZVAL_STR(&value_, str.str_);
-		str.str_ = nullptr;
-	}
-	value::value(buffer&& buf) {
-		ZVAL_STR(&value_, buf.str_.s);
-		buf.str_.s = nullptr;
-		buf.str_.a = 0;
-		buf.po_ = 0;
-	}
-	value::value(zend_array* arr) {
-		ZVAL_ARR(&value_, arr);
-		zval_addref_p(&value_);
-	}
-	value::value(const array& arr) {
-		ZVAL_ARR(&value_, arr.arr_);
-		zval_addref_p(&value_);
-	}
-	value::value(array&& arr) {
-		ZVAL_ARR(&value_, arr.arr_);
-		arr.arr_ = nullptr;
-	}
-	value::value(zend_object* obj) {
-		ZVAL_OBJ(&value_, obj);
-		zval_addref_p(&value_);
-	}
-	value::value(const object& obj) {
-		ZVAL_OBJ(&value_, obj.obj_);
-		zval_addref_p(&value_);
-	}
-	value::value(object&& obj) {
-		ZVAL_OBJ(&value_, obj.obj_);
-		obj.obj_ = nullptr;
-	}
-	value::value(bool v) {
-		if(v) ZVAL_TRUE(&value_);
-		else ZVAL_FALSE(&value_);
-	}
-	value::value(int v) {
-		ZVAL_LONG(&value_, v);
-	}
-	value::value(std::int64_t v) {
-		ZVAL_LONG(&value_, v);
-	}
-	value::value(double v) {
-		ZVAL_DOUBLE(&value_, v);
-	}
-	value::value(const std::string& str) {
-		ZVAL_NEW_STR(&value_, zend_string_init(str.c_str(), str.length(), false));
-	}
-	value::value(const char* str, std::size_t len, bool p) {
-		ZVAL_NEW_STR(&value_, zend_string_init(str, len, p));
-	}
+	// 对象
+	// ---------------------------------------------------------------------
 	value::value(class_base* base) {
 		if(Z_TYPE(base->value_) != IS_UNDEF) {
 			ZVAL_COPY(&value_, &base->value_);
@@ -92,23 +18,13 @@ namespace php {
 			assert("object is not yet set");
 		}
 	}
+	// 闭包
+	// ---------------------------------------------------------------------
 	value::value(std::function<value (parameters&)> fn) {
 		ZVAL_OBJ(&value_, class_entry<class_closure>::create_object());
-		class_closure* c = native<class_closure>();
-		c->fn_ = fn;
+		class_wrapper<class_closure>::from_obj(Z_OBJ(value_))->fn_ = fn;
 	}
-	value::value(const callable& cb) {
-		ZVAL_COPY(&value_, &cb.cb_);
-	}
-	value::value(callable&& cb) {
-		ZVAL_COPY_VALUE(&value_, &cb.cb_);
-		ZVAL_UNDEF(&cb.cb_);
-	}
-	value value::clone() {
-		value rv;
-		ZVAL_DUP(&rv.value_, &value_);
-		return std::move(rv);
-	}
+	// -------------------------------------------------------------------------
 	bool value::is_empty() const {
 		switch(Z_TYPE(value_)) {
 			case IS_UNDEF:
@@ -155,13 +71,6 @@ namespace php {
 				return -1;
 		}
 	}
-	bool value::is_instance_of(const std::string& class_name) const {
-		if(Z_TYPE(value_) != IS_OBJECT) return false;
-		zend_string*      cn = zend_string_init(class_name.c_str(), class_name.length(), false);
-		zend_class_entry* ce = zend_lookup_class(cn);
-		zend_string_release(cn);
-		return instanceof_function(Z_OBJCE(value_), ce);
-	}
 	bool value::is_true() const {
 		switch(Z_TYPE(value_)) {
 		case IS_UNDEF:
@@ -182,6 +91,9 @@ namespace php {
 			return true;
 		}
 	}
+	value::operator zval*() {
+		return &value_;
+	}
 	value::operator int() const {
 		switch(Z_TYPE(value_)) {
 		case IS_TRUE:
@@ -197,6 +109,20 @@ namespace php {
 		}
 	}
 	value::operator std::int64_t() const {
+		switch(Z_TYPE(value_)) {
+		case IS_TRUE:
+			return 1l;
+		case IS_LONG:
+			return Z_LVAL(value_);
+		case IS_DOUBLE:
+			zend_error_noreturn(E_USER_NOTICE, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(IS_DOUBLE));
+			return Z_DVAL(value_);
+		default: // TODO 其它类型？
+			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(Z_TYPE(value_)));
+			return 0l;
+		}
+	}
+	value::operator std::size_t() const {
 		switch(Z_TYPE(value_)) {
 		case IS_TRUE:
 			return 1l;
@@ -252,8 +178,11 @@ namespace php {
 			return nullptr;
 		}
 	}
-	value::operator string() {
-		return static_cast<zend_string*>(*this);
+	value::operator string&() {
+		if(is_string()) {
+			return *reinterpret_cast<string*>(&value_);
+		}
+		throw exception("type error: string expected");
 	}
 	value::operator zend_array*() {
 		switch(Z_TYPE(value_)) {
@@ -265,8 +194,11 @@ namespace php {
 			return nullptr;
 		}
 	}
-	value::operator array() {
-		return static_cast<zend_array*>(*this);
+	value::operator array&() {
+		if(is_array()) {
+			return *reinterpret_cast<array*>(&value_);
+		}
+		throw exception("type error: array expected");
 	}
 	value::operator zend_object*() {
 		switch(Z_TYPE(value_)) {
@@ -278,20 +210,33 @@ namespace php {
 			return nullptr;
 		}
 	}
-	value::operator object() {
-		return static_cast<zend_object*>(*this);
+	value::operator object&() {
+		if(is_object()) {
+			return *reinterpret_cast<object*>(&value_);
+		}
+		throw exception("type error: object expected");
 	}
-	value::operator callable() {
-		if(is_callable()) return &value_;
-		zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given",
-			zend_get_type_by_const(IS_OBJECT), zend_get_type_by_const(Z_TYPE(value_)));
-		return nullptr;
+	value::operator callable&() {
+		if(is_callable()) {
+			return *reinterpret_cast<callable*>(&value_);
+		}
+		throw exception("type error: callable expected");
 	}
 	value::operator zend_refcounted*() {
 		if(Z_REFCOUNTED(value_)) return Z_COUNTED(value_);
 		zend_error_noreturn(E_USER_WARNING, "recounted expected, %s given",
 			zend_get_type_by_const(Z_TYPE(value_)));
 		return nullptr;
+	}
+	value::operator zend_generator*() {
+		if(is_generator())
+			return reinterpret_cast<zend_generator*>(Z_OBJ(value_));
+		return nullptr;
+	}
+	value::operator generator&() {
+		if(is_generator())
+			return *reinterpret_cast<generator*>(&value_);
+		throw exception("type error: instance of 'Generator' expected");
 	}
 	value& value::operator=(const value& v) {
 		_zval_dtor(&value_);
@@ -314,8 +259,8 @@ namespace php {
 		convert_to_double(&value_);
 		return Z_DVAL(value_);
 	}
-	zend_string* value::to_string() {
+	std::string value::to_string() {
 		convert_to_string(&value_);
-		return Z_STR(value_);
+		return std::string(Z_STRVAL(value_), Z_STRLEN(value_));
 	}
 }

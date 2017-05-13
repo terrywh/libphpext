@@ -67,7 +67,13 @@ REPEAT:
 			break;
 		case SEPERATOR_2:
 			php_url_decode(value_.data(), value_.size());
-			data[field_] = php::value(value_.data(), value_.size());
+			php::value val(value_.data(), value_.size());
+			// 使用 php_register_variable_ex 支持叠加结构 key[aaa]=val
+			php_register_variable_ex(
+				const_cast<char*>(field_.c_str()),
+				reinterpret_cast<zval*>(&val),
+				reinterpret_cast<zval*>(&data)
+			);
 			field_.clear();
 			value_.clear();
 			status_ = FIELD_BEFORE;
@@ -85,15 +91,15 @@ REPEAT:
 		}
 	}
 
-	php::array parse_str(const char sep2, const char* buffer, std::size_t n, const char sep1) {
-		string_parser p(sep2, sep1);
+	php::array parse_str(const char sep, const char* buffer, std::size_t n) {
+		string_parser p(sep, '=');
 		php::array data(std::size_t(0));
 		p.parse(buffer, n, data);
 		p.flush(data);
 		return std::move(data);
 	}
-	php::array parse_str(const char sep2, std::streambuf& buffer, std::size_t n, const char sep1) {
-		string_parser p(sep2, sep1);
+	php::array parse_str(const char sep, std::streambuf& buffer, std::size_t n) {
+		string_parser p(sep, '=');
 		php::array data(std::size_t(0));
 		p.parse(buffer, n, data);
 		p.flush(data);

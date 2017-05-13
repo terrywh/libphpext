@@ -15,23 +15,24 @@
 
 // using std::isnan;
 extern "C" {
-#include <zend.h>
-#include <zend_API.h>
-#include <zend_ini.h>
-#include <zend_constants.h>
-#include <zend_exceptions.h>
-#include <zend_compile.h>
-#include <zend_inheritance.h>
-#include <zend_smart_str.h>
-#include <zend_ini_scanner.h>
-#include <zend_generators.h>
+#include <Zend/zend.h>
+#include <Zend/zend_API.h>
+#include <Zend/zend_ini.h>
+#include <Zend/zend_constants.h>
+#include <Zend/zend_exceptions.h>
+#include <Zend/zend_compile.h>
+#include <Zend/zend_inheritance.h>
+#include <Zend/zend_smart_str.h>
+#include <Zend/zend_ini_scanner.h>
+#include <Zend/zend_generators.h>
 
-#include <php.h>
-#include <standard/php_string.h>
-#include <standard/url.h>
-#include <standard/md5.h>
-#include <standard/base64.h>
-#include <standard/sha1.h>
-#include <standard/crc32.h>
-#include <json/php_json.h>
+#include <main/php.h>
+#include <main/php_variables.h>
+#include <ext/standard/php_string.h>
+#include <ext/standard/php_http.h>
+#include <ext/standard/url.h>
+#include <ext/standard/md5.h>
+#include <ext/standard/base64.h>
+#include <ext/standard/sha1.h>
+#include <ext/standard/crc32.h>
 }

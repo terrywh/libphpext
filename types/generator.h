@@ -2,14 +2,10 @@
 
 namespace php {
 	class value;
-	class generator {
-	private:
-		zend_generator* gen_;
+	class generator : public value {
 	public:
-		~generator();
-		generator(zend_object* obj);
-		generator(const generator& obj);
-		generator(generator&& obj);
+		generator(const generator& obj): value(obj) {}
+		generator(generator&& obj): value(std::move(obj)) {}
 
 		php::value current();
 		void next();
@@ -17,14 +13,5 @@ namespace php {
 		void throw_exception(const php::value& e);
 		void throw_exception(const std::string& msg, int code = 0);
 		bool valid();
-		generator& operator=(const generator& cb);
-		generator& operator=(generator&& cb);
-		inline std::uint32_t addref() {
-			return ++GC_REFCOUNT((zend_object*)gen_);
-		}
-		inline std::uint32_t delref() {
-			return --GC_REFCOUNT((zend_object*)gen_);
-		}
-		friend class value;
 	};
 }

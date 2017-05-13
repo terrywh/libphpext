@@ -1,49 +1,56 @@
 #include "../phpext.h"
 
 namespace php {
-	std::shared_ptr<zend_string> base64_encode(const unsigned char* enc_str, size_t enc_len) {
-		return std::shared_ptr<zend_string>(php_base64_encode(enc_str, enc_len), zend_string_release);
+	php::string base64_encode(const unsigned char* enc_str, std::size_t enc_len) {
+		php::string s;
+		ZVAL_STR(s, php_base64_encode(enc_str, enc_len));
+		return std::move(s);
 	}
-	std::shared_ptr<zend_string> base64_decode(const unsigned char* dec_str, size_t dec_len) {
-		//php_base64_decode_ex(dec_str, dec_len, 0);
-		return std::shared_ptr<zend_string>(php_base64_decode_ex(dec_str, dec_len, 0), zend_string_release);
-
-	}
-
-	std::shared_ptr<zend_string> url_encode(const char* enc_str, size_t enc_len) {
-		return std::shared_ptr<zend_string>(php_url_encode(enc_str, enc_len), zend_string_release);
+	php::string base64_decode(const unsigned char* dec_str, std::size_t dec_len) {
+		php::string s;
+		ZVAL_STR(s, php_base64_decode_ex(dec_str, dec_len, 0));
+		return std::move(s);
 	}
 
-	std::shared_ptr<zend_string> url_decode(char* dec_str, size_t& dec_len) {
-		// void url_decode(char* dec_str, size_t& dec_len) {
-		// dec_len = php_url_decode(dec_str, dec_len);
-		zend_string* url = zend_string_init(dec_str, dec_len, false);
-		url->len = php_url_decode(url->val, url->len);
-		return std::shared_ptr<zend_string>(url, zend_string_release);
+	php::string url_encode(const char* enc_str, std::size_t enc_len) {
+		php::string s;
+		ZVAL_STR(s, php_url_encode(enc_str, enc_len));
+		return std::move(s);
 	}
 
-	static char hexconvtab[] = "0123456789abcdef";
-	static zend_string *php_bin2hex(const unsigned char *old, const size_t oldlen)
-	{
-		zend_string *result;
+ 	php::string url_decode(char* dec_str, std::size_t& dec_len) {
+		php::string s(dec_str, dec_len);
+		s.length() = php_url_decode(s.data(), dec_len);
+		return std::move(s);
+	}
+
+	void url_decode_inplace(char* dec_str, std::size_t& dec_len) {
+		dec_len = php_url_decode(dec_str, dec_len);
+	}
+
+	static char HEX_CONVERSION_TABLE[] = "0123456789abcdef";
+	php::string bin2hex(const unsigned char *old, const size_t len) {
+		php::string s(2*len);
+		char* data = s.data();
 		size_t i, j;
 
-		result = zend_string_safe_alloc(oldlen, 2 * sizeof(char), 0, 0);
-
-		for (i = j = 0; i < oldlen; i++) {
-			ZSTR_VAL(result)[j++] = hexconvtab[old[i] >> 4];
-			ZSTR_VAL(result)[j++] = hexconvtab[old[i] & 15];
+		for (i = j = 0; i < len; i++) {
+			data[j++] = HEX_CONVERSION_TABLE[old[i] >> 4];
+			data[j++] = HEX_CONVERSION_TABLE[old[i] & 15];
 		}
-		ZSTR_VAL(result)[j] = '\0';
+		data[j] = '\0';
 
-		return result;
+		return std::move(s);
 	}
 
-	static zend_string *php_hex2bin(const unsigned char *old, const size_t oldlen)
-	{
-		size_t target_length = oldlen >> 1;
-		zend_string *str = zend_string_alloc(target_length, 0);
-		unsigned char *ret = (unsigned char *)ZSTR_VAL(str);
+	php::string php_hex2bin(const unsigned char *old, const size_t len)	{
+		if(len % 2 != 0) {
+			throw php::exception("hex2bin failed: illegal hex string");
+		}
+
+		size_t target_length = len >> 1;
+		php::string s(target_length);
+		unsigned char *ret = (unsigned char*)s.data();
 		size_t i, j;
 
 		for (i = j = 0; i < target_length; i++) {
@@ -56,8 +63,7 @@ namespace php {
 			if (EXPECTED((((c ^ '0') - 10) >> (8 * sizeof(unsigned int) - 1)) | is_letter)) {
 				d = (l - 0x10 - 0x27 * is_letter) << 4;
 			} else {
-				zend_string_free(str);
-				return NULL;
+				throw php::exception("hex2bin failed: illegal hex string");
 			}
 			c = old[j++];
 			l = c & ~0x20;
@@ -65,50 +71,12 @@ namespace php {
 			if (EXPECTED((((c ^ '0') - 10) >> (8 * sizeof(unsigned int) - 1)) | is_letter)) {
 				d |= l - 0x10 - 0x27 * is_letter;
 			} else {
-				zend_string_free(str);
-				return NULL;
+				throw php::exception("hex2bin failed: illegal hex string");
 			}
 			ret[i] = d;
 		}
 		ret[i] = '\0';
 
-		return str;
-	}
-
-	std::shared_ptr<zend_string> hex2bin(unsigned char* src, size_t src_len) {
-		if(src_len % 2 != 0) {
-			return nullptr;
-		}
-		return std::shared_ptr<zend_string>(php_hex2bin(src, src_len), zend_string_release);
-	}
-
-	std::shared_ptr<zend_string> bin2hex(unsigned char* src, size_t src_len) {
-		if(src_len % 2 != 0) {
-			return nullptr;
-		}
-		return std::shared_ptr<zend_string>(php_bin2hex(src, src_len), zend_string_release);
-	}
-
-	std::shared_ptr<zend_string> json_encode(zval* val) {
-		smart_str buf = {0};
-
-		JSON_G(error_code) = PHP_JSON_ERROR_NONE;
-		JSON_G(encode_max_depth) = PHP_JSON_PARSER_DEFAULT_DEPTH;
-		php_json_encode(&buf, val, PHP_JSON_UNESCAPED_UNICODE);
-
-		if (JSON_G(error_code) != PHP_JSON_ERROR_NONE && !(PHP_JSON_UNESCAPED_UNICODE & PHP_JSON_PARTIAL_OUTPUT_ON_ERROR)) {
-			return nullptr;
-		} else {
-			ZSTR_VAL(buf.s)[ZSTR_LEN(buf.s)] = '\0';
-			return std::shared_ptr<zend_string>(buf.s, zend_string_release);
-		}
-	}
-
-	php::value json_decode(char* src, std::size_t src_len) {
-		int32_t depth = PHP_JSON_PARSER_DEFAULT_DEPTH;
-		int32_t options = PHP_JSON_OBJECT_AS_ARRAY;
-		php::value v;
-		php_json_decode_ex(reinterpret_cast<zval*>(&v), src, src_len, options, depth);
-		return std::move(v);
+		return std::move(s);
 	}
 }

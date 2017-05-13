@@ -24,6 +24,6 @@ namespace php {
 		std::string field_;
 		std::vector<char> value_;
 	};
-	php::array parse_str(const char sep2, const char* buffer, std::size_t n, const char sep1 = '=');
-	php::array parse_str(const char sep2, std::streambuf& buffer, std::size_t n, const char sep1 = '=');
+	php::array parse_str(const char sep, const char* buffer, std::size_t n);
+	php::array parse_str(const char sep, std::streambuf& buffer, std::size_t n);
 }

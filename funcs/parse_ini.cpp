@@ -2,8 +2,7 @@
 
 namespace php {
 
-	static void php_simple_ini_parser_cb(zval *arg1, zval *arg2, zval *arg3, int callback_type, zval *arr)
-	{
+	static void php_simple_ini_parser_cb(zval *arg1, zval *arg2, zval *arg3, int callback_type, zval *arr) {
 		switch (callback_type) {
 
 			case ZEND_INI_PARSER_ENTRY:
@@ -56,8 +55,7 @@ namespace php {
 		}
 	}
 
-	static void php_ini_parser_cb_with_sections(zval *arg1, zval *arg2, zval *arg3, int callback_type, zval *arr)
-	{
+	static void php_ini_parser_cb_with_sections(zval *arg1, zval *arg2, zval *arg3, int callback_type, zval *arr) {
 		if (callback_type == ZEND_INI_PARSER_SECTION) {
 			array_init(&BG(active_ini_file_section));
 			zend_symtable_update(Z_ARRVAL_P(arr), Z_STR_P(arg1), &BG(active_ini_file_section));
@@ -86,6 +84,7 @@ namespace php {
 		zend_parse_ini_file(&fh, 0, ZEND_INI_SCANNER_TYPED,
 				(zend_ini_parser_cb_t) php_ini_parser_cb_with_sections,
 				reinterpret_cast<zval*>(&rv));
+
 		return std::move(rv);
 	}
 }

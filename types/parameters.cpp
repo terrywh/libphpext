@@ -17,9 +17,7 @@ namespace php {
 			throw exception("parameters missing", exception::PARAMETERS_INSUFFICIENT);
 		}
 		zval* arg = _argv + index;
-		if(Z_TYPE_P(arg) == IS_REFERENCE) {
-			arg = Z_REFVAL_P(arg);
-		}
-		return *((value*)arg);
+		ZVAL_DEREF(arg);
+		return *reinterpret_cast<value*>(arg);
 	}
 }

@@ -10,65 +10,33 @@ namespace php {
 		}
 		return std::move(rv);
 	}
-	object::~object() {
-		if(obj_ != nullptr && delref() == 0) {
-			zend_objects_store_del(obj_);
-		}
-	}
-	void object::reset() {
-		if(obj_ != nullptr && delref() == 0) {
-			zend_objects_store_del(obj_);
-		}
-		obj_ = nullptr;
-	}
-	object::object(zend_object* obj, bool create):obj_(obj) {
-		if(!create) addref();
-	}
-	object::object(zend_class_entry* ce):obj_(zend_objects_new(ce)) {
-	}
-	object object::clone(const object& o1) {
-		object o2(o1.obj_->ce);
-		zend_objects_clone_members(o2.obj_, o1.obj_);
-		return std::move(o1);
-	}
-	object::object(const object& obj):obj_(obj.obj_) {
-		++GC_REFCOUNT(obj_);
-	}
-	object::object(object&& obj):obj_(obj.obj_) {
-		obj.obj_ = nullptr;
+	object object::clone() {
+		object o2(Z_OBJCE(value_));
+		zend_objects_clone_members(Z_OBJ(o2.value_), Z_OBJ(value_));
+		return std::move(o2);
 	}
 	object object::create(const std::string& name) {
 		zend_string* name_ = zend_string_init(name.c_str(), name.length(), false);
 		zend_class_entry* ce = zend_lookup_class(name_);
 		zend_string_release(name_);
+		object obj;
 		if(ce != nullptr) {
-			return object(zend_objects_new(ce), true);
+			ZVAL_OBJ(&obj.value_, zend_objects_new(ce));
+			return std::move(obj);
 		}else{
-			zend_error_noreturn(E_USER_ERROR, "failed to create object, class '%s.*' not found", name.length(), name.c_str());
-			return object(nullptr, true);
+			throw exception("failed to create object: class not found");
 		}
 	}
 	value& object::prop(const char* name, std::size_t len) {
-		zval objv, defv;
+		zval   dv;
 		value* rv;
-		ZVAL_OBJ(&objv, obj_);
-		rv = (value*)zend_read_property(obj_->ce, &objv, name, len, false, &defv);
+		rv = (value*)zend_read_property(Z_OBJCE(value_), &value_, name, len, false, &dv);
 		return *rv;
 	}
 	bool object::is_instance_of(const std::string& class_name) const {
 		zend_string*      cn = zend_string_init(class_name.c_str(), class_name.length(), false);
 		zend_class_entry* ce = zend_lookup_class(cn);
 		zend_string_release(cn);
-		return instanceof_function(obj_->ce, ce);
-	}
-	object& object::operator=(const object& o) {
-		obj_ = o.obj_;
-		addref();
-		return *this;
-	}
-	object& object::operator=(object&& o) {
-		obj_ = o.obj_;
-		o.obj_ = nullptr;
-		return *this;
+		return instanceof_function(Z_OBJCE(value_), ce);
 	}
 }
