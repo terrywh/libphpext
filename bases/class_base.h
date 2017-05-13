@@ -12,7 +12,8 @@ namespace php {
 		value& prop(const char* name, std::size_t len);
 		value& prop(const std::string& name);
 		// bool set 为了防止和上面 size_t 对应函数混淆
-		value& prop(const std::string& name, value& val, bool set);
+		value& sprop(const char* name, std::size_t len, value& val);
+		value& sprop(const std::string& name, value& val);
 		inline void _object_set(zend_object* obj) {
 			ZVAL_OBJ(&value_, obj);
 		}

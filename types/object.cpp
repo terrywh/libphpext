@@ -33,9 +33,9 @@ namespace php {
 		// ZVAL_DEREF(rv);
 		return *reinterpret_cast<value*>(rv);
 	}
-	value& object::prop(const std::string& name, php::value& val, bool set) {
+	value& object::sprop(const char* name, std::size_t len, php::value& val) {
 		zval   dv, *rv;
-		rv = zend_read_property(Z_OBJCE(value_), &value_, name.c_str(), name.length(), false, &dv);
+		rv = zend_read_property(Z_OBJCE(value_), &value_, name, len, false, &dv);
 		// ZVAL_DEREF(rv);
 		ZVAL_COPY(rv, static_cast<zval*>(val));
 		return *reinterpret_cast<value*>(rv);

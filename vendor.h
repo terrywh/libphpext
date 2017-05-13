@@ -29,6 +29,7 @@ extern "C" {
 #include <main/php.h>
 #include <main/php_variables.h>
 #include <ext/standard/php_string.h>
+#include <ext/standard/php_array.h>
 #include <ext/standard/php_http.h>
 #include <ext/standard/url.h>
 #include <ext/standard/md5.h>
