@@ -28,10 +28,17 @@ namespace php {
 		}
 	}
 	value& object::prop(const char* name, std::size_t len) {
-		zval   dv;
-		value* rv;
-		rv = (value*)zend_read_property(Z_OBJCE(value_), &value_, name, len, false, &dv);
-		return *rv;
+		zval   dv, *rv;
+		rv = zend_read_property(Z_OBJCE(value_), &value_, name, len, false, &dv);
+		// ZVAL_DEREF(rv);
+		return *reinterpret_cast<value*>(rv);
+	}
+	value& object::prop(const std::string& name, php::value& val, bool set) {
+		zval   dv, *rv;
+		rv = zend_read_property(Z_OBJCE(value_), &value_, name.c_str(), name.length(), false, &dv);
+		// ZVAL_DEREF(rv);
+		ZVAL_COPY(rv, static_cast<zval*>(val));
+		return *reinterpret_cast<value*>(rv);
 	}
 	bool object::is_instance_of(const std::string& class_name) const {
 		zend_string*      cn = zend_string_init(class_name.c_str(), class_name.length(), false);

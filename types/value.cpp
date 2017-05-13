@@ -241,11 +241,13 @@ namespace php {
 	value& value::operator=(const value& v) {
 		_zval_dtor(&value_);
 		ZVAL_COPY(&value_, &v.value_);
+		return *this;
 	}
 	value& value::operator=(value&& v) {
 		_zval_dtor(&value_);
 		ZVAL_COPY_VALUE(&value_, &v.value_);
 		ZVAL_UNDEF(&v.value_);
+		return *this;
 	}
 	bool value::to_bool() {
 		convert_to_boolean(&value_);

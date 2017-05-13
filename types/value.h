@@ -128,14 +128,14 @@ namespace php {
 		inline bool is_callable() {
 			return zend_is_callable(&value_, IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr);
 		}
-		inline bool is_refcounted() const {
-			return Z_REFCOUNTED(value_);
-		}
 		inline bool is_generator() const {
 			return is_object() && instanceof_function(Z_OBJCE(value_), zend_ce_generator);
 		}
 		inline bool is_exception() const {
 			return is_object() && instanceof_function(Z_OBJCE(value_), zend_ce_exception);
+		}
+		inline bool is_reference() const {
+			return Z_ISREF(value_);
 		}
 		std::size_t length() const;
 		// ---------------------------------------------------------------------

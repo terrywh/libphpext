@@ -17,7 +17,7 @@ namespace php {
 			throw exception("parameters missing", exception::PARAMETERS_INSUFFICIENT);
 		}
 		zval* arg = _argv + index;
-		ZVAL_DEREF(arg);
+		// ZVAL_DEREF(arg);
 		return *reinterpret_cast<value*>(arg);
 	}
 }

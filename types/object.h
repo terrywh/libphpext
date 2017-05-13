@@ -24,6 +24,8 @@ namespace php {
 		inline value& prop(const std::string& name) {
 			return prop(name.c_str(), name.length());
 		}
+		// bool set 为了防止和上面 size_t 对应函数混淆
+		value& prop(const std::string& name, php::value& val, bool set);
 		// !!! 仅允许调用类成员函数
 		inline value call(const std::string& name) {
 			return __call(Z_OBJ(value_), name.c_str(), name.length(), 0, nullptr, false);

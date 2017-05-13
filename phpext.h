@@ -33,3 +33,4 @@
 #include "funcs/parse_ini.h"
 #include "funcs/hash.h"
 #include "funcs/encoding.h"
+#include "funcs/reference.h"
