@@ -7,6 +7,7 @@
 #include <memory>
 #include <initializer_list>
 #include <streambuf>
+#include <list>
 
 #include <cassert>
 #include <cmath>

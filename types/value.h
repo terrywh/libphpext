@@ -157,6 +157,7 @@ namespace php {
 		operator std::int64_t() const;
 		operator std::size_t() const;
 		operator double() const;
+		operator char*();
 		operator zend_string*();
 		operator std::string() const;
 		// !!! 此处返回的是对当前字符串的引用 GC_REFCOUNT()++

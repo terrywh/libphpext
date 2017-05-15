@@ -158,6 +158,16 @@ namespace php {
 			return 0.;
 		}
 	}
+	value::operator char*() {
+		switch(Z_TYPE(value_)) {
+		case IS_STRING:
+			return Z_STRVAL(value_);
+		default:
+			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given",
+				zend_get_type_by_const(IS_STRING), zend_get_type_by_const(Z_TYPE(value_)));
+			return nullptr;
+		}
+	}
 	value::operator std::string() const {
 		switch(Z_TYPE(value_)) {
 		case IS_STRING:
