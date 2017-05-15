@@ -43,10 +43,10 @@ namespace php {
 		std::vector<zend_function_entry> function_entries_;
 		std::vector<std::shared_ptr<class_entry_base>> class_entries_;
 		std::vector<arguments> arguments_;
-		std::vector<std::function<bool(extension_entry&)>> handler_rsd_;
-		std::vector<std::function<bool(extension_entry&)>> handler_rst_;
-		std::vector<std::function<bool(extension_entry&)>> handler_mst_;
-		std::vector<std::function<bool(extension_entry&)>> handler_msd_;
+		std::list<std::function<bool(extension_entry&)>> handler_rsd_;
+		std::list<std::function<bool(extension_entry&)>> handler_rst_;
+		std::list<std::function<bool(extension_entry&)>> handler_mst_;
+		std::list<std::function<bool(extension_entry&)>> handler_msd_;
 
 
 		// 扩展回调函数

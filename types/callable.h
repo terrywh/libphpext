@@ -9,7 +9,7 @@ namespace php {
 		callable(): value() {}
 		callable(const callable& cb): value(cb) {}
 		callable(callable&& cb): value(std::move(cb)) {}
-
+		using value::operator =;
 		inline value invoke(bool silent) {
 			return __invoke(&value_, 0, nullptr, silent);
 		}

@@ -61,9 +61,10 @@ namespace php {
 		}
 		// constants 可以清理了
 		self->constant_entries_.clear();
-
-		for(auto i=self->handler_mst_.begin(); i!=self->handler_mst_.end(); ++i) {
-			if(!(*i)(*self)) return ZEND_RESULT_CODE::FAILURE;
+		// 正向调用
+		while(!self->handler_mst_.empty()) {
+			if(! self->handler_mst_.front()(*self) ) return FAILURE;
+			self->handler_mst_.pop_front();
 		}
 		return ZEND_RESULT_CODE::SUCCESS;
 	}
@@ -71,24 +72,26 @@ namespace php {
 		if(!self->ini_entries_.empty()) {
 			zend_unregister_ini_entries(module);
 		}
-		for(auto i=self->handler_msd_.begin(); i!=self->handler_msd_.end(); ++i) {
-			if(!(*i)(*self)) return ZEND_RESULT_CODE::FAILURE;
+		// 反向调用
+		while(!self->handler_msd_.empty()) {
+			if(! self->handler_msd_.back()(*self) ) return FAILURE;
+			self->handler_msd_.pop_back();
 		}
 		return ZEND_RESULT_CODE::SUCCESS;
 	}
 	int extension_entry::on_request_startup_handler (int type, int module) {
-		for(auto i=self->handler_rst_.begin(); i!=self->handler_rst_.end(); ++i) {
-			if(!(*i)(*self)) return ZEND_RESULT_CODE::FAILURE;
+		// 正向调用
+		while(!self->handler_rst_.empty()) {
+			if(! self->handler_rst_.front()(*self) ) return FAILURE;
+			self->handler_rst_.pop_front();
 		}
-		// self->handler_rst_.begin() == self->handler_rst_.end();
-		// std::printf("2. --------------------------------------\n");
-		// std::printf("handler_rst_: %d\n", self->handler_rst_.begin() == self->handler_rst_.end());
-		/// std::printf("2. --------------------------------------\n");
 		return ZEND_RESULT_CODE::SUCCESS;
 	}
 	int extension_entry::on_request_shutdown_handler(int type, int module) {
-		for(auto i=self->handler_rsd_.begin(); i!=self->handler_rsd_.end(); ++i) {
-			if(!(*i)(*self)) return ZEND_RESULT_CODE::FAILURE;
+		// 反向调用
+		while(!self->handler_rsd_.empty()) {
+			if(! self->handler_rsd_.back()(*self) ) return FAILURE;
+			self->handler_rsd_.pop_back();
 		}
 		return ZEND_RESULT_CODE::SUCCESS;
 	}

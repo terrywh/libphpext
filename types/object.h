@@ -54,5 +54,6 @@ namespace php {
 		inline T* native() {
 			return class_wrapper<T>::from_obj(Z_OBJ(value_));
 		};
+		using value::operator =;
 	};
 }
