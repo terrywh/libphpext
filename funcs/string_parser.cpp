@@ -66,9 +66,11 @@ REPEAT:
 			value_.push_back(c);
 			break;
 		case SEPERATOR_2:
-			php_url_decode(value_.data(), value_.size());
-			php::value val(value_.data(), value_.size());
+			// php::string val(value_.data(), value_.size());
+			// php_url_decode(val.data(), val.length());
+			php::string val = php::url_decode(value_.data(), value_.size());
 			// 使用 php_register_variable_ex 支持叠加结构 key[aaa]=val
+			val.addref();
 			php_register_variable_ex(
 				const_cast<char*>(field_.c_str()),
 				reinterpret_cast<zval*>(&val),
@@ -83,8 +85,15 @@ REPEAT:
 	}
 	void string_parser::flush(php::array& data) {
 		if(field_.length() > 0) {
-			php_url_decode(value_.data(), value_.size());
-			data[field_] = php::value(value_.data(), value_.size());
+			// php::string val(value_.data(), value_.size());
+			// php_url_decode(val.data(), val.length());
+			php::string val = php::url_decode(value_.data(), value_.size());
+			val.addref();
+			php_register_variable_ex(
+				const_cast<char*>(field_.c_str()),
+				reinterpret_cast<zval*>(&val),
+				reinterpret_cast<zval*>(&data)
+			);
 			field_.clear();
 			value_.clear();
 			status_ = FIELD_BEFORE;
