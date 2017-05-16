@@ -66,7 +66,7 @@ namespace php {
 		value(std::int64_t v) {
 			ZVAL_LONG(&value_, v);
 		}
-		value(zend_ulong v) {
+		value(std::size_t v) {
 			ZVAL_LONG(&value_, v);
 		}
 		value(double v) {

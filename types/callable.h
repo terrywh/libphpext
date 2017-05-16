@@ -9,7 +9,6 @@ namespace php {
 		callable(): value() {}
 		callable(const callable& cb): value(cb) {}
 		callable(callable&& cb): value(std::move(cb)) {}
-		using value::operator =;
 		inline value invoke(bool silent) {
 			return __invoke(&value_, 0, nullptr, silent);
 		}
@@ -32,5 +31,6 @@ namespace php {
 		inline std::uint32_t delref() {
 			return Z_DELREF(value_);
 		}
+		using value::operator =;
 	};
 }
