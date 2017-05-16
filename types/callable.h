@@ -3,19 +3,26 @@
 namespace php {
 	class value;
 	class callable : public value {
-	private:
-		static value __invoke(zval* callable, int argc, zval argv[], bool silent);
 	public:
 		callable(): value() {}
 		callable(const callable& cb): value(cb) {}
 		callable(callable&& cb): value(std::move(cb)) {}
-		inline value invoke(bool silent) {
-			return __invoke(&value_, 0, nullptr, silent);
+		static value __invoke(zval* callable, int argc, zval argv[], bool silent);
+		inline value invoke() {
+			return __invoke(&value_, 0, nullptr, false);
+		}
+		inline value sinvoke() {
+			return __invoke(&value_, 0, nullptr, true);
 		}
 		template <typename ...Args>
-		inline value invoke(bool silent, const Args&... argv) {
+		inline value invoke(const Args&... argv) {
 			value params[] = { static_cast<value>(argv)... };
-			return __invoke(&value_, sizeof...(Args), (zval*)params, silent);
+			return __invoke(&value_, sizeof...(Args), (zval*)params, false);
+		}
+		template <typename ...Args>
+		inline value sinvoke(const Args&... argv) {
+			value params[] = { static_cast<value>(argv)... };
+			return __invoke(&value_, sizeof...(Args), (zval*)params, true);
 		}
 		inline value operator()() {
 			return __invoke(&value_, 0, nullptr, false);

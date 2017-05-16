@@ -17,4 +17,6 @@ namespace php {
 	}
 	php::string strtoupper(char* str, size_t len);
 	php::string strtolower(char* str, size_t len);
+
+	php::value make_exception(const std::string& message, int code = 0);
 }
