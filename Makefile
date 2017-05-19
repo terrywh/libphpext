@@ -7,7 +7,7 @@ PHP_CONFIG=php-config
 TARGET_LIBRARY=libphpext.a
 TARGET_VERSION=0.1.0
 
-SOURCES=$(wildcard types/*.cpp) $(wildcard parts/*.cpp) $(wildcard bases/*.cpp) $(wildcard funcs/*.cpp)
+SOURCES=$(wildcard types/*.cpp) $(wildcard parts/*.cpp) $(wildcard bases/*.cpp) $(wildcard funcs/*.cpp) extension.cpp
 OBJECTS=$(SOURCES:%.cpp=%.o)
 
 TEST_EXTENSION=phpext.so
@@ -29,10 +29,10 @@ ${TARGET_LIBRARY}: ${OBJECTS}
 	ar rcs $@ $^
 
 %.o: %.cpp
-	${CXX} -std=c++11 -fPIC ${CXXFLAGS} ${INCLUDE} -c $^ -o $@
+	${CXX} -std=c++11 -fPIC -DEXTENSION_NAME=\"phpext\" -DEXTENSION_VERSION=\"${TARGET_VERSION}\" ${CXXFLAGS} ${INCLUDE} -c $^ -o $@
 
 ${TEST_EXTENSION}: test/extension.cpp ${TARGET_LIBRARY}
-	${CXX} ${CXXFLAGS} ${INCLUDE} -DEXTENSION_NAME=\"phpext\" -DEXTENSION_VERSION=\"0.1.0\" -c test/extension.cpp -o test/extension.o
+	${CXX} ${CXXFLAGS} ${INCLUDE} -DEXTENSION_NAME=\"phpext\" -DEXTENSION_VERSION=\"${TARGET_VERSION}\" -c test/extension.cpp -o test/extension.o
 	${CXX} -shared test/extension.o ${TARGET_LIBRARY} ${LIBRARY} -o phpext.so
 
 test: ${TEST_EXTENSION}

@@ -34,3 +34,6 @@
 #include "funcs/hash.h"
 #include "funcs/encoding.h"
 #include "funcs/reference.h"
+// 扩展 so 中需要定义下面函数
+extern void extension_init(php::extension_entry& extension);
+// 链接 so 时须指定 -u get_module 参数以导出该符号

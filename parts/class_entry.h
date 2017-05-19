@@ -27,7 +27,7 @@ namespace php {
 		, method_entries_(std::move(entry.method_entries_))
 		, arguments_(std::move(entry.arguments_))
 		, interfaces_(std::move(entry.interfaces_))
-		, traits_(std::move(entry.traits_))
+		// , traits_(std::move(entry.traits_))
 		, flags_(entry.flags_) {
 
 		}
@@ -86,15 +86,31 @@ namespace php {
 			return *this;
 		}
 
-		class_entry& implements(const std::string& interface_name) {
-			interfaces_.push_back(interface_name);
+		class_entry& implements_traversable() {
+			interfaces_.push_back(&zend_ce_traversable);
+			return *this;
+		}
+		class_entry& implements_aggregate() {
+			interfaces_.push_back(&zend_ce_aggregate);
+			return *this;
+		}
+		class_entry& implements_iterator() {
+			interfaces_.push_back(&zend_ce_iterator);
+			return *this;
+		}
+		class_entry& implements_arrayaccess() {
+			interfaces_.push_back(&zend_ce_arrayaccess);
+			return *this;
+		}
+		class_entry& implements_serializable() {
+			interfaces_.push_back(&zend_ce_serializable);
 			return *this;
 		}
 
-		class_entry& use(const std::string& trait_name) {
-			traits_.push_back(trait_name);
-			return *this;
-		}
+		// class_entry& use(const std::string& trait_name) {
+		// 	traits_.push_back(trait_name);
+		// 	return *this;
+		// }
 		static value default_destruct(parameters& params) {
 			return nullptr;
 		}
@@ -127,28 +143,28 @@ namespace php {
 			class_entry<T>::entry_->create_object = class_entry<T>::create_object_handler;
 			// implements
 			for(auto i=interfaces_.begin();i!=interfaces_.end();++i) {
-				zend_string*      name = zend_string_init(i->c_str(), i->length(), 0);
-				zend_class_entry* intf = zend_lookup_class(name);
-				zend_string_release(name);
-				if(intf != nullptr && (intf->ce_flags & ZEND_ACC_INTERFACE)) {
-					zend_class_implements(class_entry<T>::entry_, 1, intf);
-				}else{
-					zend_throw_exception(zend_ce_exception, "interface not found", 0);
-				}
+				// zend_string*      name = zend_string_init(i->c_str(), i->length(), 0);
+				// zend_class_entry* intf = zend_lookup_class(name);
+				// zend_string_release(name);
+				// if(intf != nullptr && (intf->ce_flags & ZEND_ACC_INTERFACE)) {
+				zend_class_implements(class_entry<T>::entry_, 1, **i);
+				// }else{
+				// 	zend_throw_exception(zend_ce_exception, "interface not found", 0);
+				// }
 			}
 			interfaces_.clear();
 			// traits
-			for(auto i=traits_.begin();i!=traits_.end();++i) {
-				zend_string*      name = zend_string_init(i->c_str(), i->length(), 0);
-				zend_class_entry* trai = zend_lookup_class(name);
-				zend_string_release(name);
-				if(trai != nullptr && (trai->ce_flags & ZEND_ACC_TRAIT)) {
-					zend_do_implement_trait(class_entry<T>::entry_, trai);
-				}else{
-					zend_throw_exception(zend_ce_exception, "traits not found", 0);
-				}
-			}
-			traits_.clear();
+			// for(auto i=traits_.begin();i!=traits_.end();++i) {
+			// 	zend_string*      name = zend_string_init(i->c_str(), i->length(), 0);
+			// 	zend_class_entry* trai = zend_lookup_class(name);
+			// 	zend_string_release(name);
+			// 	if(trai != nullptr && (trai->ce_flags & ZEND_ACC_TRAIT)) {
+			// 		zend_do_implement_trait(class_entry<T>::entry_, trai);
+			// 	}else{
+			// 		zend_throw_exception(zend_ce_exception, "traits not found", 0);
+			// 	}
+			// }
+			// traits_.clear();
 			// 常量声明
 			for(auto i=constant_entries_.begin();i!=constant_entries_.end();++i) {
 				i->declare(class_entry<T>::entry_);
@@ -176,8 +192,8 @@ namespace php {
 		std::vector<property_entry>      property_entries_;
 		std::vector<zend_function_entry> method_entries_;
 		std::vector<arguments>           arguments_;
-		std::vector<std::string> interfaces_;
-		std::vector<std::string> traits_;
+		std::vector<zend_class_entry**>  interfaces_;
+		// std::vector<std::string> traits_;
 		int flags_;
 
 		static zend_class_entry*    entry_;

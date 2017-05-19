@@ -13,12 +13,14 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
-
+#include <cmath>
+using std::isfinite;
 // using std::isnan;
 extern "C" {
 #include <Zend/zend.h>
 #include <Zend/zend_API.h>
 #include <Zend/zend_ini.h>
+#include <Zend/zend_interfaces.h>
 #include <Zend/zend_constants.h>
 #include <Zend/zend_exceptions.h>
 #include <Zend/zend_compile.h>

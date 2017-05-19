@@ -2,23 +2,30 @@
 
 namespace php {
 	extension_entry* extension_entry::self = nullptr;
-	extension_entry::extension_entry(const char* name, const char* version)
+	extension_entry::extension_entry()
 	:module(0) {
+		deps_.push_back(zend_module_dep {
+			"standard", "ge", "7.0.0", MODULE_DEP_REQUIRED
+		});
+		deps_.push_back(zend_module_dep {
+			nullptr, nullptr, nullptr, 0
+		});
+
 		self = this; // 全局实例指针
 		entry_.size                  = sizeof(entry_);
 		entry_.zend_api              = ZEND_MODULE_API_NO;
 		entry_.zend_debug            = ZEND_DEBUG;
 		entry_.zts                   = USING_ZTS;
 		entry_.ini_entry             = nullptr; // 此项数据由 zend engine 填充
-		entry_.deps                  = nullptr;
-		entry_.name                  = name;
+		entry_.deps                  = deps_.data();
+		entry_.name                  = nullptr;
 		entry_.functions             = nullptr; // 这里暂时设置为 nullptr 后面在所有 extension 处理完成后，统一生成
 		entry_.module_startup_func   = on_module_startup_handler;
 		entry_.module_shutdown_func  = on_module_shutdown_handler;
 		entry_.request_startup_func  = on_request_startup_handler;
 		entry_.request_shutdown_func = on_request_shutdown_handler;
 		entry_.info_func             = nullptr;
-		entry_.version               = version;
+		entry_.version               = nullptr;
 		entry_.globals_size          = 0;
 #ifdef ZTS
 		entry_.globals_id_ptr        = nullptr;
@@ -36,6 +43,24 @@ namespace php {
 		// 内部 class
 		_register_builtin_class(*this);
 	}
+
+	void extension_entry::init(const char* name, const char* version) {
+		entry_.name = name;
+		entry_.version = version;
+	}
+
+	void extension_entry::done() {
+		if(entry_.name == nullptr || entry_.version == nullptr) {
+			entry_.name    = EXTENSION_NAME;
+			entry_.version = EXTENSION_VERSION;
+		}
+		// 函数注册
+		if(!function_entries_.empty()) {
+			function_entries_.push_back(zend_function_entry{});
+			entry_.functions = function_entries_.data();
+		}
+	}
+
 	int extension_entry::on_module_startup_handler(int type, int module) {
 		self->module = module;
 		// ini 注册
@@ -50,10 +75,6 @@ namespace php {
 			entries[i].name = nullptr; // zend_register_ini_entries() -> while(entry->name) { zend_string_copy }
 			zend_register_ini_entries(entries.data(), module);
 		}
-		// 完成 classes 注册
-		for(auto i=self->class_entries_.begin();i!=self->class_entries_.end();++i) {
-			(*i)->declare();
-		}
 		// classes_entries_ 不能再完成之前清理（zend 引擎会应用其中的内存）
 		// 常量注册
 		for(i=0;i<self->constant_entries_.size(); ++i) {
@@ -61,6 +82,10 @@ namespace php {
 		}
 		// constants 可以清理了
 		self->constant_entries_.clear();
+		// 完成 classes 注册
+		for(auto i=self->class_entries_.begin();i!=self->class_entries_.end();++i) {
+			(*i)->declare();
+		}
 		// 正向调用
 		while(!self->handler_mst_.empty()) {
 			if(! self->handler_mst_.front()(*self) ) return FAILURE;
@@ -118,12 +143,7 @@ namespace php {
 		handler_rsd_.push_back(handler);
 	}
 
-	extension_entry::operator zend_module_entry*() {
-		// 函数注册
-		if(!function_entries_.empty()) {
-			function_entries_.push_back(zend_function_entry{});
-			entry_.functions = function_entries_.data();
-		}
+	zend_module_entry* extension_entry::entry() {
 		return &entry_;
 	}
 

@@ -4,9 +4,10 @@ namespace php {
 	class extension_entry {
 	public:
 		static extension_entry* self;
-		extension_entry(const char* name, const char* version);
+		extension_entry();
 		~extension_entry();
-
+		void init(const char* name, const char* version);
+		void done();
 		extension_entry& add(const ini_entry& entry);
 		extension_entry& add(const constant_entry& entry);
 		// 函数
@@ -31,7 +32,7 @@ namespace php {
 
 		int module;
 
-		operator zend_module_entry*();
+		zend_module_entry* entry();
 
 		void on_module_startup(std::function<bool (extension_entry&)> handler);
 		void on_module_shutdown(std::function<bool (extension_entry&)> handler);
@@ -47,7 +48,7 @@ namespace php {
 		std::list<std::function<bool(extension_entry&)>> handler_rst_;
 		std::list<std::function<bool(extension_entry&)>> handler_mst_;
 		std::list<std::function<bool(extension_entry&)>> handler_msd_;
-
+		std::vector<zend_module_dep> deps_;
 
 		// 扩展回调函数
 		static int on_module_startup_handler  (int type, int module);
