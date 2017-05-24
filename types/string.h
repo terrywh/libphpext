@@ -6,7 +6,10 @@ namespace php {
 	public:
 		string(): value() {}
 		string(std::size_t size, bool persistent=false)
-			: value(zend_string_alloc(size, persistent), true) {}
+			: value(zend_string_alloc(size, persistent), true) {
+			// 参考 zend_string_init 流程，部分代码需要依赖结尾的 \0 字节，需要注意
+			Z_STRVAL(value_)[size] = '\0';
+		}
 		string(const char* val, std::size_t len, bool persistent=false)
 			: value(zend_string_init(val, len, persistent), true) {}
 		string(const std::string& str)
