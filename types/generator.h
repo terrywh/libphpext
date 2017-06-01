@@ -14,7 +14,8 @@ namespace php {
 		void throw_exception(const php::value& e);
 		void throw_exception(const std::string& msg, int code = 0);
 		bool valid();
+		php::value get_return();
 
-		using value::operator=;
+		using value::operator =;
 	};
 }

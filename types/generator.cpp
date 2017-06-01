@@ -95,4 +95,13 @@ namespace php {
 		zend_generator_get_current(gen_);
 		return EXPECTED(gen_->execute_data != NULL);
 	}
+
+	php::value generator::get_return() {
+		zend_generator *gen_ = reinterpret_cast<zend_generator*>(Z_OBJ(value_));
+		zend_generator_ensure_initialized(gen_);
+		if (UNEXPECTED(EG(exception)) || Z_ISUNDEF(gen_->retval)) {
+			return nullptr;
+		}
+		return php::value(gen_->retval);
+	}
 }
