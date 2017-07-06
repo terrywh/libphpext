@@ -8,6 +8,9 @@ namespace php {
 			"standard", "ge", "7.0.0", MODULE_DEP_REQUIRED
 		});
 		deps_.push_back(zend_module_dep {
+			"mbstring", "ge", "7.0.0", MODULE_DEP_REQUIRED
+		});
+		deps_.push_back(zend_module_dep {
 			nullptr, nullptr, nullptr, 0
 		});
 
