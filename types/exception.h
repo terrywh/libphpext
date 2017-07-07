@@ -15,8 +15,9 @@ namespace php {
 		inline const int code() const noexcept {
 			return _code;
 		}
+		operator value() const;
 	private:
 		std::string  _message;
-		std::int64_t _code;
+		int          _code;
 	};
 }
