@@ -53,10 +53,8 @@ namespace php {
 	}
 
 	void extension_entry::done() {
-		if(entry_.name == nullptr || entry_.version == nullptr) {
-			entry_.name    = EXTENSION_NAME;
-			entry_.version = EXTENSION_VERSION;
-		}
+		assert(entry_.name != nullptr);
+		assert(entry_.version != nullptr);
 		// 函数注册
 		if(!function_entries_.empty()) {
 			function_entries_.push_back(zend_function_entry{});

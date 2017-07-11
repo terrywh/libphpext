@@ -32,7 +32,7 @@ ${TARGET_LIBRARY}: ${OBJECTS}
 	ar rcs $@ $^
 
 %.o: %.cpp
-	${CXX}${CXXFLAGS} ${CXXFLAGS_DEFAULT} ${INCLUDE} -c $^ -o $@
+	${CXX} ${CXXFLAGS} ${CXXFLAGS_DEFAULT} ${INCLUDE} -c $^ -o $@
 
 ${TEST_EXTENSION}: test/extension.cpp ${TARGET_LIBRARY}
 	${CXX} ${CXXFLAGS} ${CXXFLAGS_DEFAULT} ${INCLUDE} -DEXTENSION_NAME=\"phpext\" -DEXTENSION_VERSION=\"${TARGET_VERSION}\" -c test/extension.cpp -o test/extension.o
