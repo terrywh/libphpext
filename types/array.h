@@ -46,6 +46,7 @@ namespace php {
 		array_iterator begin();
 		array_iterator end();
 		using value::operator =;
+		using value::operator ==;
 		friend class array_iterator;
 	};
 

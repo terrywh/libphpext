@@ -249,6 +249,9 @@ namespace php {
 		ZVAL_UNDEF(&v.value_);
 		return *this;
 	}
+	bool value::operator==(const value& v) {
+		return Z_PTR(value_) == Z_PTR(v.value_);
+	}
 	bool value::to_bool() {
 		convert_to_boolean(&value_);
 		return Z_TYPE(value_) == IS_TRUE;

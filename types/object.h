@@ -20,6 +20,7 @@ namespace php {
 			return std::move(obj);
 		}
 		static object create(const std::string& name);
+		static object create();
 		value& prop(const char* name, std::size_t len);
 		inline value& prop(const std::string& name) {
 			return prop(name.c_str(), name.length());
@@ -55,5 +56,6 @@ namespace php {
 			return class_wrapper<T>::from_obj(Z_OBJ(value_));
 		};
 		using value::operator =;
+		using value::operator ==;
 	};
 }

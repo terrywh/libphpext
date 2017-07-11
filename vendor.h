@@ -28,6 +28,7 @@ extern "C" {
 #include <Zend/zend_smart_str.h>
 #include <Zend/zend_ini_scanner.h>
 #include <Zend/zend_generators.h>
+#include <Zend/zend_closures.h>
 
 #include <main/php.h>
 #include <main/php_variables.h>

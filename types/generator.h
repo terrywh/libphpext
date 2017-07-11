@@ -17,5 +17,6 @@ namespace php {
 		php::value get_return();
 
 		using value::operator =;
+		using value::operator ==;
 	};
 }

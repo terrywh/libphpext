@@ -27,6 +27,11 @@ namespace php {
 			throw exception("failed to create object: class not found");
 		}
 	}
+	object object::create() {
+		object obj;
+		object_init(&obj.value_);
+		return std::move(obj);
+	}
 	value& object::prop(const char* name, std::size_t len) {
 		zval   dv, *rv;
 		rv = zend_read_property(Z_OBJCE(value_), &value_, name, len, false, &dv);

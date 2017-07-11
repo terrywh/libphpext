@@ -5,7 +5,7 @@
 PHP_CONFIG=php-config
 
 TARGET_LIBRARY=libphpext.a
-TARGET_VERSION=0.1.0
+TARGET_VERSION=0.2.0
 
 SOURCES=$(wildcard types/*.cpp) $(wildcard parts/*.cpp) $(wildcard bases/*.cpp) $(wildcard funcs/*.cpp) extension.cpp
 OBJECTS=$(SOURCES:%.cpp=%.o)
@@ -13,10 +13,13 @@ OBJECTS=$(SOURCES:%.cpp=%.o)
 TEST_EXTENSION=phpext.so
 
 
-CXX?=g++
+CXX?=/usr/local/gcc-7.1.0/bin/g++
 CXXFLAGS?= -g -O0
+LDFLAGS?=-Wl,-rpath="/usr/local/gcc-7.1.0/lib64"
+LDFLAGS_DEFAULT=-shared -u get_module
+CXXFLAGS_DEFAULT=-std=c++11 -fPIC
 INCLUDE=`${PHP_CONFIG} --includes`
-LIBRARY=-Wl,-rpath="/usr/local/gcc6/lib64"
+LIBRARY=
 
 
 all: ${TARGET_LIBRARY}
@@ -29,11 +32,11 @@ ${TARGET_LIBRARY}: ${OBJECTS}
 	ar rcs $@ $^
 
 %.o: %.cpp
-	${CXX} -std=c++11 -fPIC -DEXTENSION_NAME=\"phpext\" -DEXTENSION_VERSION=\"${TARGET_VERSION}\" ${CXXFLAGS} ${INCLUDE} -c $^ -o $@
+	${CXX}${CXXFLAGS} ${CXXFLAGS_DEFAULT} ${INCLUDE} -c $^ -o $@
 
 ${TEST_EXTENSION}: test/extension.cpp ${TARGET_LIBRARY}
-	${CXX} ${CXXFLAGS} ${INCLUDE} -DEXTENSION_NAME=\"phpext\" -DEXTENSION_VERSION=\"${TARGET_VERSION}\" -c test/extension.cpp -o test/extension.o
-	${CXX} -shared test/extension.o ${TARGET_LIBRARY} ${LIBRARY} -o phpext.so
+	${CXX} ${CXXFLAGS} ${CXXFLAGS_DEFAULT} ${INCLUDE} -DEXTENSION_NAME=\"phpext\" -DEXTENSION_VERSION=\"${TARGET_VERSION}\" -c test/extension.cpp -o test/extension.o
+	${CXX} ${LDFLAGS} ${LDFLAGS_DEFAULT} ${LIBRARY} test/extension.o ${TARGET_LIBRARY} -o ${TEST_EXTENSION}
 
 test: ${TEST_EXTENSION}
 

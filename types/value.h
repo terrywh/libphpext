@@ -177,6 +177,7 @@ namespace php {
 		// ---------------------------------------------------------------------
 		value& operator =(const value& v);
 		value& operator =(value&& v);
+		bool operator ==(const value& v);
 	};
 
 }

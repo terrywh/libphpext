@@ -39,5 +39,6 @@ namespace php {
 			return Z_DELREF(value_);
 		}
 		using value::operator =;
+		using value::operator ==;
 	};
 }
