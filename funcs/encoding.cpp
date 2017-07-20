@@ -79,4 +79,17 @@ namespace php {
 
 		return std::move(s);
 	}
+
+	php::string json_encode(const php::value& data, int options) {
+		php::buffer str;
+		php_json_encode(str, (zval*)&data, options);
+		return std::move(str);
+	}
+	php::value json_decode(const php::string& str, int depth) {
+		php::value rv;
+		php_json_decode_ex(
+			(zval*)&rv, const_cast<php::string&>(str).data(), str.length(),
+			PHP_JSON_OBJECT_AS_ARRAY, depth);
+		return std::move(rv);
+	}
 }

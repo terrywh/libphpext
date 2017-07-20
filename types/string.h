@@ -14,6 +14,12 @@ namespace php {
 			: value(zend_string_init(val, len, persistent), true) {}
 		string(const std::string& str)
 			: value(zend_string_init(str.c_str(), str.length(), false), true) {}
+		string(buffer&& buf) {
+			ZVAL_STR(&value_, buf);
+			buf.str_.s = nullptr;
+			buf.str_.a = 0;
+			buf.po_ = 0;
+		}
 		inline const char* c_str() const {
 			return Z_STRVAL(value_);
 		}
@@ -23,7 +29,7 @@ namespace php {
 		inline operator zend_string*() {
 			return Z_STR(value_);
 		}
-		std::size_t& length() {
+		std::size_t& length() const {
 			return Z_STRLEN(value_);
 		}
 		string substr(std::size_t pos, std::size_t count = 0);

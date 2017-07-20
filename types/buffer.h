@@ -34,9 +34,13 @@ namespace php {
 		inline operator zend_string*() {
 			return str_.s;
 		}
+		inline operator smart_str*() {
+			return &str_;
+		}
 	private:
 		smart_str str_;
 		int po_;
 		friend class value;
+		friend class string;
 	};
 }

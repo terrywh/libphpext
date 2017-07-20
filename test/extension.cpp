@@ -34,7 +34,7 @@ php::value test_function_2(php::parameters& params) {
 	// 回调函数
 	php::callable cb = params[0];
 	// 回调函数调用传入 a 作为参数，并返回其返回值
-	return nullptr;
+	return cb(a);
 }
 
 php::value test_function_3(php::parameters& params) {
@@ -64,6 +64,13 @@ public:
 	}
 };
 
+php::value test_function_4(php::parameters& params) {
+	return php::json_encode(params[0]);
+}
+php::value test_function_5(php::parameters& params) {
+	return php::json_decode(params[0]);
+}
+
 void extension_init(php::extension_entry& extension) {
 	// 扩展基本初始化 名称，版本
 	extension.init(EXTENSION_NAME, EXTENSION_VERSION);
@@ -74,6 +81,8 @@ void extension_init(php::extension_entry& extension) {
 		// 参数说明可选（除 引用传递标识 true 外，实际不会有什么作用）
 		php::of_string("arg_1", true),
 	});
+	extension.add<test_function_4>("phpext_function_4");
+	extension.add<test_function_5>("phpext_function_5");
 	php::class_entry<test_class_1> class_entry_1("phpext_class_1");
 	// 类属性
 	class_entry_1.add(php::property_entry("property_1", 123456));
@@ -84,3 +93,4 @@ void extension_init(php::extension_entry& extension) {
 	// 将 类定义转入 扩展定义，注意 std::move 必须存在
 	extension.add(std::move(class_entry_1));
 }
+

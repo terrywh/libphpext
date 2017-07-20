@@ -40,4 +40,5 @@ extern "C" {
 #include <ext/standard/base64.h>
 #include <ext/standard/sha1.h>
 #include <ext/standard/crc32.h>
+#include <ext/json/php_json.h>
 }
