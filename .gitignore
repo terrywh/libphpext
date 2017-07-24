@@ -1,1 +1,3 @@
 **/*.o
+libphpext.a
+phpext.so
