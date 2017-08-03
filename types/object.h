@@ -11,6 +11,7 @@ namespace php {
 		}
 	public:
 		object(): value() {}
+		object(zend_object* obj): value(obj, false) {}
 		object clone();
 		// 构造
 		template<class T>
