@@ -4,6 +4,7 @@ namespace php {
 	// 字符串
 	// -------------------------------------------------------------------------
 	value::value(buffer&& b) {
+		smart_str_0(&b.str_); // 添加 \0 结束符（缺少时可能导致 JSON 解析失败）
 		ZVAL_STR(&value_, b.str_.s);
 		b.str_.s = nullptr;
 		b.str_.a = 0;

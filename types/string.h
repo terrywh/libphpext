@@ -15,6 +15,7 @@ namespace php {
 		string(const std::string& str)
 			: value(zend_string_init(str.c_str(), str.length(), false), true) {}
 		string(buffer&& buf) {
+			smart_str_0(&buf.str_); // 添加 \0 结束符（缺少时可能导致 JSON 解析失败）
 			ZVAL_STR(&value_, buf);
 			buf.str_.s = nullptr;
 			buf.str_.a = 0;
