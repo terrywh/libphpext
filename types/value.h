@@ -173,7 +173,7 @@ namespace php {
 		bool         to_bool();
 		long         to_long(int base = 10);
 		double       to_double();
-		std::string  to_string();
+		php::string&  to_string();
 		// ---------------------------------------------------------------------
 		value& operator =(const value& v);
 		value& operator =(value&& v);

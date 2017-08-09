@@ -37,5 +37,6 @@ namespace php {
 		static string concat(const string& s1, const string& s2);
 		using value::operator =;
 		using value::operator ==;
+		using value::operator std::string;
 	};
 }

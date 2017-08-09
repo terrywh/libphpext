@@ -265,8 +265,8 @@ namespace php {
 		convert_to_double(&value_);
 		return Z_DVAL(value_);
 	}
-	std::string value::to_string() {
+	php::string& value::to_string() {
 		convert_to_string(&value_);
-		return std::string(Z_STRVAL(value_), Z_STRLEN(value_));
+		return *reinterpret_cast<string*>(&value_);
 	}
 }
