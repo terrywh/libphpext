@@ -210,17 +210,19 @@ namespace php {
 			// 由于上面计算 offset 的功能需要，把 c++ 对象的内存区域置于尾部
 			char* pdata = (char*)ecalloc(1, sizeof(class_wrapper<T>) + psize + sizeof(T));
 			class_wrapper<T>* wrapper = reinterpret_cast<class_wrapper<T>*>(pdata);
-			// cpp 指针存在主要是为了快捷访问（实际确实可以直接通过计算得到）
-			wrapper->cpp = new (pdata + sizeof(class_wrapper<T>) + psize) T();
 			zend_object_std_init(&wrapper->obj, entry);
 			object_properties_init(&wrapper->obj, entry);
 			wrapper->obj.handlers = &handlers_;
-			wrapper->cpp->_object_set(&wrapper->obj);
+			// cpp 指针存在主要是为了快捷访问（实际确实可以直接通过计算得到）
+			// cpp 对象在对象初始化后创建，以允许构造函数进行内置属性填充
+			wrapper->cpp = reinterpret_cast<T*>(pdata + sizeof(class_wrapper<T>) + psize);
+			ZVAL_OBJ(&wrapper->cpp->value_, &wrapper->obj);
+			new (wrapper->cpp) T();
 			return &wrapper->obj;
 		}
 
 		static void free_object_handler(zend_object* object) {
-			// wrapper 对应的内存会由 Zend 引擎在 dtor_obj 中释放 efree() 
+			// wrapper 对应的内存会由 Zend 引擎在 dtor_obj 中释放 efree()
 			auto wrapper = reinterpret_cast<class_wrapper<T>*>((char*)object - XtOffsetOf(class_wrapper<T>, obj));
 			wrapper->cpp->~T();
 			zend_object_std_dtor(&wrapper->obj);

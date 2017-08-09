@@ -2,8 +2,8 @@
 
 namespace php {
 	class value;
-	class callable;
 	class extension_entry;
+	class parameters;
 	class class_closure: public class_base {
 	public:
 		value __invoke(parameters& params);
