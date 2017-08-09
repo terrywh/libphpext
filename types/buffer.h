@@ -24,10 +24,10 @@ namespace php {
 		inline int capacity() const {
 			return str_.a;
 		}
-        void reset() {
-            po_ = 0;
-            str_.s->len = 0;
-        }
+		void reset() {
+			po_ = 0;
+			str_.s->len = 0;
+		}
 		inline operator char*() {
 			return str_.s->val;
 		}
