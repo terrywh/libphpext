@@ -18,7 +18,7 @@ namespace php {
 			return find(key.c_str(), key.length());
 		}
 		inline value* find(const char* key, std::size_t len) {
-			return (value*)zend_hash_str_find_ptr(Z_ARR(value_), key, len);
+			return (value*)zend_hash_str_find(Z_ARR(value_), key, len);
 		}
 		inline void erase(const std::size_t idx) {
 			zend_hash_index_del(Z_ARR(value_), idx);
