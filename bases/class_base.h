@@ -4,7 +4,6 @@ namespace php {
 	class value;
 	class class_base {
 	public:
-		class_base();
 		// !!! prop 更新设置属性必须已经提前“声明”，否则会导致位置错误
 		value& prop(const char* name, std::size_t len);
 		value& prop(const std::string& name);
@@ -12,10 +11,10 @@ namespace php {
 		value& sprop(const char* name, std::size_t len, value& val);
 		value& sprop(const std::string& name, value& val);
 
-		inline void addref() {
+		inline class_base* addref() {
 			Z_ADDREF(value_);
 		}
-		inline void delref() {
+		inline class_base* delref() {
 			Z_DELREF(value_);
 		}
 	private:
