@@ -28,4 +28,13 @@ namespace php {
 		smart_str_alloc(&str_, size, false);
 		return str_.s->val + po_;
 	}
+
+	buffer& buffer::operator =(buffer&& buf) {
+		smart_str_free(&str_);
+		str_ = buf.str_;
+		po_  = buf.po_;
+		buf.str_.s = nullptr;
+		buf.str_.a = 0;
+		buf.po_ = 0;
+	}
 }

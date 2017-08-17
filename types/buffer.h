@@ -37,6 +37,7 @@ namespace php {
 		inline operator smart_str*() {
 			return &str_;
 		}
+		buffer& operator =(buffer&& buf);
 	private:
 		smart_str str_;
 		int po_;
