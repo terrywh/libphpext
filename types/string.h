@@ -4,7 +4,9 @@ namespace php {
 	class value;
 	class string : public value {
 	public:
-		string(): value() {}
+		string() {
+			ZVAL_STR(&value_, ZSTR_EMPTY_ALLOC());
+		}
 		string(std::size_t size, bool persistent=false)
 			: value(zend_string_alloc(size, persistent), true) {
 			// 参考 zend_string_init 流程，部分代码需要依赖结尾的 \0 字节，需要注意
@@ -14,12 +16,8 @@ namespace php {
 			: value(zend_string_init(val, len, persistent), true) {}
 		string(const std::string& str)
 			: value(zend_string_init(str.c_str(), str.length(), false), true) {}
-		string(buffer&& buf) {
-			smart_str_0(&buf.str_); // 添加 \0 结束符（缺少时可能导致 JSON 解析失败）
-			ZVAL_STR(&value_, buf);
-			buf.str_.s = nullptr;
-			buf.str_.a = 0;
-			buf.po_ = 0;
+		string(buffer&& buf)
+		 	: value(std::move(buf)) {
 		}
 		inline const char* c_str() const {
 			return Z_STRVAL(value_);

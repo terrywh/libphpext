@@ -4,29 +4,36 @@ namespace php {
 	class value;
 	class buffer {
 	public:
-		// 参考 smart_str 相关实现（头部额外数据，总共 256）
-		buffer(int size=231);
 		inline ~buffer() {
 			smart_str_free(&str_);
 		}
-		// buffer 不允许复制
+		// 参考 smart_str 相关实现（头部额外数据，总共 256）
+		buffer(int size=231);
 		buffer(buffer&& buf);
 		// 需要放入指定大小的 buffer，返回放入位置
 		char* put(int size);
+		void  adv(int size);
 		// 需要放入最大 size 大小（未实际放入，可能与 size 不同）
 		char* rev(int size);
+		// 当前放入位置
+		inline char* current() {
+			return str_.s->val + put_;
+		}
 		inline char* data() {
 			return str_.s->val;
 		}
-		inline int size() const {
-			return str_.s->len;
+		inline unsigned int size() const {
+			return put_;
 		}
 		inline int capacity() const {
 			return str_.a;
 		}
-		void reset() {
-			po_ = 0;
-			str_.s->len = 0;
+		inline bool is_null() const {
+			return str_.s == nullptr;
+		}
+		void reset(int size = 0) {
+			put_ = size;
+			// str_.s->len = size;
 		}
 		inline operator char*() {
 			return str_.s->val;
@@ -40,7 +47,7 @@ namespace php {
 		buffer& operator =(buffer&& buf);
 	private:
 		smart_str str_;
-		int po_;
+		int       put_;
 		friend class value;
 		friend class string;
 	};
