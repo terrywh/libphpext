@@ -17,13 +17,13 @@ namespace php {
 		char* rev(int size);
 		// 当前放入位置
 		inline char* current() {
-			return str_.s->val + put_;
+			return str_.s->val + str_.s->len;
 		}
 		inline char* data() {
 			return str_.s->val;
 		}
 		inline unsigned int size() const {
-			return put_;
+			return str_.s->len;
 		}
 		inline int capacity() const {
 			return str_.a;
@@ -32,8 +32,7 @@ namespace php {
 			return str_.s == nullptr;
 		}
 		void reset(int size = 0) {
-			put_ = size;
-			// str_.s->len = size;
+			str_.s->len = size;
 		}
 		inline operator char*() {
 			return str_.s->val;
@@ -47,7 +46,6 @@ namespace php {
 		buffer& operator =(buffer&& buf);
 	private:
 		smart_str str_;
-		int       put_;
 		friend class value;
 		friend class string;
 	};
