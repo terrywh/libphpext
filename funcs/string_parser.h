@@ -1,5 +1,6 @@
 #pragma once
 namespace php {
+	php::string build_query(php::array array, const std::string& prefix="");
 	class string_parser {
 	private:
 		enum {
