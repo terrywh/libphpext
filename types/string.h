@@ -8,7 +8,7 @@ namespace php {
 			ZVAL_STR(&value_, ZSTR_EMPTY_ALLOC());
 		}
 		string(std::nullptr_t np)
-			: value(n) {}
+			: value(np) {}
 		string(std::size_t size, bool persistent=false)
 			: value(zend_string_alloc(size, persistent), true) {
 			// 参考 zend_string_init 流程，部分代码需要依赖结尾的 \0 字节，需要注意

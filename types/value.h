@@ -177,6 +177,7 @@ namespace php {
 		// ---------------------------------------------------------------------
 		value& operator =(const value& v);
 		value& operator =(value&& v);
+		value& operator =(std::nullptr_t np);
 		bool operator ==(const value& v);
 	};
 
