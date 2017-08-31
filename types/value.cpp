@@ -94,6 +94,9 @@ namespace php {
 	value::operator zval*() {
 		return &value_;
 	}
+	value::operator zval&() {
+		return value_;
+	}
 	value::operator int() const {
 		switch(Z_TYPE(value_)) {
 		case IS_TRUE:

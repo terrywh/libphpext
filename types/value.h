@@ -153,6 +153,7 @@ namespace php {
 		}
 		// --------------------------------------------------------------------
 		operator zval*();
+		operator zval&();
 		operator int() const;
 		operator std::int64_t() const;
 		operator std::size_t() const;
