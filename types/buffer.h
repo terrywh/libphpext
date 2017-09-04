@@ -32,11 +32,10 @@ namespace php {
 			return str_.s == nullptr;
 		}
 		void reset(int size = 0) {
-			if(str_.s) {
-				str_.s->len = size;
-			}else{
+			if(!str_.s) {
 				smart_str_alloc(&str_, size, false);
 			}
+			str_.s->len = size;
 		}
 		inline operator char*() {
 			return str_.s->val;
