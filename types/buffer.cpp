@@ -10,7 +10,7 @@ namespace php {
 	buffer::buffer(buffer&& buf)
 		: str_(buf.str_) {
 		buf.str_.s = nullptr;
-		// buf.str_.a = 0;
+		buf.str_.a = 0;
 	}
 	// 需要放入指定大小的 buffer，返回放入位置
 	char* buffer::put(int size) {
@@ -32,6 +32,6 @@ namespace php {
 		smart_str_free(&str_);
 		str_ = buf.str_;
 		buf.str_.s = nullptr;
-		// buf.str_.a = 0;
+		buf.str_.a = 0;
 	}
 }

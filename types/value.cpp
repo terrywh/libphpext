@@ -7,7 +7,7 @@ namespace php {
 		smart_str_0(&buf.str_); // 添加 \0 结束符（缺少时可能导致 JSON 解析失败）
 		ZVAL_STR(&value_, buf.str_.s);
 		buf.str_.s = nullptr;
-		// buf.str_.a = 0;
+		buf.str_.a = 0;
 	}
 	// 对象
 	// ---------------------------------------------------------------------
