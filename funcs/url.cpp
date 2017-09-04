@@ -29,7 +29,7 @@ namespace php {
 		return std::move(s);
 	}
 
-	php::array parse_str(const char sep, const char* buffer, std::size_t n) {
+	php::array parse_query(const char* buffer, std::size_t n) {
 		php::array data(0);
 		char* res = estrndup(buffer, n);
 		sapi_module.treat_data(PARSE_STRING, res, reinterpret_cast<zval*>(&data));
