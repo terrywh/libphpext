@@ -23,7 +23,7 @@ namespace php {
 			return str_.s->val;
 		}
 		inline unsigned int size() const {
-			return str_.s->len;
+			return str_.s == nullptr ? 0 : str_.s->len;
 		}
 		inline int capacity() const {
 			return str_.a;
