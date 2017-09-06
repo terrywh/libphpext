@@ -6,6 +6,8 @@ namespace php {
 	public:
 		callable(): value() {}
 		callable(std::nullptr_t np): value(nullptr) {}
+		callable(const std::string& name): value(name) {}
+		callable(const php::string& name);
 		callable(const callable& cb): value(cb) {}
 		callable(callable&& cb): value(std::move(cb)) {}
 		static value __invoke(zval* callable, int argc, zval argv[], bool silent);
