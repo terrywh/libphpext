@@ -106,6 +106,10 @@ namespace php {
 			interfaces_.push_back(&zend_ce_serializable);
 			return *this;
 		}
+		class_entry& implements_json_serializable() {
+			interfaces_.push_back(php_json_serializable_ce);
+			return *this;
+		}
 
 		// class_entry& use(const std::string& trait_name) {
 		// 	traits_.push_back(trait_name);
