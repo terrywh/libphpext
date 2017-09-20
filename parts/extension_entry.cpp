@@ -11,6 +11,9 @@ namespace php {
 			"json", "ge", "7.0.0", MODULE_DEP_REQUIRED
 		});
 		deps_.push_back(zend_module_dep {
+			"mysqlnd", nullptr, nullptr, MODULE_DEP_REQUIRED
+		});
+		deps_.push_back(zend_module_dep {
 			nullptr, nullptr, nullptr, 0
 		});
 

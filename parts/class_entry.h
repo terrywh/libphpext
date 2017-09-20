@@ -107,7 +107,7 @@ namespace php {
 			return *this;
 		}
 		class_entry& implements_json_serializable() {
-			interfaces_.push_back(php_json_serializable_ce);
+			interfaces_.push_back(&php_json_serializable_ce);
 			return *this;
 		}
 
