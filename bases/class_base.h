@@ -2,6 +2,7 @@
 
 namespace php {
 	class value;
+	class object;
 	class class_base {
 	public:
 		// !!! prop 更新设置属性必须已经提前“声明”，否则会导致位置错误
@@ -16,6 +17,9 @@ namespace php {
 		}
 		inline class_base* delref() {
 			Z_DELREF(value_);
+		}
+		inline php::object& obj() {
+			return reinterpret_cast<php::object&>(value_);
 		}
 	private:
 		zval value_;
