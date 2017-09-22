@@ -29,10 +29,15 @@ namespace php {
 		inline void erase(const char* key, std::size_t len) {
 			zend_hash_str_del(Z_ARR(value_), key, len);
 		}
+		bool is_a_list();
+		bool is_a_map();
 		value& at(std::size_t idx);
 		value& at(const char* key, std::size_t len);
 		inline value& at(const std::string& key) {
 			return at(key.c_str(), key.length());
+		}
+		inline value& operator [](int idx) {
+			return at(std::size_t(idx));
 		}
 		inline value& operator [](std::size_t idx) {
 			return at(idx);

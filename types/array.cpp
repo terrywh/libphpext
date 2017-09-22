@@ -5,6 +5,12 @@ namespace php {
 		ZVAL_NEW_ARR(&value_);
 		_zend_hash_init(Z_ARRVAL(value_), size, ZVAL_PTR_DTOR, 0 ZEND_FILE_LINE_RELAY_CC);
 	}
+	bool array::is_a_list() {
+		return length() > 0 && begin()->first.is_long();
+	}
+	bool array::is_a_map() {
+		return length() > 0 && begin()->first.is_string();
+	}
 	value& array::at(std::size_t idx) {
 		value* item = (value*)zend_hash_index_find(Z_ARRVAL(value_), idx);
 		if(item == nullptr) {

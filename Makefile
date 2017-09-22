@@ -26,11 +26,12 @@ all: ${TARGET_LIBRARY}
 	@echo done.
 
 clean:
-	rm -f ${TARGET_LIBRARY} ${OBJECTS}
+	rm -f vendor.h.gch ${TARGET_LIBRARY} ${OBJECTS}
 
-${TARGET_LIBRARY}: ${OBJECTS}
+${TARGET_LIBRARY}: vendor.h.gch ${OBJECTS}
 	ar rcs $@ $^
-
+vendor.h.gch: vendor.h
+	${CXX} -x c++ ${CXXFLAGS} ${CXXFLAGS_DEFAULT} ${INCLUDE} -c $^ -o $@
 %.o: %.cpp
 	${CXX} ${CXXFLAGS} ${CXXFLAGS_DEFAULT} ${INCLUDE} -c $^ -o $@
 
