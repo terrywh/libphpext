@@ -218,7 +218,6 @@ namespace php {
 			object_properties_init(&wrapper->obj, entry);
 			wrapper->obj.handlers = &handlers_;
 			// cpp 指针存在主要是为了快捷访问（实际确实可以直接通过计算得到）
-			// cpp 对象在对象初始化后创建，以允许构造函数进行内置属性填充
 			wrapper->cpp = reinterpret_cast<T*>(pdata + sizeof(class_wrapper<T>) + psize);
 			ZVAL_OBJ(&wrapper->cpp->value_, &wrapper->obj);
 			new (wrapper->cpp) T();

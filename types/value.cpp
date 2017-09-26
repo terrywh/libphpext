@@ -12,11 +12,7 @@ namespace php {
 	// 对象
 	// ---------------------------------------------------------------------
 	value::value(class_base* base) {
-		if(Z_TYPE(base->value_) != IS_UNDEF) {
-			ZVAL_COPY(&value_, &base->value_);
-		}else{
-			assert("object is not yet set");
-		}
+		ZVAL_COPY(&value_, &base->value_);
 	}
 	// 闭包
 	// ---------------------------------------------------------------------

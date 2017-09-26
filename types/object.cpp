@@ -33,16 +33,13 @@ namespace php {
 		return std::move(obj);
 	}
 	value& object::prop(const char* name, std::size_t len) {
-		zval   dv, *rv;
+		zval* rv, dv;
 		rv = zend_read_property(Z_OBJCE(value_), &value_, name, len, false, &dv);
-		// ZVAL_DEREF(rv);
 		return *reinterpret_cast<value*>(rv);
 	}
 	value& object::sprop(const char* name, std::size_t len, php::value& val) {
-		zval   dv, *rv;
-		rv = zend_read_property(Z_OBJCE(value_), &value_, name, len, false, &dv);
-		// ZVAL_DEREF(rv);
-		ZVAL_COPY(rv, static_cast<zval*>(val));
+		zval* rv;
+		rv = zend_read_static_property(Z_OBJCE(value_), name, len, false);
 		return *reinterpret_cast<value*>(rv);
 	}
 	bool object::is_instance_of(const std::string& class_name) const {

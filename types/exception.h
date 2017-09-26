@@ -1,6 +1,7 @@
 #pragma once
 
 namespace php {
+	class value;
 	class exception: public std::exception {
 	public:
 		enum {
