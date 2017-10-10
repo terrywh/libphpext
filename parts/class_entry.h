@@ -219,8 +219,8 @@ namespace php {
 			wrapper->obj.handlers = &handlers_;
 			// cpp 指针存在主要是为了快捷访问（实际确实可以直接通过计算得到）
 			wrapper->cpp = reinterpret_cast<T*>(pdata + sizeof(class_wrapper<T>) + psize);
-			ZVAL_OBJ(&wrapper->cpp->value_, &wrapper->obj);
 			new (wrapper->cpp) T();
+			ZVAL_OBJ(&wrapper->cpp->value_, &wrapper->obj);
 			return &wrapper->obj;
 		}
 

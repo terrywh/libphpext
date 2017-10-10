@@ -8,6 +8,13 @@ namespace php {
 		array(std::size_t size = 0);
 		array(const array& a2): value(a2) {}
 		array(array&& a2): value(std::move(a2)) {}
+		// ---------------------------------------------------------------------
+		// 全局对象
+		// ---------------------------------------------------------------------
+		static array server() {
+			php::array  symbol = php::value(&EG(symbol_table));
+			return symbol["_SERVER"];
+		}
 		inline std::size_t length() const {
 			return zend_hash_num_elements(Z_ARR(value_));
 		}
