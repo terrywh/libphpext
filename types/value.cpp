@@ -12,7 +12,8 @@ namespace php {
 	// 对象
 	// ---------------------------------------------------------------------
 	value::value(class_base* base) {
-		ZVAL_COPY(&value_, &base->value_);
+		if(base != nullptr) ZVAL_COPY(&value_, &base->value_);
+		else ZVAL_NULL(&value_);
 	}
 	// 闭包
 	// ---------------------------------------------------------------------

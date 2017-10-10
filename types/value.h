@@ -140,6 +140,9 @@ namespace php {
 		inline bool is_reference() const {
 			return Z_ISREF(value_);
 		}
+		inline bool is_pointer() const {
+			return Z_TYPE(value_) == IS_PTR;
+		}
 		std::size_t length() const;
 		// ---------------------------------------------------------------------
 		inline std::uint32_t addref() {
