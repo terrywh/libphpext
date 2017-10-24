@@ -36,7 +36,7 @@ namespace php {
 		inline value call(const std::string& name) {
 			return __call(Z_OBJ(value_), name.c_str(), name.length(), 0, nullptr, false);
 		}
-		inline value scall(const std::string& name, bool silent = false) {
+		inline value scall(const std::string& name) {
 			return __call(Z_OBJ(value_), name.c_str(), name.length(), 0, nullptr, true);
 		}
 		template <typename ...Args>

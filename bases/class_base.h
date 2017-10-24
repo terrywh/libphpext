@@ -5,7 +5,7 @@ namespace php {
 	class object;
 	class class_base {
 	public:
-		// !!! prop 更新设置属性必须已经提前“声明”，否则会导致位置错误
+		// !!! prop 更新设置属性必须已经提前“声明”，否则会导致未知错误
 		value& prop(const char* name, std::size_t len);
 		value& prop(const std::string& name);
 		// bool set 为了防止和上面 size_t 对应函数混淆
