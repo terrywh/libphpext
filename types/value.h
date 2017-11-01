@@ -100,6 +100,7 @@ namespace php {
 			if(!create) Z_ADDREF(value_);
 		}
 		value(class_base* base);
+		value(void* data);
 		// 闭包
 		// ---------------------------------------------------------------------
 		value(std::function<value (parameters&)> fn);
@@ -108,6 +109,7 @@ namespace php {
 			return Z_TYPE(value_);
 		}
 		bool is_empty() const;
+		bool is_undefined() const;
 		bool is_null() const;
 		inline bool is_bool() const {
 			return Z_TYPE(value_) == IS_TRUE || Z_TYPE(value_) == IS_FALSE;

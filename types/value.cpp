@@ -15,6 +15,9 @@ namespace php {
 		if(base != nullptr) ZVAL_COPY(&value_, &base->value_);
 		else ZVAL_NULL(&value_);
 	}
+	value::value(void* data) {
+		ZVAL_PTR(&value_, data);
+	}
 	// 闭包
 	// ---------------------------------------------------------------------
 	value::value(std::function<value (parameters&)> fn) {
@@ -38,6 +41,9 @@ namespace php {
 			default: // TODO how to determine 'empty' for other types?
 				return false;
 		}
+	}
+	bool value::is_undefined() const {
+		return Z_TYPE(value_) == IS_UNDEF;
 	}
 	bool value::is_null() const {
 		switch(Z_TYPE(value_)) {
