@@ -19,6 +19,13 @@ namespace php {
 		str_.s->len += size;
 		return p;
 	}
+	void buffer::add(char c) {
+		if(str_.a - str_.s->len < 64) {
+			smart_str_alloc(&str_, 64, false);
+		}
+		*(str_.s->val + str_.s->len) = c;
+		++str_.s->len;
+	}
 	void buffer::adv(int size) {
 		str_.s->len += size;
 	}

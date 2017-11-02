@@ -12,6 +12,7 @@ namespace php {
 		buffer(buffer&& buf);
 		// 需要放入指定大小的 buffer，返回放入位置
 		char* put(int size);
+		void  add(char c);
 		void  adv(int size);
 		// 需要放入最大 size 大小（未实际放入，可能与 size 不同）
 		char* rev(int size);
