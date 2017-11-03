@@ -36,6 +36,7 @@ namespace php {
 		string substr(std::size_t pos, std::size_t count = 0);
 		static string concat(const string& s1, const string& s2);
 		using value::operator =;
+		string& operator =(php::buffer&& buf);
 		using value::operator ==;
 		using value::operator std::string;
 	};
