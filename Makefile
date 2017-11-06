@@ -14,10 +14,10 @@ TEST_EXTENSION=phpext.so
 
 
 CXX?=/usr/local/gcc-7.1.0/bin/g++
-CXXFLAGS?= -g -O0
+CXXFLAGS?= -O2
 LDFLAGS?=-Wl,-rpath="/usr/local/gcc-7.1.0/lib64"
-LDFLAGS_DEFAULT=-shared -u get_module
-CXXFLAGS_DEFAULT=-std=c++11 -fPIC
+LDFLAGS_EXTRA=-shared -u get_module
+CXXFLAGS_EXTRA=-std=c++11 -fPIC
 INCLUDE=`${PHP_CONFIG} --includes`
 LIBRARY=
 
@@ -31,14 +31,15 @@ clean:
 ${TARGET_LIBRARY}: vendor.h.gch ${OBJECTS}
 	ar rcs $@ $^
 vendor.h.gch: vendor.h
-	${CXX} -x c++ ${CXXFLAGS} ${CXXFLAGS_DEFAULT} ${INCLUDE} -c $^ -o $@
+	${CXX} -x c++ ${CXXFLAGS} ${CXXFLAGS_EXTRA} ${INCLUDE} -c $^ -o $@
 %.o: %.cpp vendor.h.gch
-	${CXX} ${CXXFLAGS} ${CXXFLAGS_DEFAULT} ${INCLUDE} -c $< -o $@
+	${CXX} ${CXXFLAGS} ${CXXFLAGS_EXTRA} ${INCLUDE} -c $< -o $@
 
 ${TEST_EXTENSION}: test/extension.cpp ${TARGET_LIBRARY}
-	${CXX} ${CXXFLAGS} ${CXXFLAGS_DEFAULT} ${INCLUDE} -DEXTENSION_NAME=\"phpext\" -DEXTENSION_VERSION=\"${TARGET_VERSION}\" -c test/extension.cpp -o test/extension.o
-	${CXX} ${LDFLAGS} ${LDFLAGS_DEFAULT} ${LIBRARY} test/extension.o ${TARGET_LIBRARY} -o ${TEST_EXTENSION}
+	${CXX} ${CXXFLAGS} ${CXXFLAGS_EXTRA} ${INCLUDE} -DEXTENSION_NAME=\"phpext\" -DEXTENSION_VERSION=\"${TARGET_VERSION}\" -c test/extension.cpp -o test/extension.o
+	${CXX} ${LDFLAGS} ${LDFLAGS_EXTRA} ${LIBRARY} test/extension.o ${TARGET_LIBRARY} -o ${TEST_EXTENSION}
 
+test: CXXFLAGS = -O0 -g
 test: ${TEST_EXTENSION}
 
 test-install:

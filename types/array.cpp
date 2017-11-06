@@ -1,6 +1,7 @@
 #include "../phpext.h"
 
 namespace php {
+	array::array():value() {}
 	array::array(std::size_t size) {
 		ZVAL_NEW_ARR(&value_);
 		_zend_hash_init(Z_ARRVAL(value_), size, ZVAL_PTR_DTOR, 0 ZEND_FILE_LINE_RELAY_CC);
@@ -26,6 +27,13 @@ namespace php {
 		}
 		zend_string_release(key_);
 		return *item;
+	}
+	array& array::operator = (const array& arr) {
+		ZVAL_COPY(&value_, &arr.value_);
+	}
+	array& array::operator = (array&& arr) {
+		ZVAL_COPY_VALUE(&value_, &arr.value_);
+		ZVAL_UNDEF(&arr.value_);
 	}
 	array_iterator array::begin() {
 		return std::move(array_iterator(*this));

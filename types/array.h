@@ -5,7 +5,8 @@ namespace php {
 	class array_iterator;
 	class array : public value {
 	public:
-		array(std::size_t size = 0);
+		array();
+		array(std::size_t size);
 		array(const array& a2): value(a2) {}
 		array(array&& a2): value(std::move(a2)) {}
 		// ---------------------------------------------------------------------
@@ -58,6 +59,8 @@ namespace php {
 		array_iterator begin();
 		array_iterator end();
 		using value::operator =;
+		array& operator = (const array& array);
+		array& operator = (array&& array);
 		using value::operator ==;
 		friend class array_iterator;
 	};
