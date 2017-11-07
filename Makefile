@@ -2,7 +2,8 @@
 
 .PHONY: all types types-clean parts parts-clean test test-clean test-ini test-constant test-function
 
-PHP_CONFIG=php-config
+PHP_PATH=/usr/local/php-7.0.25
+PHP_CONFIG=${PHP_PATH}/bin/php-config
 
 TARGET_LIBRARY=libphpext.a
 TARGET_VERSION=0.2.0

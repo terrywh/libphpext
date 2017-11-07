@@ -33,17 +33,16 @@ namespace php {
 		EG(current_execute_data) = original_execute_data;
 	}
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
-	value generator::current() {
-		value rv;
+	php::value generator::current() {
 		zend_generator* gen_ = reinterpret_cast<zend_generator*>(Z_OBJ(value_));
 		zend_generator_ensure_initialized(gen_);
 		zend_generator* root = zend_generator_get_current(gen_);
 		if (EXPECTED(gen_->execute_data != NULL && Z_TYPE(root->value) != IS_UNDEF)) {
 			zval *value = &root->value;
 			ZVAL_DEREF(value);
-			ZVAL_COPY((zval*)&rv, value);
+			return *value;
 		}
-		return std::move(rv);
+		return nullptr;
 	}
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
 	void generator::next() {
@@ -52,13 +51,13 @@ namespace php {
 		zend_generator_resume(gen_);
 	}
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
-	void generator::send(const php::value& v) {
+	php::value generator::send(const php::value& v) {
 		zend_generator* gen_ = reinterpret_cast<zend_generator*>(Z_OBJ(value_)),
-			root;
+			*root;
 		zend_generator_ensure_initialized(gen_);
 		/* The generator is already closed, thus can't send anything */
 		if (UNEXPECTED(!gen_->execute_data)) {
-			return;
+			return nullptr;
 		}
 		root = zend_generator_get_current(gen_);
 		/* Put sent value in the target VAR slot, if it is used */
@@ -71,12 +70,14 @@ namespace php {
 			zval *value = &root->value;
 			ZVAL_DEREF(value);
 			// ZVAL_COPY(return_value, value);
+			return *value;
 		}
+		return nullptr;
 	}
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
-	void generator::throw_exception(const php::value& e) {
+	php::value generator::throw_exception(const php::value& e) {
 		zend_generator* gen_ = reinterpret_cast<zend_generator*>(Z_OBJ(value_)),
-			root;
+			*root;
 		zval exception;
 		ZVAL_DUP(&exception, const_cast<zval*>(reinterpret_cast<const zval*>(&e)));
 		zend_generator_ensure_initialized(gen_);
@@ -89,18 +90,20 @@ namespace php {
 				zval *value = &root->value;
 				ZVAL_DEREF(value);
 				// ZVAL_COPY(return_value, value);
+				return *value;
 			}
 		} else {
 			/* If the generator is already closed throw the exception in the
 			 * current context */
 			zend_throw_exception_object(&exception);
 		}
+		return nullptr;
 	}
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
-	void generator::throw_exception(const std::string& msg, int code) {
+	php::value generator::throw_exception(const std::string& msg, int code) {
 		php::object e = php::object::create("Exception");
 		e.call("__construct", msg, code);
-		throw_exception(e);
+		return throw_exception(e);
 	}
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
 	bool generator::valid() {
@@ -116,6 +119,6 @@ namespace php {
 		if (UNEXPECTED(EG(exception)) || Z_ISUNDEF(gen_->retval)) {
 			return nullptr;
 		}
-		return php::value(gen_->retval);
+		return gen_->retval;
 	}
 }
