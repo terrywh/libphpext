@@ -2,7 +2,7 @@
 
 namespace php {
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
-	static void inline zend_generator_ensure_initialized(zend_generator *generator) {
+	static void zend_generator_ensure_initialized(zend_generator *generator) {
 		if (UNEXPECTED(Z_TYPE(generator->value) == IS_UNDEF) && EXPECTED(generator->execute_data) && EXPECTED(generator->node.parent == NULL)) {
 			generator->flags |= ZEND_GENERATOR_DO_INIT;
 			zend_generator_resume(generator);
@@ -65,6 +65,12 @@ namespace php {
 			ZVAL_COPY(root->send_target, (zval*)&v);
 		}
 		zend_generator_resume(gen_);
+		zend_generator* root = zend_generator_get_current(gen_);
+		if (EXPECTED(generator->execute_data)) {
+			zval *value = &root->value;
+			ZVAL_DEREF(value);
+			// ZVAL_COPY(return_value, value);
+		}
 	}
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
 	void generator::throw_exception(const php::value& e) {
@@ -76,6 +82,12 @@ namespace php {
 			zend_generator *root = zend_generator_get_current(gen_);
 			zend_generator_throw_exception(root, &exception);
 			zend_generator_resume(gen_);
+			root = zend_generator_get_current(gen_);
+			if (gen_->execute_data) {
+				zval *value = &root->value;
+				ZVAL_DEREF(value);
+				// ZVAL_COPY(return_value, value);
+			}
 		} else {
 			/* If the generator is already closed throw the exception in the
 			 * current context */
