@@ -53,20 +53,21 @@ namespace php {
 	}
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
 	void generator::send(const php::value& v) {
-		zend_generator* gen_ = reinterpret_cast<zend_generator*>(Z_OBJ(value_));
+		zend_generator* gen_ = reinterpret_cast<zend_generator*>(Z_OBJ(value_)),
+			root;
 		zend_generator_ensure_initialized(gen_);
 		/* The generator is already closed, thus can't send anything */
 		if (UNEXPECTED(!gen_->execute_data)) {
 			return;
 		}
-		zend_generator* root = zend_generator_get_current(gen_);
+		root = zend_generator_get_current(gen_);
 		/* Put sent value in the target VAR slot, if it is used */
 		if (root->send_target) {
 			ZVAL_COPY(root->send_target, (zval*)&v);
 		}
 		zend_generator_resume(gen_);
-		zend_generator* root = zend_generator_get_current(gen_);
-		if (EXPECTED(generator->execute_data)) {
+		root = zend_generator_get_current(gen_);
+		if (EXPECTED(gen_->execute_data)) {
 			zval *value = &root->value;
 			ZVAL_DEREF(value);
 			// ZVAL_COPY(return_value, value);
@@ -74,12 +75,13 @@ namespace php {
 	}
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
 	void generator::throw_exception(const php::value& e) {
-		zend_generator* gen_ = reinterpret_cast<zend_generator*>(Z_OBJ(value_));
+		zend_generator* gen_ = reinterpret_cast<zend_generator*>(Z_OBJ(value_)),
+			root;
 		zval exception;
 		ZVAL_DUP(&exception, const_cast<zval*>(reinterpret_cast<const zval*>(&e)));
 		zend_generator_ensure_initialized(gen_);
 		if (gen_->execute_data) {
-			zend_generator *root = zend_generator_get_current(gen_);
+			root = zend_generator_get_current(gen_);
 			zend_generator_throw_exception(root, &exception);
 			zend_generator_resume(gen_);
 			root = zend_generator_get_current(gen_);
