@@ -94,11 +94,8 @@ namespace php {
 			return true;
 		}
 	}
-	value::operator zval*() {
-		return &value_;
-	}
-	value::operator zval&() {
-		return value_;
+	value::operator zval*() const {
+		return const_cast<zval*>(&value_);
 	}
 	value::operator int() const {
 		switch(Z_TYPE(value_)) {
@@ -107,10 +104,8 @@ namespace php {
 		case IS_LONG:
 			return Z_LVAL(value_);
 		case IS_DOUBLE:
-			zend_error_noreturn(E_USER_NOTICE, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(IS_DOUBLE));
 			return Z_DVAL(value_);
 		default: // TODO 其它类型？
-			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(Z_TYPE(value_)));
 			return 0;
 		}
 	}
@@ -121,10 +116,8 @@ namespace php {
 		case IS_LONG:
 			return Z_LVAL(value_);
 		case IS_DOUBLE:
-			zend_error_noreturn(E_USER_NOTICE, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(IS_DOUBLE));
 			return Z_DVAL(value_);
 		default: // TODO 其它类型？
-			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(Z_TYPE(value_)));
 			return 0l;
 		}
 	}
@@ -135,114 +128,57 @@ namespace php {
 		case IS_LONG:
 			return Z_LVAL(value_);
 		case IS_DOUBLE:
-			zend_error_noreturn(E_USER_NOTICE, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(IS_DOUBLE));
 			return Z_DVAL(value_);
 		default: // TODO 其它类型？
-			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given", zend_get_type_by_const(IS_LONG), zend_get_type_by_const(Z_TYPE(value_)));
 			return 0l;
 		}
 	}
 	value::operator double() const {
 		switch(Z_TYPE(value_)) {
 		case IS_FALSE:
-			zend_error_noreturn(E_USER_NOTICE, "type of %s expected, %s given",
-				zend_get_type_by_const(IS_DOUBLE), zend_get_type_by_const(IS_FALSE));
 			return 0.;
 		case IS_TRUE:
-			zend_error_noreturn(E_USER_NOTICE, "type of %s expected, %s given",
-				zend_get_type_by_const(IS_DOUBLE), zend_get_type_by_const(IS_TRUE));
 			return 1.;
 		case IS_LONG:
-			zend_error_noreturn(E_USER_NOTICE, "type of %s expected, %s given",
-				zend_get_type_by_const(IS_DOUBLE), zend_get_type_by_const(IS_LONG));
 			return Z_LVAL(value_);
 		case IS_DOUBLE:
 			return Z_DVAL(value_);
 		default: // TODO 其它类型？
-			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given",
-				zend_get_type_by_const(IS_DOUBLE), zend_get_type_by_const(Z_TYPE(value_)));
 			return 0.;
 		}
 	}
 	value::operator std::string() const {
-		switch(Z_TYPE(value_)) {
-		case IS_STRING:
-			return std::string(Z_STRVAL(value_), Z_STRLEN(value_));
-		default:
-			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given",
-				zend_get_type_by_const(IS_STRING), zend_get_type_by_const(Z_TYPE(value_)));
-			return std::string();
-		}
+		return std::string(Z_STRVAL(value_), Z_STRLEN(value_));
 	}
-	value::operator zend_string*() {
-		switch(Z_TYPE(value_)) {
-		case IS_STRING:
-			return Z_STR(value_);
-		default:
-			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given",
-				zend_get_type_by_const(IS_STRING), zend_get_type_by_const(Z_TYPE(value_)));
-			return nullptr;
-		}
+	value::operator zend_string*() const {
+		return Z_STR(value_);
 	}
-	value::operator string&() {
-		if(is_string()) {
-			return *reinterpret_cast<string*>(&value_);
-		}
-		throw exception("type error: string expected");
+	value::operator zend_array*() const {
+		return Z_ARRVAL(value_);
 	}
-	value::operator zend_array*() {
-		switch(Z_TYPE(value_)) {
-		case IS_ARRAY:
-			return Z_ARRVAL(value_);
-		default:
-			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given",
-				zend_get_type_by_const(IS_ARRAY), zend_get_type_by_const(Z_TYPE(value_)));
-			return nullptr;
-		}
+	value::operator zend_object*() const {
+		return Z_OBJ(value_);
 	}
-	value::operator array&() {
-		if(is_array()) {
-			return *reinterpret_cast<array*>(&value_);
-		}
-		throw exception("type error: array expected");
+	value::operator zend_refcounted*() const {
+		return Z_COUNTED(value_);
 	}
-	value::operator zend_object*() {
-		switch(Z_TYPE(value_)) {
-		case IS_OBJECT:
-			return Z_OBJ(value_);
-		default:
-			zend_error_noreturn(E_USER_WARNING, "type of %s expected, %s given",
-				zend_get_type_by_const(IS_OBJECT), zend_get_type_by_const(Z_TYPE(value_)));
-			return nullptr;
-		}
+	value::operator zend_generator*() const {
+		return reinterpret_cast<zend_generator*>(Z_OBJ(value_));
 	}
-	value::operator object&() {
-		if(is_object()) {
-			return *reinterpret_cast<object*>(&value_);
-		}
-		throw exception("type error: object expected");
+	value::operator string&() const {
+		return (string&)*this;
 	}
-	value::operator callable&() {
-		if(is_callable()) {
-			return *reinterpret_cast<callable*>(&value_);
-		}
-		throw exception("type error: callable expected");
+	value::operator array&() const {
+		return (array&)*this;
 	}
-	value::operator zend_refcounted*() {
-		if(Z_REFCOUNTED(value_)) return Z_COUNTED(value_);
-		zend_error_noreturn(E_USER_WARNING, "recounted expected, %s given",
-			zend_get_type_by_const(Z_TYPE(value_)));
-		return nullptr;
+	value::operator object&() const {
+		return (object&)*this;
 	}
-	value::operator zend_generator*() {
-		if(is_generator())
-			return reinterpret_cast<zend_generator*>(Z_OBJ(value_));
-		return nullptr;
+	value::operator callable&() const {
+		return (callable&)*this;
 	}
-	value::operator generator&() {
-		if(is_generator())
-			return *reinterpret_cast<generator*>(&value_);
-		throw exception("type error: instance of 'Generator' expected");
+	value::operator generator&() const {
+		return (generator&)*this;
 	}
 	value& value::operator=(const value& v) {
 		_zval_dtor(&value_);

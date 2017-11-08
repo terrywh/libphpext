@@ -77,14 +77,14 @@ namespace php {
 		}
 		// 字符串
 		value(zend_string* s, bool create = false) {
-			ZVAL_STR(&value_, s);
+			ZVAL_NEW_STR(&value_, s);
 			if(!create) Z_ADDREF(value_);
 		}
 		value(const std::string& s) {
 			ZVAL_NEW_STR(&value_, zend_string_init(s.c_str(), s.length(), false));
 		}
-		value(const char* str, std::size_t len, bool persistent = false) {
-			ZVAL_NEW_STR(&value_, zend_string_init(str, len, persistent));
+		value(const char* str, std::size_t len) {
+			ZVAL_NEW_STR(&value_, zend_string_init(str, len, false));
 		}
 		value(buffer&& b);
 		// 数组
@@ -130,8 +130,9 @@ namespace php {
 		inline bool is_object() const {
 			return Z_TYPE(value_) == IS_OBJECT;
 		}
-		inline bool is_callable() {
-			return zend_is_callable(&value_, IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr);
+		inline bool is_callable() const {
+			return zend_is_callable(
+				const_cast<zval*>(&value_), IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr);
 		}
 		inline bool is_generator() const {
 			return is_object() && instanceof_function(Z_OBJCE(value_), zend_ce_generator);
@@ -160,29 +161,31 @@ namespace php {
 			return 1;
 		}
 		// --------------------------------------------------------------------
-		operator zval*();
-		operator zval&();
+
 		operator int() const;
 		operator std::int64_t() const;
 		operator std::size_t() const;
 		operator double() const;
-		// operator char*();
-		operator zend_string*();
 		operator std::string() const;
-		// !!! 此处返回的是对当前字符串的引用 GC_REFCOUNT()++
-		operator string&();
-		operator zend_array*();
-		operator array&();
-		operator zend_object*();
-		operator object&();
-		operator callable&();
-		operator zend_refcounted*();
-		operator zend_generator*();
-		operator generator&();
+
+		operator zval*() const;
+		operator zend_string*() const;
+		operator zend_array*() const;
+		operator zend_object*() const;
+		operator zend_refcounted*() const;
+		operator zend_generator*() const;
+
+		operator string&() const;
+		operator array&() const;
+		operator object&() const;
+		operator callable&() const;
+		operator generator&() const;
+
 		bool         to_bool();
 		long         to_long(int base = 10);
 		double       to_double();
-		php::string&  to_string();
+		// 转换当前 value
+		php::string& to_string();
 		// ---------------------------------------------------------------------
 		value& operator =(const value& v);
 		value& operator =(value&& v);

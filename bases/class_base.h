@@ -6,11 +6,11 @@ namespace php {
 	class class_base {
 	public:
 		// !!! prop 更新设置属性必须已经提前“声明”，否则会导致未知错误
-		value& prop(const char* name, std::size_t len);
-		value& prop(const std::string& name);
+		property prop(const char* name, std::size_t len);
+		property prop(const std::string& name);
 		// bool set 为了防止和上面 size_t 对应函数混淆
-		value& sprop(const char* name, std::size_t len, value& val);
-		value& sprop(const std::string& name, value& val);
+		// value& sprop(const char* name, std::size_t len, value& val);
+		// value& sprop(const std::string& name, value& val);
 
 		inline class_base* addref() {
 			Z_ADDREF(value_);

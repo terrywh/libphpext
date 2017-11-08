@@ -12,9 +12,10 @@ namespace php {
 	public:
 		object(): value() {}
 		object(nullptr_t nptr): value(nptr) {}
+		object(const object& obj): value(obj) {}
+		object(object&& obj): value(std::move(obj)) {}
 		object(zend_object* obj): value(obj, false) {}
 		object(class_base* obj): value(obj) {}
-		object clone();
 		// 构造
 		template<class T>
 		static object create() {
@@ -23,14 +24,16 @@ namespace php {
 			return std::move(obj);
 		}
 		static object create(const std::string& name);
+		static object create(zend_class_entry* ce);
 		static object create();
-		value& prop(const char* name, std::size_t len);
-		inline value& prop(const std::string& name) {
-			return prop(name.c_str(), name.length());
+		inline property prop(const php::string& name) {
+			return php::property(*this, name);
 		}
-		value& sprop(const char* name, std::size_t len, php::value& val);
-		inline value& sprop(const std::string& name, php::value& val) {
-			sprop(name.c_str(), name.length(), val);
+		inline property prop(const char* name, std::size_t len) {
+			return prop(php::string(name, len));
+		}
+		inline property prop(const std::string& name) {
+			return prop(name.c_str(), name.length());
 		}
 		// !!! 仅允许调用类成员函数
 		inline value call(const std::string& name) {
@@ -58,7 +61,21 @@ namespace php {
 		inline T* native() {
 			return class_wrapper<T>::from_obj(Z_OBJ(value_));
 		};
+		inline operator zend_class_entry*() const {
+			return Z_OBJCE(value_);
+		}
+		inline operator zend_object*() const {
+			return Z_OBJ(value_);
+		}
 		using value::operator =;
 		using value::operator ==;
+		object& operator = (const object& g) {
+			value::operator=((const value&)g);
+			return *this;
+		}
+		object& operator = (object&& g) {
+			value::operator=(std::move(g));
+			return *this;
+		}
 	};
 }

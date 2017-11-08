@@ -6,28 +6,30 @@ namespace php {
 	class array : public value {
 	public:
 		array();
+		array(int size): array(std::size_t(size)) {}
 		array(std::size_t size);
 		array(const array& a2): value(a2) {}
+		array(zend_array*  a1, bool create = false): value(a1, create) {}
 		array(array&& a2): value(std::move(a2)) {}
 		// ---------------------------------------------------------------------
 		// 全局对象
 		// ---------------------------------------------------------------------
 		static array server() {
-			php::array  symbol = php::value(&EG(symbol_table));
-			return symbol["_SERVER"];
+			php::array symbol(&EG(symbol_table));
+			return static_cast<zend_array*>(symbol.at("_SERVER", 7));
 		}
 		inline std::size_t length() const {
 			return zend_hash_num_elements(Z_ARR(value_));
 		}
-		inline value* find(std::size_t idx) {
-			return (value*)zend_hash_index_find(Z_ARR(value_), idx);
-		}
-		inline value* find(const std::string& key) {
-			return find(key.c_str(), key.length());
-		}
-		inline value* find(const char* key, std::size_t len) {
-			return (value*)zend_hash_str_find(Z_ARR(value_), key, len);
-		}
+		// inline array_item find(std::size_t idx) {
+		// 	return (value*)zend_hash_index_find(Z_ARR(value_), idx);
+		// }
+		// inline value* find(const std::string& key) {
+		// 	return find(key.c_str(), key.length());
+		// }
+		// inline value* find(const char* key, std::size_t len) {
+		// 	return (value*)zend_hash_str_find(Z_ARR(value_), key, len);
+		// }
 		inline void erase(const std::size_t idx) {
 			zend_hash_index_del(Z_ARR(value_), idx);
 		}
@@ -39,21 +41,31 @@ namespace php {
 		}
 		bool is_a_list();
 		bool is_a_map();
-		value& at(std::size_t idx);
-		value& at(const char* key, std::size_t len);
-		inline value& at(const std::string& key) {
+		inline array_item at(std::size_t idx) {
+			return array_item(*this, idx);
+		}
+		inline array_item at(const php::string& key) {
+			return array_item(*this, key);
+		}
+		inline array_item at(const char* key, std::size_t len) {
+			return at(php::string(key, len));
+		}
+		inline array_item at(const std::string& key) {
 			return at(key.c_str(), key.length());
 		}
-		inline value& operator [](int idx) {
+		inline array_item operator [](int idx) {
 			return at(std::size_t(idx));
 		}
-		inline value& operator [](std::size_t idx) {
+		inline array_item operator [](std::size_t idx) {
 			return at(idx);
 		}
-		inline value& operator [](const std::string& key) {
+		inline array_item operator [](const php::string& key) {
+			return at(key);
+		}
+		inline array_item operator [](const std::string& key) {
 			return at(key.c_str(), key.length());
 		}
-		inline value& operator [](const char* key) {
+		inline array_item operator [](const char* key) {
 			return at(key, std::strlen(key));
 		}
 		array_iterator begin();
@@ -62,7 +74,13 @@ namespace php {
 		array& operator = (const array& array);
 		array& operator = (array&& array);
 		using value::operator ==;
+
+		inline operator zend_array*() const {
+			return Z_ARR(value_);
+		}
 		friend class array_iterator;
+		friend class array_item_str;
+		friend class array_item_idx;
 	};
 
 	class array_iterator {

@@ -18,5 +18,13 @@ namespace php {
 
 		using value::operator =;
 		using value::operator ==;
+		generator& operator = (const generator& g) {
+			value::operator=((const value&)g);
+			return *this;
+		}
+		generator& operator = (generator&& g) {
+			value::operator=(std::move(g));
+			return *this;
+		}
 	};
 }

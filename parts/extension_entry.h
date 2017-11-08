@@ -39,9 +39,9 @@ namespace php {
 		void on_request_startup(std::function<bool (extension_entry&)> handler);
 		void on_request_shutdown(std::function<bool (extension_entry&)> handler);
 	private:
-		std::vector<ini_entry>      ini_entries_;
-		std::vector<constant_entry> constant_entries_;
-		std::vector<zend_function_entry> function_entries_;
+		std::vector<ini_entry>                           ini_entries_;
+		std::vector<constant_entry>                 constant_entries_;
+		std::vector<zend_function_entry>            function_entries_;
 		std::vector<std::shared_ptr<class_entry_base>> class_entries_;
 		std::vector<arguments> arguments_;
 		std::list<std::function<bool(extension_entry&)>> handler_rsd_;

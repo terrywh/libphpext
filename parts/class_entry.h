@@ -210,16 +210,12 @@ namespace php {
 			handlers_.clone_obj = nullptr;
 		}
 		static zend_object* create_object_handler(zend_class_entry *entry) {
-			int   psize = zend_object_properties_size(entry);
-			// 由于上面计算 offset 的功能需要，把 c++ 对象的内存区域置于尾部
-			char* pdata = (char*)ecalloc(1, sizeof(class_wrapper<T>) + psize + sizeof(T));
-			class_wrapper<T>* wrapper = reinterpret_cast<class_wrapper<T>*>(pdata);
+			class_wrapper<T>* wrapper= (class_wrapper<T>*)ecalloc(1, sizeof(class_wrapper<T>) + zend_object_properties_size(entry));
 			zend_object_std_init(&wrapper->obj, entry);
 			object_properties_init(&wrapper->obj, entry);
 			wrapper->obj.handlers = &handlers_;
 			// cpp 指针存在主要是为了快捷访问（实际确实可以直接通过计算得到）
-			wrapper->cpp = reinterpret_cast<T*>(pdata + sizeof(class_wrapper<T>) + psize);
-			new (wrapper->cpp) T();
+			wrapper->cpp = new T();
 			ZVAL_OBJ(&wrapper->cpp->value_, &wrapper->obj);
 			return &wrapper->obj;
 		}

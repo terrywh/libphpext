@@ -67,10 +67,10 @@ namespace php {
 		zend_generator_resume(gen_);
 		root = zend_generator_get_current(gen_);
 		if (EXPECTED(gen_->execute_data)) {
-			zval *value = &root->value;
-			ZVAL_DEREF(value);
+			zval *val = &root->value;
+			ZVAL_DEREF(val);
 			// ZVAL_COPY(return_value, value);
-			return *value;
+			return *val;
 		}
 		return nullptr;
 	}
@@ -87,10 +87,10 @@ namespace php {
 			zend_generator_resume(gen_);
 			root = zend_generator_get_current(gen_);
 			if (gen_->execute_data) {
-				zval *value = &root->value;
-				ZVAL_DEREF(value);
+				zval *val = &root->value;
+				ZVAL_DEREF(val);
 				// ZVAL_COPY(return_value, value);
-				return *value;
+				return *val;
 			}
 		} else {
 			/* If the generator is already closed throw the exception in the

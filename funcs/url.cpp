@@ -19,20 +19,13 @@ namespace php {
 			if(r.s) {
 				smart_str_free(&r);
 			}
-			return php::string(std::size_t(0));
+			return php::string();
 		}
 		if(!r.s) {
-			return php::string(std::size_t(0));
+			return php::string();
 		}
 		smart_str_0(&r);
 		ZVAL_STR(s, r.s);
 		return std::move(s);
-	}
-
-	php::array parse_query(const char* buffer, std::size_t n) {
-		php::array data(0);
-		char* res = estrndup(buffer, n);
-		sapi_module.treat_data(PARSE_STRING, res, reinterpret_cast<zval*>(&data));
-		return std::move(data);
 	}
 }

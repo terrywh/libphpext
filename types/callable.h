@@ -43,5 +43,13 @@ namespace php {
 		}
 		using value::operator =;
 		using value::operator ==;
+		callable& operator = (const callable& cb) {
+			value::operator=((const value&)cb);
+			return *this;
+		}
+		callable& operator = (callable&& cb) {
+			value::operator=(std::move(cb));
+			return *this;
+		}
 	};
 }

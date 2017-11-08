@@ -12,26 +12,12 @@ namespace php {
 	bool array::is_a_map() {
 		return length() > 0 && begin()->first.is_string();
 	}
-	value& array::at(std::size_t idx) {
-		value* item = (value*)zend_hash_index_find(Z_ARRVAL(value_), idx);
-		if(item == nullptr) {
-			item = (value*)zend_hash_index_add_empty_element(Z_ARRVAL(value_), idx);
-		}
-		return *item;
-	}
-	value& array::at(const char* key, std::size_t len) {
-		zend_string* key_ = zend_string_init(key, len, false);
-		value* item = (value*)zend_hash_find(Z_ARRVAL(value_), key_);
-		if(item == nullptr) {
-			item = (value*)zend_hash_add_empty_element(Z_ARRVAL(value_), key_);
-		}
-		zend_string_release(key_);
-		return *item;
-	}
 	array& array::operator = (const array& arr) {
+		_zval_dtor(&value_);
 		ZVAL_COPY(&value_, &arr.value_);
 	}
 	array& array::operator = (array&& arr) {
+		_zval_dtor(&value_);
 		ZVAL_COPY_VALUE(&value_, &arr.value_);
 		ZVAL_UNDEF(&arr.value_);
 	}

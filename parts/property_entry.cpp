@@ -23,7 +23,7 @@ namespace php {
 		, access_(access) {}
 	property_entry::property_entry(const std::string& name, const std::string& v, int access)
 		: name_(name)
-		, value_(v.c_str(), v.length(), true)
+		, value_(zend_string_init(v.c_str(), v.length(), true), true)
 		, access_(access) {
 			value_.addref();
 		}
