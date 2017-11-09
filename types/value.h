@@ -130,6 +130,9 @@ namespace php {
 		inline bool is_object() const {
 			return Z_TYPE(value_) == IS_OBJECT;
 		}
+		inline bool is_closure() const {
+			return Z_TYPE(value_) == IS_OBJECT && instanceof_function(Z_OBJCE(value_), zend_ce_closure);
+		}
 		inline bool is_callable() const {
 			return zend_is_callable(
 				const_cast<zval*>(&value_), IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr);
