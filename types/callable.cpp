@@ -11,7 +11,7 @@ namespace php {
 			parameters params(argc, argv);
 			rv = c->fn_(params);
 		}else if(FAILURE == call_user_function_ex(EG(function_table), nullptr, cb, (zval*)&rv, argc, argv, 1, nullptr) && !silent) {
-			zend_error_noreturn(E_USER_ERROR, "failed to invoke callalbe '%s'", zval_get_string(cb));
+			zend_error_noreturn(E_USER_ERROR, "failed to invoke callable '%s'", zval_get_string(cb));
 		}
 		return std::move(rv);
 	}
