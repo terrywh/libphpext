@@ -12,15 +12,6 @@ namespace php {
 	bool array::is_a_map() {
 		return length() > 0 && begin()->first.is_string();
 	}
-	array& array::operator = (const array& arr) {
-		_zval_dtor(&value_);
-		ZVAL_COPY(&value_, &arr.value_);
-	}
-	array& array::operator = (array&& arr) {
-		_zval_dtor(&value_);
-		ZVAL_COPY_VALUE(&value_, &arr.value_);
-		ZVAL_UNDEF(&arr.value_);
-	}
 	array_iterator array::begin() {
 		return std::move(array_iterator(*this));
 	}

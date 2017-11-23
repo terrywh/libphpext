@@ -5,9 +5,9 @@ namespace php {
 	class callable : public value {
 	public:
 		callable(): value() {}
-		callable(std::nullptr_t np): value(nullptr) {}
-		callable(const std::string& name): value(name) {}
-		callable(const php::string& name);
+		explicit callable(std::nullptr_t np): value(nullptr) {}
+		explicit callable(const std::string& name): value(name) {}
+		explicit callable(const php::string& name);
 		callable(const callable& cb): value(cb) {}
 		callable(callable&& cb): value(std::move(cb)) {}
 		static value __invoke(zval* callable, int argc, zval argv[], bool silent);
@@ -43,12 +43,12 @@ namespace php {
 		}
 		using value::operator =;
 		using value::operator ==;
-		callable& operator = (const callable& cb) {
-			value::operator=((const value&)cb);
+		inline callable& operator=(const callable& v) {
+			value::operator=(v);
 			return *this;
 		}
-		callable& operator = (callable&& cb) {
-			value::operator=(std::move(cb));
+		inline callable& operator=(callable&& v) {
+			value::operator=(std::move(v));
 			return *this;
 		}
 	};

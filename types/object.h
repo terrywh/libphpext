@@ -11,11 +11,11 @@ namespace php {
 		}
 	public:
 		object(): value() {}
-		object(nullptr_t nptr): value(nptr) {}
+		explicit object(nullptr_t nptr): value(nptr) {}
+		explicit object(zend_object* obj): value(obj, false) {}
+		explicit object(class_base* obj): value(obj) {}
 		object(const object& obj): value(obj) {}
 		object(object&& obj): value(std::move(obj)) {}
-		object(zend_object* obj): value(obj, false) {}
-		object(class_base* obj): value(obj) {}
 		// 构造
 		template<class T>
 		static object create() {
@@ -69,12 +69,12 @@ namespace php {
 		}
 		using value::operator =;
 		using value::operator ==;
-		object& operator = (const object& g) {
-			value::operator=((const value&)g);
+		inline object& operator=(const object& v) {
+			value::operator=(v);
 			return *this;
 		}
-		object& operator = (object&& g) {
-			value::operator=(std::move(g));
+		inline object& operator=(object&& v) {
+			value::operator=(std::move(v));
 			return *this;
 		}
 	};

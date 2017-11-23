@@ -194,6 +194,7 @@ namespace php {
 	value& value::operator =(std::nullptr_t np) {
 		_zval_dtor(&value_);
 		ZVAL_NULL(&value_);
+		return *this;
 	}
 	bool value::operator==(const value& v) {
 		return Z_PTR(value_) == Z_PTR(v.value_);

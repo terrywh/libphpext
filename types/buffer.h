@@ -8,7 +8,7 @@ namespace php {
 			smart_str_free(&str_);
 		}
 		// 参考 smart_str 相关实现（头部额外数据，总共 256）
-		buffer(int size=231);
+		explicit buffer(int size=231);
 		buffer(buffer&& buf);
 		// 需要放入指定大小的 buffer，返回放入位置
 		char* put(int size);

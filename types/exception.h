@@ -9,7 +9,7 @@ namespace php {
 			INVOKE_METHOD_FAILED    = -1001,
 			PARAMETERS_INSUFFICIENT = -1002,
 		};
-		exception(const std::string& message, int code = 0);
+		explicit exception(const std::string& message, int code = 0);
 		inline const char* what() const noexcept {
 			return _message.c_str();
 		}

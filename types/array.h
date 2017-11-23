@@ -6,30 +6,21 @@ namespace php {
 	class array : public value {
 	public:
 		array();
-		array(int size): array(std::size_t(size)) {}
-		array(std::size_t size);
+		explicit array(int size): array(std::size_t(size)) {}
+		explicit array(std::size_t size);
+		explicit array(zend_array*  a1, bool create = false): value(a1, create) {}
 		array(const array& a2): value(a2) {}
-		array(zend_array*  a1, bool create = false): value(a1, create) {}
 		array(array&& a2): value(std::move(a2)) {}
 		// ---------------------------------------------------------------------
 		// 全局对象
 		// ---------------------------------------------------------------------
 		static array server() {
 			php::array symbol(&EG(symbol_table));
-			return static_cast<zend_array*>(symbol.at("_SERVER", 7));
+			return symbol.at("_SERVER", 7);
 		}
 		inline std::size_t length() const {
 			return zend_hash_num_elements(Z_ARR(value_));
 		}
-		// inline array_item find(std::size_t idx) {
-		// 	return (value*)zend_hash_index_find(Z_ARR(value_), idx);
-		// }
-		// inline value* find(const std::string& key) {
-		// 	return find(key.c_str(), key.length());
-		// }
-		// inline value* find(const char* key, std::size_t len) {
-		// 	return (value*)zend_hash_str_find(Z_ARR(value_), key, len);
-		// }
 		inline void erase(const std::size_t idx) {
 			zend_hash_index_del(Z_ARR(value_), idx);
 		}
@@ -71,8 +62,14 @@ namespace php {
 		array_iterator begin();
 		array_iterator end();
 		using value::operator =;
-		array& operator = (const array& array);
-		array& operator = (array&& array);
+		inline array& operator=(const array& v) {
+			value::operator=(v);
+			return *this;
+		}
+		inline array& operator=(array&& v) {
+			value::operator=(std::move(v));
+			return *this;
+		}
 		using value::operator ==;
 
 		inline operator zend_array*() const {
