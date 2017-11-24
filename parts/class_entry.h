@@ -210,12 +210,17 @@ namespace php {
 			handlers_.clone_obj = nullptr;
 		}
 		static zend_object* create_object_handler(zend_class_entry *entry) {
-			class_wrapper<T>* wrapper= (class_wrapper<T>*)ecalloc(1, sizeof(class_wrapper<T>) + zend_object_properties_size(entry));
+			size_t psize = zend_object_properties_size(entry);
+			char*  pdata = (char*)
+				ecalloc(1, sizeof(class_wrapper<T>) + psize + sizeof(T));
+			class_wrapper<T>* wrapper = (class_wrapper<T>*)pdata;
+			// 初始化 PHP 对象
 			zend_object_std_init(&wrapper->obj, entry);
 			object_properties_init(&wrapper->obj, entry);
 			wrapper->obj.handlers = &handlers_;
-			// cpp 指针存在主要是为了快捷访问（实际确实可以直接通过计算得到）
-			wrapper->cpp = new T();
+			// 在指定内存位置构造 C++ 对象
+			wrapper->cpp = (T*)(pdata + sizeof(class_wrapper<T>) + psize);
+			new (wrapper->cpp) T();
 			ZVAL_OBJ(&wrapper->cpp->value_, &wrapper->obj);
 			return &wrapper->obj;
 		}

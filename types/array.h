@@ -6,6 +6,7 @@ namespace php {
 	class array : public value {
 	public:
 		array();
+		explicit array(std::nullptr_t n): value(n) {}
 		explicit array(int size): array(std::size_t(size)) {}
 		explicit array(std::size_t size);
 		explicit array(zend_array*  a1, bool create = false): value(a1, create) {}
