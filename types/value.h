@@ -177,7 +177,10 @@ namespace php {
 		operator zend_object*() const;
 		operator zend_refcounted*() const;
 		operator zend_generator*() const;
-
+		template <typename T>
+		T* ptr() const {
+			return (T*)Z_PTR(value_);
+		}
 		operator string&() const;
 		operator array&() const;
 		operator object&() const;
@@ -192,7 +195,9 @@ namespace php {
 		// ---------------------------------------------------------------------
 		value& operator =(const value& v);
 		value& operator =(value&& v);
+		value& operator =(buffer&& v);
 		value& operator =(std::nullptr_t np);
+		value& operator =(void* data);
 		bool operator ==(const value& v);
 	};
 

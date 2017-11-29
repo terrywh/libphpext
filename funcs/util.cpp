@@ -51,7 +51,7 @@ namespace php {
 	}
 
 	php::value make_exception(const std::string& message, int code) {
-		php::object ex = php::object::create("Exception");
+		php::object ex = php::object::create(zend_ce_exception);
 		ex.call("__construct", message, code);
 		return std::move(ex);
 	}

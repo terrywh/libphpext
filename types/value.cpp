@@ -191,9 +191,22 @@ namespace php {
 		ZVAL_UNDEF(&v.value_);
 		return *this;
 	}
+	value& value::operator =(buffer&& buf) {
+		_zval_dtor(&value_);
+		smart_str_0(&buf.str_); // 添加 \0 结束符（缺少时可能导致 JSON 解析失败）
+		ZVAL_STR(&value_, buf.str_.s);
+		buf.str_.s = nullptr;
+		buf.str_.a = 0;
+		return *this;
+	}
 	value& value::operator =(std::nullptr_t np) {
 		_zval_dtor(&value_);
 		ZVAL_NULL(&value_);
+		return *this;
+	}
+	value& value::operator =(void* data) {
+		_zval_dtor(&value_);
+		ZVAL_PTR(&value_, data);
 		return *this;
 	}
 	bool value::operator==(const value& v) {

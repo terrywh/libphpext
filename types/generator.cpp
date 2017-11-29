@@ -100,12 +100,6 @@ namespace php {
 		return nullptr;
 	}
 	// 代码来自 php 源码 zend/zend_generators.c 相关位置
-	php::value generator::throw_exception(const std::string& msg, int code) {
-		php::object e = php::object::create("Exception");
-		e.call("__construct", msg, code);
-		return throw_exception(e);
-	}
-	// 代码来自 php 源码 zend/zend_generators.c 相关位置
 	bool generator::valid() {
 		zend_generator* gen_ = reinterpret_cast<zend_generator*>(Z_OBJ(value_));
 		zend_generator_ensure_initialized(gen_);
@@ -116,8 +110,12 @@ namespace php {
 	php::value generator::get_return() {
 		zend_generator *gen_ = reinterpret_cast<zend_generator*>(Z_OBJ(value_));
 		zend_generator_ensure_initialized(gen_);
-		if (UNEXPECTED(EG(exception)) || Z_ISUNDEF(gen_->retval)) {
+		if (UNEXPECTED(EG(exception))) {
 			return nullptr;
+		}
+		if(Z_ISUNDEF(gen_->retval)) {
+			throw php::exception("connot get return value of a generator that hasn't returned", 0);
+			// return nullptr;
 		}
 		return gen_->retval;
 	}
