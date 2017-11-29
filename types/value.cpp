@@ -1,6 +1,8 @@
 #include "../phpext.h"
 
 namespace php {
+	php::value BOOL_YES;
+	php::value BOOL_NO;
 	// 字符串
 	// -------------------------------------------------------------------------
 	value::value(buffer&& buf) {
@@ -14,9 +16,6 @@ namespace php {
 	value::value(class_base* base) {
 		if(base != nullptr) ZVAL_COPY(&value_, &base->value_);
 		else ZVAL_NULL(&value_);
-	}
-	value::value(void* data) {
-		ZVAL_PTR(&value_, data);
 	}
 	// 闭包
 	// ---------------------------------------------------------------------
@@ -202,11 +201,6 @@ namespace php {
 	value& value::operator =(std::nullptr_t np) {
 		_zval_dtor(&value_);
 		ZVAL_NULL(&value_);
-		return *this;
-	}
-	value& value::operator =(void* data) {
-		_zval_dtor(&value_);
-		ZVAL_PTR(&value_, data);
 		return *this;
 	}
 	bool value::operator==(const value& v) {

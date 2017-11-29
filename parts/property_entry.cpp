@@ -5,9 +5,9 @@ namespace php {
 		: name_(name)
 		, value_(v)
 		, access_(access) {}
-	property_entry::property_entry(const std::string& name, bool v, int access)
+	property_entry::property_entry(const std::string& name, zend_bool v, int access)
 		: name_(name)
-		, value_(v)
+		, value_(v ? BOOL_YES : BOOL_NO)
 		, access_(access) {}
 	property_entry::property_entry(const std::string& name, int v, int access)
 		: name_(name)

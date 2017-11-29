@@ -4,15 +4,18 @@ namespace php {
 	class value;
 	class string : public value {
 	public:
-		string() {
-			ZVAL_STR(&value_, ZSTR_EMPTY_ALLOC());
-		}
+		string():value() {}
 		explicit string(std::nullptr_t np)
 			: value(np) {}
-		explicit string(std::size_t size)
-			: value(zend_string_alloc(size, false), true) {
-			// 参考 zend_string_init 流程，部分代码需要依赖结尾的 \0 字节，需要注意
-			Z_STRVAL(value_)[size] = '\0';
+		explicit string(int size): string(std::size_t(size)) {}
+		explicit string(std::size_t size) {
+			if(size > 0) {
+				// 参考 zend_string_init 流程，部分代码需要依赖结尾的 \0 字节，需要注意
+				ZVAL_STR(&value_, zend_string_alloc(size, false));
+				Z_STRVAL(value_)[size] = '\0';
+			}else{
+				ZVAL_STR(&value_, ZSTR_EMPTY_ALLOC());
+			}
 		}
 		explicit string(const std::string& str)
 			: value(zend_string_init(str.c_str(), str.length(), false), true) {}

@@ -13,7 +13,7 @@ namespace php {
 	class buffer;
 	class callable;
 	class generator;
-
+	
 	// @ zend_value / zval 结构参数考 zend/zend_types.h:101
 	// 注意：value 及 value 的子类不能出现 virutal 成员
 	class value {
@@ -56,10 +56,6 @@ namespace php {
 		value(std::nullptr_t v) {
 			ZVAL_NULL(&value_);
 		}
-		value(bool v) {
-			if(v) ZVAL_TRUE(&value_);
-			else ZVAL_FALSE(&value_);
-		}
 		value(int v) {
 			ZVAL_LONG(&value_, v);
 		}
@@ -100,7 +96,9 @@ namespace php {
 			if(!create) Z_ADDREF(value_);
 		}
 		value(class_base* base);
-		value(void* data);
+		explicit value(void* data) {
+			ZVAL_PTR(&value_, data);
+		}
 		// 闭包
 		// ---------------------------------------------------------------------
 		value(std::function<value (parameters&)> fn);
@@ -181,6 +179,10 @@ namespace php {
 		T* ptr() const {
 			return (T*)Z_PTR(value_);
 		}
+		void ptr(void* p) {
+			_zval_dtor(&value_);
+			ZVAL_PTR(&value_, p);
+		}
 		operator string&() const;
 		operator array&() const;
 		operator object&() const;
@@ -197,8 +199,9 @@ namespace php {
 		value& operator =(value&& v);
 		value& operator =(buffer&& v);
 		value& operator =(std::nullptr_t np);
-		value& operator =(void* data);
 		bool operator ==(const value& v);
 	};
-
+	
+	extern value BOOL_YES;
+	extern value BOOL_NO;
 }

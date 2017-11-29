@@ -3,6 +3,8 @@
 extern "C" {
 	ZEND_DLEXPORT zend_module_entry* get_module() {
 		static bool loaded = false;
+		ZVAL_BOOL((zval*)&php::BOOL_YES, true);
+		ZVAL_BOOL((zval*)&php::BOOL_NO, false);
 		static php::extension_entry extension;
 		if(!loaded) {
 			extension_init(extension);

@@ -4,7 +4,7 @@ namespace php {
 	class property_entry {
 	public:
 		property_entry(const std::string& name, std::nullptr_t v, int access = ZEND_ACC_PUBLIC);
-		property_entry(const std::string& name, bool v, int access = ZEND_ACC_PUBLIC);
+		property_entry(const std::string& name, zend_bool v, int access = ZEND_ACC_PUBLIC);
 		property_entry(const std::string& name, int v, int access = ZEND_ACC_PUBLIC);
 		property_entry(const std::string& name, std::int64_t v, int access = ZEND_ACC_PUBLIC);
 		property_entry(const std::string& name, double v, int access = ZEND_ACC_PUBLIC);
