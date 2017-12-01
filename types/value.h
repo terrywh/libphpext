@@ -59,6 +59,9 @@ namespace php {
 		value(int v) {
 			ZVAL_LONG(&value_, v);
 		}
+		value(zend_bool v) {
+			ZVAL_BOOL(&value_, v);
+		}
 		value(std::uint32_t v) {
 			ZVAL_LONG(&value_, v);
 		}
