@@ -12,7 +12,7 @@ namespace php {
 	public:
 		object(): value() {}
 		explicit object(nullptr_t nptr): value(nptr) {}
-		explicit object(zend_object* obj): value(obj, false) {}
+		explicit object(zend_object* obj, bool create = false): value(obj, create) {}
 		explicit object(class_base* obj): value(obj) {}
 		object(const object& obj): value(obj) {}
 		object(object&& obj): value(std::move(obj)) {}
@@ -52,6 +52,7 @@ namespace php {
 			value params[] = { static_cast<value>(argv)... };
 			return __call(Z_OBJ(value_), name.c_str(), name.length(), sizeof...(Args), (zval*)params, true);
 		}
+		bool is_instance_of(zend_class_entry* ce) const;
 		bool is_instance_of(const std::string& class_name) const;
 		template<class T>
 		inline bool is_instance_of() const {

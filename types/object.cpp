@@ -41,4 +41,7 @@ namespace php {
 		zend_string_release(cn);
 		return instanceof_function(Z_OBJCE(value_), ce);
 	}
+	bool object::is_instance_of(zend_class_entry* ce) const {
+		return instanceof_function(Z_OBJCE(value_), ce);
+	}
 }
