@@ -22,7 +22,11 @@ namespace php {
 	}
 	object object::create(zend_class_entry* ce) {
 		object obj;
-		ZVAL_OBJ(&obj.value_, zend_objects_new(ce));
+		if(ce->create_object) {
+			ZVAL_OBJ(&obj.value_, ce->create_object(ce));
+		}else{
+			ZVAL_OBJ(&obj.value_, zend_objects_new(ce));
+		}
 		return std::move(obj);
 	}
 	object object::create() {
