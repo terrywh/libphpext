@@ -29,6 +29,12 @@ namespace php {
 		}
 		return std::move(obj);
 	}
+	object object::create_exception(const std::string& message, int code) {
+		object obj;
+		ZVAL_OBJ(&obj.value_, zend_ce_exception->create_object(zend_ce_exception));
+		obj.call("__construct", message, code);
+		return std::move(obj);
+	}
 	object object::create() {
 		object obj;
 		object_init(&obj.value_);

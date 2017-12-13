@@ -50,12 +50,6 @@ namespace php {
 		return std::move(s);
 	}
 
-	php::value make_exception(const std::string& message, int code) {
-		php::object ex = php::object::create(zend_ce_exception);
-		ex.call("__construct", message, code);
-		return std::move(ex);
-	}
-
 	static void php_simple_ini_parser_cb(zval *arg1, zval *arg2, zval *arg3, int callback_type, zval *arr) {
 		switch (callback_type) {
 

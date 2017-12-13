@@ -11,7 +11,8 @@ namespace php {
 		php::value current();
 		void next();
 		php::value send(const php::value& v);
-		php::value throw_exception(const php::value& e);
+		php::value throw_exception(const php::value& ex);
+		php::value async_exception(const std::string& message, int code);
 		bool valid();
 		php::value get_return();
 

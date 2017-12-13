@@ -18,6 +18,5 @@ namespace php {
 	php::string strtoupper(char* str, size_t len);
 	php::string strtolower(char* str, size_t len);
 
-	php::value make_exception(const std::string& message, int code = 0);
 	php::value parse_ini_file(char* filename);
 }

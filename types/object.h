@@ -25,6 +25,7 @@ namespace php {
 		}
 		static object create(const std::string& name);
 		static object create(zend_class_entry* ce);
+		static object create_exception(const std::string& message, int code = 0);
 		static object create();
 		inline property prop(const php::string& name) {
 			return php::property(*this, name);
