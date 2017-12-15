@@ -8,5 +8,5 @@ namespace php {
 	php::string hex2bin(unsigned char* src, std::size_t src_len);
 	php::string bin2hex(unsigned char* src, std::size_t src_len);
 	php::string json_encode(const php::value& data, int options = PHP_JSON_UNESCAPED_UNICODE);
-	php::value json_decode(const php::string& str, int depth = PHP_JSON_PARSER_DEFAULT_DEPTH);
+	php::value json_decode(const char* str, std::size_t size, int depth = PHP_JSON_PARSER_DEFAULT_DEPTH);
 }
