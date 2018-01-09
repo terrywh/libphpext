@@ -20,7 +20,7 @@ namespace php {
 		return p;
 	}
 	void buffer::add(char c) {
-		if(str_.a - str_.s->len < 64) {
+		if(str_.a == 0 || str_.a - str_.s->len < 64) {
 			smart_str_alloc(&str_, 64, false);
 		}
 		*(str_.s->val + str_.s->len) = c;
