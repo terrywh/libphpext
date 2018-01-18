@@ -60,6 +60,15 @@ namespace php {
 		inline array_item operator [](const char* key) {
 			return at(key, std::strlen(key));
 		}
+		inline bool has(const std::string& key) {
+			return has(key.c_str(), key.length());
+		}
+		inline bool has(const char* key, std::size_t len) {
+			return zend_hash_str_exists(Z_ARR(value_), key, len);
+		}
+		inline bool has(int idx) {
+			return zend_hash_index_exists(Z_ARR(value_), idx);
+		}
 		array_iterator begin();
 		array_iterator end();
 		using value::operator =;
