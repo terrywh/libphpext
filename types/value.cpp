@@ -68,7 +68,7 @@ namespace php {
 			case IS_STRING:
 				return Z_STRLEN(value_);
 			case IS_ARRAY:
-				return zend_hash_num_elements(Z_ARRVAL(value_));
+				return zend_array_count(Z_ARRVAL(value_));
 			default: // TODO 其它类型？
 				return -1;
 		}

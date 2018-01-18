@@ -13,10 +13,10 @@ namespace php {
 		return length() > 0 && begin()->first.is_string();
 	}
 	array_iterator array::begin() {
-		return std::move(array_iterator(*this));
+		return std::move(array_iterator(*this, -1));
 	}
 	array_iterator array::end() {
-		return std::move(array_iterator(*this, Z_ARRVAL(value_)->nNumUsed));
+		return std::move(array_iterator(*this, Z_ARRVAL(value_)->nNumUsed - 1));
 	}
 
 	array_iterator& array_iterator::operator++() {

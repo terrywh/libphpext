@@ -14,9 +14,9 @@ OBJECTS=$(SOURCES:%.cpp=%.o)
 TEST_EXTENSION=phpext.so
 
 
-CXX?=/usr/local/gcc-7.1.0/bin/g++
+CXX?=/usr/local/gcc/bin/g++
 CXXFLAGS?= -O2
-LDFLAGS?=-Wl,-rpath="/usr/local/gcc-7.1.0/lib64"
+LDFLAGS?=-Wl,-rpath="/usr/local/gcc/lib64"
 LDFLAGS_EXTRA=-shared -u get_module
 CXXFLAGS_EXTRA=-std=c++11 -fPIC
 INCLUDE=`${PHP_CONFIG} --includes`

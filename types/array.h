@@ -20,7 +20,7 @@ namespace php {
 			return symbol.at("_SERVER", 7);
 		}
 		inline std::size_t length() const {
-			return zend_hash_num_elements(Z_ARR(value_));
+			return zend_array_count(Z_ARR(value_));
 		}
 		inline void erase(const std::size_t idx) {
 			zend_hash_index_del(Z_ARR(value_), idx);
@@ -89,10 +89,12 @@ namespace php {
 		typedef ptrdiff_t   difference_type;
 		typedef value_type* pointer;
 	public:
-		array_iterator(array& a, size_t pos = 0)
+		array_iterator(array& a, size_t pos)
 			: buk_(static_cast<zend_array*>(a)->arData)
 			, pos_(pos)
-			, end_(static_cast<zend_array*>(a)->nNumUsed) { }
+			, end_(static_cast<zend_array*>(a)->nNumUsed) {
+				operator++();
+			}
 		array_iterator(const array_iterator& ai)
 			: buk_(ai.buk_)
 			, pos_(ai.pos_)
