@@ -70,7 +70,7 @@ namespace php {
 			return zend_hash_index_exists(Z_ARR(value_), idx);
 		}
 		array_iterator begin();
-		array_iterator end();
+		const array_iterator end();
 		using value::operator =;
 		inline array& operator=(const array& v) {
 			value::operator=(v);
@@ -102,7 +102,7 @@ namespace php {
 			: buk_(static_cast<zend_array*>(a)->arData)
 			, pos_(pos)
 			, end_(static_cast<zend_array*>(a)->nNumUsed) {
-				operator++();
+
 			}
 		array_iterator(const array_iterator& ai)
 			: buk_(ai.buk_)

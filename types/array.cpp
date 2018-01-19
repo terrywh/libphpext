@@ -13,10 +13,12 @@ namespace php {
 		return length() > 0 && begin()->first.is_string();
 	}
 	array_iterator array::begin() {
-		return std::move(array_iterator(*this, -1));
+		array_iterator i(*this, -1);
+		++i; // 防止首个元素 IS_UNDEF 的情况
+		return std::move(i);
 	}
-	array_iterator array::end() {
-		return std::move(array_iterator(*this, Z_ARRVAL(value_)->nNumUsed - 1));
+	const array_iterator array::end() {
+		return std::move(array_iterator(*this, Z_ARRVAL(value_)->nNumUsed));
 	}
 
 	array_iterator& array_iterator::operator++() {
