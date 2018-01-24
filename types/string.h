@@ -35,8 +35,12 @@ namespace php {
 		inline operator zend_string*() {
 			return Z_STR(value_);
 		}
-		std::size_t& length() const {
+		std::size_t length() const {
 			return Z_STRLEN(value_);
+		}
+		void resize(std::size_t length) {
+			Z_STRLEN(value_) = length;
+			Z_STRVAL(value_)[length] = '\0';
 		}
 		string substr(std::size_t pos, std::size_t count = 0);
 		static string concat(const string& s1, const string& s2);
