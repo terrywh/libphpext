@@ -32,7 +32,7 @@ namespace php {
 		inline char* data() {
 			return Z_STRVAL(value_);
 		}
-		inline operator zend_string*() {
+		inline operator zend_string*() const {
 			return Z_STR(value_);
 		}
 		std::size_t length() const {

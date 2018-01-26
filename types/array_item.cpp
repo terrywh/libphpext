@@ -1,48 +1,44 @@
 #include "../phpext.h"
 
 namespace php {
-	array_item::array_item(php::array& arr, const php::value& key)
+	array_item_assoc::array_item_assoc(const php::array& arr, const php::string& key)
 	: array_(arr)
-	, key_(key) {
-		zval* vv;
-		if(key_.is_long()) {
-			vv = zend_hash_index_find(array_, key_);
-		}else{
-			vv = zend_hash_find(array_, key_);
-		}
-		if(vv != nullptr) {
-			ZVAL_COPY(&value_, vv);
-		}
+	, assoc_(key) {
+		zval* vv = zend_hash_find(array_, assoc_);
+		if(vv == nullptr) ZVAL_UNDEF(&value_);
+		else ZVAL_COPY(&value_, vv);
 	}
-	array_item& array_item::operator =(const php::value& val) {
-		if(is_undefined()) {
-			if(key_.is_long()) {
-				zend_hash_index_add(array_, key_, val);
-			}else{
-				zend_hash_add(array_, key_, val);
-			}
-		}else if(key_.is_long()){
-			zend_hash_index_update(array_, key_, val);
-		}else{
-			zend_hash_update(array_, key_, val);
-		}
-		value::operator=(val);
+	array_item_assoc& array_item_assoc::operator =(const php::value& val) {
+		value::operator =(val);
+		zend_hash_update(array_, assoc_, &value_);
 		addref();
 		return *this;
 	}
-	array_item& array_item::operator =(php::value&& val) {
-		if(is_undefined()) {
-			if(key_.is_long()) {
-				zend_hash_index_add(array_, key_, val);
-			}else{
-				zend_hash_add(array_, key_, val);
-			}
-		}else if(key_.is_long()){
-			zend_hash_index_update(array_, key_, val);
+	array_item_assoc& array_item_assoc::operator =(php::value&& val) {
+		value::operator =(std::move(val));
+		zend_hash_update(array_, assoc_, &value_);
+		addref();
+		return *this;
+	}
+	array_item_index::array_item_index(const php::array& arr, zend_ulong key)
+	: array_(arr)
+	, index_(key) {
+		zval* vv = zend_hash_index_find(array_, index_);
+		if(vv == nullptr) {
+			ZVAL_UNDEF(&value_);
 		}else{
-			zend_hash_update(array_, key_, val);
+			ZVAL_COPY(&value_, vv);
 		}
-		value::operator=(std::move(val));
+	}
+	array_item_index& array_item_index::operator =(const php::value& val) {
+		value::operator =(val);
+		zend_hash_index_update(array_, index_, &value_);
+		addref();
+		return *this;
+	}
+	array_item_index& array_item_index::operator =(php::value&& val) {
+		value::operator =(val);
+		zend_hash_index_update(array_, index_, &value_);
 		addref();
 		return *this;
 	}
