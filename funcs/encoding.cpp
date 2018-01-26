@@ -20,7 +20,7 @@ namespace php {
 
  	php::string url_decode(const char* dec_str, std::size_t dec_len) {
 		php::string s(dec_str, dec_len);
-		s.length() = php_url_decode(s.data(), dec_len);
+		s.resize(php_url_decode(s.data(), dec_len));
 		return std::move(s);
 	}
 
