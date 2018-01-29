@@ -116,6 +116,7 @@ namespace php {
 			return Z_TYPE(value_) == IS_TRUE || Z_TYPE(value_) == IS_FALSE;
 		}
 		bool is_true() const;
+		bool is_false() const;
 		inline bool is_long() const {
 			return Z_TYPE(value_) == IS_LONG;
 		}

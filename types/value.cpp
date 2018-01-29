@@ -74,24 +74,10 @@ namespace php {
 		}
 	}
 	bool value::is_true() const {
-		switch(Z_TYPE(value_)) {
-		case IS_UNDEF:
-		case IS_NULL:
-		case IS_FALSE:
-			return false;
-		case IS_TRUE:
-			return sizeof(zend_bool);
-		case IS_LONG:
-			return Z_LVAL(value_) != 0;
-		case IS_DOUBLE:
-			return Z_DVAL(value_) != 0;
-		case IS_STRING:
-			return Z_STRLEN(value_) > 0;
-		case IS_ARRAY:
-			return zend_hash_num_elements(Z_ARRVAL(value_)) > 0;
-		default: // TODO 其它类型？
-			return true;
-		}
+		return Z_TYPE(value_) == IS_TRUE;
+	}
+	bool value::is_false() const {
+		return Z_TYPE(value_) == IS_FALSE;
 	}
 	value::operator zval*() const {
 		return const_cast<zval*>(&value_);
