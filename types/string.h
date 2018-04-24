@@ -14,7 +14,7 @@ namespace php {
 				ZVAL_STR(&value_, zend_string_alloc(size, false));
 				Z_STRVAL(value_)[size] = '\0';
 			}else{
-				ZVAL_STR(&value_, ZSTR_EMPTY_ALLOC());
+				ZVAL_EMPTY_STRING(&value_);
 			}
 		}
 		explicit string(const std::string& str)
