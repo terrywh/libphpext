@@ -7,14 +7,9 @@ namespace php {
 			_argv = ZEND_CALL_ARG(execute_data, 1);
 		}
 	}
-	parameters::parameters(int argc, zval argv[])
+	parameters::parameters(int argc, zval* argv)
 	: _size(argc)
 	, _argv(argv) {
-
-	}
-	parameters::parameters(int argc, php::value argv[])
-	: _size(argc)
-	, _argv(reinterpret_cast<zval*>(&argv[0])) {
 
 	}
 	parameters::parameters(std::vector<php::value>& argv)

@@ -10,30 +10,25 @@ namespace php {
 		explicit callable(const php::string& name);
 		callable(const callable& cb): value(cb) {}
 		callable(callable&& cb): value(std::move(cb)) {}
-		static value __invoke(zval* callable, int argc, zval argv[], bool silent);
+		static value __invoke(php::value& cb, int argc, zval* argv, bool silent);
+		static value __invoke(php::value& cb, std::vector<value> argv, bool silent);
 		inline value invoke() {
-			return __invoke(&value_, 0, nullptr, false);
+			return __invoke(*this, 0, nullptr, false);
 		}
 		inline value sinvoke() {
-			return __invoke(&value_, 0, nullptr, true);
+			return __invoke(*this, 0, nullptr, true);
 		}
-		template <typename ...Args>
-		inline value invoke(const Args&... argv) {
-			value params[] = { static_cast<value>(argv)... };
-			return __invoke(&value_, sizeof...(Args), (zval*)params, false);
+		inline value invoke(std::initializer_list<value> argv) {
+			return __invoke(*this, argv, false);
 		}
-		template <typename ...Args>
-		inline value sinvoke(const Args&... argv) {
-			value params[] = { static_cast<value>(argv)... };
-			return __invoke(&value_, sizeof...(Args), (zval*)params, true);
+		inline value sinvoke(std::initializer_list<value> argv) {
+			return __invoke(*this, argv, true);
 		}
 		inline value operator()() {
-			return __invoke(&value_, 0, nullptr, false);
+			return __invoke(*this, 0, nullptr, false);
 		}
-		template <typename ...Args>
-		inline value operator()(const Args&... argv) {
-			value params[] = { static_cast<value>(argv)... };
-			return __invoke(&value_, sizeof...(Args), (zval*)params, false);
+		inline value operator()(std::initializer_list<value> argv) {
+			return __invoke(*this, argv, false);
 		}
 		inline std::uint32_t addref() {
 			return Z_ADDREF(value_);

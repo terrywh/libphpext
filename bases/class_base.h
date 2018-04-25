@@ -21,7 +21,7 @@ namespace php {
 		inline php::object& obj() {
 			return reinterpret_cast<php::object&>(value_);
 		}
-	private:
+	protected:
 		zval value_;
 		friend class value;
 		template <class T>

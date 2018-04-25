@@ -98,7 +98,7 @@ namespace php {
 			ZVAL_OBJ(&value_, o);
 			if(!create) Z_ADDREF(value_);
 		}
-		value(class_base* base);
+		explicit value(class_base* base);
 		explicit value(void* data) {
 			ZVAL_PTR(&value_, data);
 		}
