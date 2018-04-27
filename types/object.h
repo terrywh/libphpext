@@ -5,7 +5,7 @@ namespace php {
 	class object: public value {
 	private:
 		// !!! 仅允许调用类成员函数
-		static value __call(zend_object* obj, const char* name, std::size_t len, int argc, zval argv[], bool silent);
+		static value __call(zval* obj, zval* fn, int argc, zval* argv, bool silent);
 		object(zend_class_entry* ce) {
 			ZVAL_OBJ(&value_, zend_objects_new(ce));
 		}
@@ -38,20 +38,28 @@ namespace php {
 		}
 		// !!! 仅允许调用类成员函数
 		inline value call(const std::string& name) {
-			return __call(Z_OBJ(value_), name.c_str(), name.length(), 0, nullptr, false);
+			return __call(&value_, php::string(name.c_str(), name.length()), 0, nullptr, false);
 		}
 		inline value scall(const std::string& name) {
-			return __call(Z_OBJ(value_), name.c_str(), name.length(), 0, nullptr, true);
+			return __call(&value_, php::string(name.c_str(), name.length()), 0, nullptr, true);
 		}
-		template <typename ...Args>
-		inline value call(const std::string& name, const Args&... argv) {
-			value params[] = { static_cast<value>(argv)... };
-			return __call(Z_OBJ(value_), name.c_str(), name.length(), sizeof...(Args), (zval*)params, false);
+		inline value call(const std::string& name, std::vector<php::value> argv) {
+			return __call(&value_, php::string(name.c_str(), name.length()), argv.size(), (zval*)argv.data(), false);
 		}
-		template <typename ...Args>
-		inline value scall(const std::string& name, const Args&... argv) {
-			value params[] = { static_cast<value>(argv)... };
-			return __call(Z_OBJ(value_), name.c_str(), name.length(), sizeof...(Args), (zval*)params, true);
+		inline value scall(const std::string& name, std::vector<php::value> argv) {
+			return __call(&value_, php::string(name.c_str(), name.length()), argv.size(), (zval*)argv.data(), true);
+		}
+		inline value call(const php::string& name) {
+			return __call(&value_, name, 0, nullptr, false);
+		}
+		inline value scall(const php::string& name) {
+			return __call(&value_, name, 0, nullptr, true);
+		}
+		inline value call(const php::string& name, std::vector<php::value> argv) {
+			return __call(&value_, name, argv.size(), (zval*)argv.data(), false);
+		}
+		inline value scall(const php::string& name, std::vector<php::value> argv) {
+			return __call(&value_, name, argv.size(), (zval*)argv.data(), true);
 		}
 		bool is_instance_of(zend_class_entry* ce) const;
 		bool is_instance_of(const std::string& class_name) const;

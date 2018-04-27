@@ -3,6 +3,8 @@
 namespace php {
 	class value;
 	class callable : public value {
+	private:
+		static value __invoke(zval* cb, int argc, zval* argv, bool silent);
 	public:
 		callable(): value() {}
 		explicit callable(std::nullptr_t np): value(nullptr) {}
@@ -10,25 +12,23 @@ namespace php {
 		explicit callable(const php::string& name);
 		callable(const callable& cb): value(cb) {}
 		callable(callable&& cb): value(std::move(cb)) {}
-		static value __invoke(php::value& cb, int argc, zval* argv, bool silent);
-		static value __invoke(php::value& cb, std::vector<value> argv, bool silent);
 		inline value invoke() {
-			return __invoke(*this, 0, nullptr, false);
+			return __invoke(&value_, 0, nullptr, false);
 		}
 		inline value sinvoke() {
-			return __invoke(*this, 0, nullptr, true);
+			return __invoke(&value_, 0, nullptr, true);
 		}
-		inline value invoke(std::initializer_list<value> argv) {
-			return __invoke(*this, argv, false);
+		inline value invoke(std::vector<value> argv) {
+			return __invoke(&value_, argv.size(), (zval*)argv.data(), false);
 		}
-		inline value sinvoke(std::initializer_list<value> argv) {
-			return __invoke(*this, argv, true);
+		inline value sinvoke(std::vector<value> argv) {
+			return __invoke(&value_, argv.size(), (zval*)argv.data(), true);
 		}
 		inline value operator()() {
-			return __invoke(*this, 0, nullptr, false);
+			return __invoke(&value_, 0, nullptr, false);
 		}
-		inline value operator()(std::initializer_list<value> argv) {
-			return __invoke(*this, argv, false);
+		inline value operator()(std::vector<value> argv) {
+			return __invoke(&value_, argv.size(), (zval*)argv.data(), false);
 		}
 		inline std::uint32_t addref() {
 			return Z_ADDREF(value_);

@@ -1,12 +1,10 @@
 #include "../phpext.h"
 
 namespace php {
-	php::value object::__call(zend_object* obj, const char* name, std::size_t len, int argc, zval argv[], bool silent) {
-		php::value rv, fn(name, len);
-		zval ov;
-		ZVAL_OBJ(&ov, obj);
-		if(FAILURE == call_user_function_ex(&obj->ce->function_table, &ov, (zval*)&fn, (zval*)&rv, argc, argv, 1, nullptr) && !silent) {
-			zend_error_noreturn(E_USER_ERROR, "failed to call method '%s::%s'", ZSTR_VAL(obj->ce->name), Z_STRVAL_P((zval*)&fn));
+	php::value object::__call(zval* obj, zval* fn, int argc, zval* argv, bool silent) {
+		php::value rv;
+		if(FAILURE == call_user_function_ex(&Z_OBJCE_P(obj)->function_table, obj, fn, (zval*)&rv, argc, argv, 1, nullptr) && !silent) {
+			zend_error_noreturn(E_USER_ERROR, "failed to call method '%s::%s'", ZSTR_VAL(Z_OBJCE_P(obj)->name), Z_STRVAL_P(fn));
 		}
 		return std::move(rv);
 	}
@@ -32,7 +30,7 @@ namespace php {
 	object object::create_exception(const std::string& message, int code) {
 		object obj;
 		ZVAL_OBJ(&obj.value_, zend_ce_exception->create_object(zend_ce_exception));
-		obj.call("__construct", message, code);
+		obj.call("__construct", {message, code});
 		return std::move(obj);
 	}
 	object object::create() {
