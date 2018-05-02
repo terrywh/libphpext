@@ -36,7 +36,7 @@ namespace php {
 	}
 	// zend_exceptions.c
 	// ZEND_API ZEND_COLD void zend_exception_error(zend_object *ex, int severity)
-	char* exception_string(size_t* perrlen) {
+	char* exception_string(bool previous, size_t* perrlen) {
 		if(!EG(exception)) {
 			if(perrlen) *perrlen = 0;
 			return nullptr;
@@ -49,15 +49,20 @@ namespace php {
 		zend_class_entry *ce_exception = Z_OBJCE(exception);
 		EG(exception) = nullptr;
 		
+		if(!previous) {
+			ZVAL_NULL(&rv);
+			zend_update_property(zend_get_exception_base(&exception), &exception, "previous", sizeof("previous")-1, &rv);
+		}
+		
 		if (ce_exception == zend_ce_parse_error) {
 			zend_string* message, *file;
 			zend_ulong   line;
 			message = zval_get_string(zend_read_property(
 				zend_get_exception_base(&exception), &exception, "message", sizeof("message")-1, 0, &rv));
 			file = zval_get_string(zend_read_property(
-				zend_get_exception_base(&exception), &exception, "file", sizeof("file")-1, 0, &rv));
+				zend_get_exception_base(&exception), &exception, "file", sizeof("file")-1, 1, &rv));
 			line = zval_get_long(zend_read_property(
-				zend_get_exception_base(&exception), &exception, "line", sizeof("line")-1, 0, &rv));
+				zend_get_exception_base(&exception), &exception, "line", sizeof("line")-1, 1, &rv));
 			errlen = sprintf(errstr, "[%s:%d] %s\n", ZSTR_VAL(file), line, ZSTR_VAL(message));
 			zend_string_release(message);
 			zend_string_release(file);
@@ -104,6 +109,7 @@ namespace php {
 		if(perrlen != nullptr) {
 			*perrlen = errlen;
 		}
+		errstr[errlen] = '\0';
 		return errstr;
 	}
 
