@@ -6,6 +6,7 @@ namespace php {
 	void warn(const char *format, ...);
 	void info(const std::string& msg);
 	void info(const char *format, ...);
+	char* exception_string(size_t* error_length_rv = nullptr);
 
 	const char* ini_get(char* name, uint name_len);
 

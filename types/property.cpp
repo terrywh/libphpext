@@ -1,7 +1,7 @@
 #include "../phpext.h"
 
 namespace php {
-	property::property(const php::object& obj, const php::string& name)
+	property::property(const php::object& obj, const php::string& name, bool silent)
 	: object_(obj), name_(name) {
 		zval  rv, *vv;
 		vv = zend_read_property(object_, object_, name_.c_str(), name_.length(), false, &rv);

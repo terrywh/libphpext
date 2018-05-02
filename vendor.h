@@ -42,4 +42,6 @@ extern "C" {
 #include <Zend/zend_ini_scanner.h>
 #include <Zend/zend_generators.h>
 #include <Zend/zend_closures.h>
+#include <Zend/zend_operators.h>
+#include <Zend/zend_builtin_functions.h>
 }

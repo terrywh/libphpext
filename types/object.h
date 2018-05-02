@@ -27,14 +27,14 @@ namespace php {
 		static object create(zend_class_entry* ce);
 		static object create_exception(const std::string& message, int code = 0);
 		static object create();
-		inline property prop(const php::string& name) const {
-			return php::property(*this, name);
+		inline property prop(const php::string& name, bool silent = false) const {
+			return php::property(*this, name, silent);
 		}
-		inline property prop(const char* name, std::size_t len) const {
-			return prop(php::string(name, len));
+		inline property prop(const char* name, std::size_t len, bool silent = false) const {
+			return php::property(*this, php::string(name, len), silent);
 		}
-		inline property prop(const std::string& name) const {
-			return prop(name.c_str(), name.length());
+		inline property prop(const std::string& name, bool silent = false) const {
+			return php::property(*this, php::string(name), silent);
 		}
 		// !!! 仅允许调用类成员函数
 		inline value call(const std::string& name) {
