@@ -84,6 +84,9 @@ namespace php {
 		value(const std::string& s) {
 			ZVAL_NEW_STR(&value_, zend_string_init(s.c_str(), s.length(), false));
 		}
+		explicit value(const char* str) {
+			ZVAL_NEW_STR(&value_, zend_string_init(str, std::strlen(str), false));
+		}
 		value(const char* str, std::size_t len) {
 			ZVAL_NEW_STR(&value_, zend_string_init(str, len, false));
 		}
