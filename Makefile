@@ -2,11 +2,11 @@
 
 .PHONY: all types types-clean parts parts-clean test test-clean test-ini test-constant test-function
 
-PHP_PATH=/usr/local/php-7.0.25
+PHP_PATH=/usr/local/php
 PHP_CONFIG=${PHP_PATH}/bin/php-config
 
 TARGET_LIBRARY=libphpext.a
-TARGET_VERSION=1.0.0
+TARGET_VERSION=2.0.0
 
 SOURCES=$(wildcard types/*.cpp) $(wildcard parts/*.cpp) $(wildcard bases/*.cpp) $(wildcard funcs/*.cpp) extension.cpp
 OBJECTS=$(SOURCES:%.cpp=%.o)

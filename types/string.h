@@ -4,9 +4,12 @@ namespace php {
 	class value;
 	class string : public value {
 	public:
-		string():value() {}
-		explicit string(std::nullptr_t np)
-			: value(np) {}
+		using value::value;
+		using value::operator ==;
+		using value::operator =;
+		using value::operator zval*;
+		using value::operator zend_string*;
+		string(): value() {}
 		explicit string(int size): string(std::size_t(size)) {}
 		explicit string(std::size_t size) {
 			if(size > 0) {
@@ -17,26 +20,14 @@ namespace php {
 				ZVAL_EMPTY_STRING(&value_);
 			}
 		}
-		explicit string(const std::string& str)
-			: value(zend_string_init(str.c_str(), str.length(), false), true) {}
-		string(buffer&& buf)
-		 	: value(std::move(buf)) {
-		}
-		string(const string& str): value(str) {}
-		string(string&& str): value(std::move(str)) {}
-		string(const char* val, std::size_t len)
-			: value(zend_string_init(val, len, false), true) {}
+		string(const php::value& v): value(v) {}
+		string(php::value&& v): value(std::move(v)) {}
+		
 		inline const char* c_str() const {
 			return Z_STRVAL(value_);
 		}
 		inline char* data() {
 			return Z_STRVAL(value_);
-		}
-		inline operator zend_string*() const {
-			return Z_STR(value_);
-		}
-		std::size_t length() const {
-			return Z_STRLEN(value_);
 		}
 		void resize(std::size_t length) {
 			Z_STRLEN(value_) = length;
@@ -44,17 +35,5 @@ namespace php {
 		}
 		string substr(std::size_t pos, std::size_t count = 0);
 		static string concat(const string& s1, const string& s2);
-		using value::operator ==;
-		using value::operator =;
-		inline string& operator=(const string& v) {
-			value::operator=(v);
-			return *this;
-		}
-		inline string& operator=(string&& v) {
-			value::operator=(std::move(v));
-			return *this;
-		}
-		string& operator =(php::buffer&& buf);
-		using value::operator std::string;
 	};
 }

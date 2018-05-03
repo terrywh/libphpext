@@ -1,23 +1,12 @@
 #include "../phpext.h"
 
 namespace php {
-	array::array():value() {}
-	array::array(std::size_t size) {
-		ZVAL_NEW_ARR(&value_);
-		_zend_hash_init(Z_ARRVAL(value_), size, ZVAL_PTR_DTOR, 0 ZEND_FILE_LINE_RELAY_CC);
-	}
-	bool array::is_a_list() {
-		return length() > 0 && begin()->first.is_long();
-	}
-	bool array::is_a_map() {
-		return length() > 0 && begin()->first.is_string();
-	}
-	array_iterator array::begin() {
+	array_iterator array::begin() const {
 		array_iterator i(*this, -1);
 		++i; // 防止首个元素 IS_UNDEF 的情况
 		return std::move(i);
 	}
-	const array_iterator array::end() {
+	const array_iterator array::end() const {
 		return std::move(array_iterator(*this, Z_ARRVAL(value_)->nNumUsed));
 	}
 

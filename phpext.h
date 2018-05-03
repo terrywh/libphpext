@@ -30,6 +30,7 @@
 #include "funcs/hash.h"
 #include "funcs/encoding.h"
 #include "funcs/reference.h"
+#include "funcs/ini.h"
 
 #include "bases/class_base.h"
 #include "bases/class_builtin.h"

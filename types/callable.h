@@ -6,12 +6,15 @@ namespace php {
 	private:
 		static value __invoke(zval* cb, int argc, zval* argv, bool silent);
 	public:
+		using value::value;
+		using value::operator =;
+		using value::operator ==;
+		using value::operator zval*;
+		
 		callable(): value() {}
-		explicit callable(std::nullptr_t np): value(nullptr) {}
-		explicit callable(const std::string& name): value(name) {}
-		explicit callable(const php::string& name);
-		callable(const callable& cb): value(cb) {}
-		callable(callable&& cb): value(std::move(cb)) {}
+		callable(const php::value& v): value(v) {}
+		callable(php::value&& v): value(std::move(v)) {}
+		
 		inline value invoke() {
 			return __invoke(&value_, 0, nullptr, false);
 		}
@@ -29,22 +32,6 @@ namespace php {
 		}
 		inline value operator()(std::vector<value> argv) {
 			return __invoke(&value_, argv.size(), (zval*)argv.data(), false);
-		}
-		inline std::uint32_t addref() {
-			return Z_ADDREF(value_);
-		}
-		inline std::uint32_t delref() {
-			return Z_DELREF(value_);
-		}
-		using value::operator =;
-		using value::operator ==;
-		inline callable& operator=(const callable& v) {
-			value::operator=(v);
-			return *this;
-		}
-		inline callable& operator=(callable&& v) {
-			value::operator=(std::move(v));
-			return *this;
 		}
 	};
 }

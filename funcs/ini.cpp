@@ -1,0 +1,114 @@
+#include "../phpext.h"
+
+namespace php {
+	php::string ini_get_string(const std::string& name) {
+		zend_ini_entry *ini_entry;
+		ini_entry = (zend_ini_entry *)zend_hash_str_find_ptr(EG(ini_directives), name.c_str(), name.length());
+		if(ini_entry && ini_entry->value) {
+			return php::string(ini_entry->value, false);
+		}
+		return php::string(0);
+	}
+	std::int64_t ini_get_long(const std::string& name) {
+		return zend_ini_long((char*)name.data(), name.length(), 0);
+	}
+	double ini_get_double(const std::string& name) {
+		return zend_ini_double((char*)name.data(), name.length(), 0);
+	}
+	bool ini_get_bool(const std::string& name) {
+		zend_ini_entry *ini_entry;
+		ini_entry = (zend_ini_entry *)zend_hash_str_find_ptr(EG(ini_directives), name.c_str(), name.length());
+		if(ini_entry && ini_entry->value) {
+			if(ini_entry->value->len == 4 && strncasecmp(ini_entry->value->val, "true", 4) == 0 ||
+				ini_entry->value->len == 3 && strncasecmp(ini_entry->value->val, "yes", 3) == 0 ||
+				ini_entry->value->len == 2 && strncasecmp(ini_entry->value->val, "on", 2)  == 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+	static void php_simple_ini_parser_cb(zval *arg1, zval *arg2, zval *arg3, int callback_type, zval *arr) {
+		switch (callback_type) {
+
+			case ZEND_INI_PARSER_ENTRY:
+			if (!arg2) {
+				/* bare string - nothing to do */
+				break;
+			}
+			Z_TRY_ADDREF_P(arg2);
+			zend_symtable_update(Z_ARRVAL_P(arr), Z_STR_P(arg1), arg2);
+			break;
+
+			case ZEND_INI_PARSER_POP_ENTRY:
+			{
+				zval hash, *find_hash;
+
+				if (!arg2) {
+					/* bare string - nothing to do */
+					break;
+				}
+
+				if (!(Z_STRLEN_P(arg1) > 1 && Z_STRVAL_P(arg1)[0] == '0') && is_numeric_string(Z_STRVAL_P(arg1), Z_STRLEN_P(arg1), NULL, NULL, 0) == IS_LONG) {
+					zend_ulong key = (zend_ulong) zend_atol(Z_STRVAL_P(arg1), (int)Z_STRLEN_P(arg1));
+					if ((find_hash = zend_hash_index_find(Z_ARRVAL_P(arr), key)) == NULL) {
+						array_init(&hash);
+						find_hash = zend_hash_index_update(Z_ARRVAL_P(arr), key, &hash);
+					}
+				} else {
+					if ((find_hash = zend_hash_find(Z_ARRVAL_P(arr), Z_STR_P(arg1))) == NULL) {
+						array_init(&hash);
+						find_hash = zend_hash_update(Z_ARRVAL_P(arr), Z_STR_P(arg1), &hash);
+					}
+				}
+
+				if (Z_TYPE_P(find_hash) != IS_ARRAY) {
+					zval_dtor(find_hash);
+					array_init(find_hash);
+				}
+
+				if (!arg3 || (Z_TYPE_P(arg3) == IS_STRING && Z_STRLEN_P(arg3) == 0)) {
+					Z_TRY_ADDREF_P(arg2);
+					add_next_index_zval(find_hash, arg2);
+				} else {
+					array_set_zval_key(Z_ARRVAL_P(find_hash), arg3, arg2);
+				}
+			}
+			break;
+
+			case ZEND_INI_PARSER_SECTION:
+			break;
+		}
+	}
+
+	static void php_ini_parser_cb_with_sections(zval *arg1, zval *arg2, zval *arg3, int callback_type, zval *arr) {
+		if (callback_type == ZEND_INI_PARSER_SECTION) {
+			array_init(&BG(active_ini_file_section));
+			zend_symtable_update(Z_ARRVAL_P(arr), Z_STR_P(arg1), &BG(active_ini_file_section));
+		} else if (arg2) {
+			zval *active_arr;
+
+			if (Z_TYPE(BG(active_ini_file_section)) != IS_UNDEF) {
+				active_arr = &BG(active_ini_file_section);
+			} else {
+				active_arr = arr;
+			}
+
+			php_simple_ini_parser_cb(arg1, arg2, arg3, callback_type, active_arr);
+		}
+	}
+
+	php::array parse_ini_file(const std::string& filename) {
+		php::array rv;
+
+		zend_file_handle fh;
+		memset(&fh, 0x00, sizeof(fh));
+		fh.filename = filename.c_str();
+		fh.type     = ZEND_HANDLE_FILENAME;
+
+		ZVAL_UNDEF(&BG(active_ini_file_section));
+		zend_parse_ini_file(&fh, 0, ZEND_INI_SCANNER_TYPED,
+				(zend_ini_parser_cb_t) php_ini_parser_cb_with_sections, static_cast<zval*>(rv));
+
+		return std::move(rv);
+	}
+}

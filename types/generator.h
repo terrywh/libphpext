@@ -4,9 +4,14 @@ namespace php {
 	class value;
 	class generator : public value {
 	public:
-		generator(): value() {};
-		generator(const generator& obj): value(obj) {}
-		generator(generator&& obj): value(std::move(obj)) {}
+		using value::operator =;
+		using value::operator ==;
+		using value::operator zval*;
+		using value::operator zend_object*;
+		
+		generator():value() {}
+		generator(const php::value& v): value(v) {}
+		generator(php::value&& v): value(std::move(v)) {}
 
 		php::value current();
 		void next();
@@ -17,16 +22,5 @@ namespace php {
 		}
 		bool valid();
 		php::value get_return();
-
-		using value::operator =;
-		using value::operator ==;
-		inline generator& operator=(const generator& v) {
-			value::operator=(v);
-			return *this;
-		}
-		inline generator& operator=(generator&& v) {
-			value::operator=(std::move(v));
-			return *this;
-		}
 	};
 }

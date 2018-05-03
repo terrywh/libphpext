@@ -33,7 +33,7 @@ namespace php {
 	void ini_entry::fill(zend_ini_entry_def* entry) {
 		entry->name            = name_.c_str();
 		entry->name_length     = name_.length();
-		// TODO ？ 实现 modify_handler 进行实时的数据映射
+		// 未实现 modify_handler 进行实时的数据映射
 		entry->on_modify       = nullptr;
 		entry->mh_arg1         = nullptr;
 		entry->mh_arg2         = nullptr;
@@ -41,7 +41,7 @@ namespace php {
 		entry->value           = value_.c_str();
 		entry->value_length    = value_.length();
 		entry->displayer       = displayer_handler;
-		// TODO 由于未实现 modify_handler 故这暂时仅允许系统ini设置
+		// 由于未实现 modify_handler 故仅允许系统ini设置
 		entry->modifiable      = ZEND_INI_SYSTEM;
 	}
 }

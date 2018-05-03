@@ -125,11 +125,11 @@ namespace php {
 		return ZEND_RESULT_CODE::SUCCESS;
 	}
 
-	extension_entry& extension_entry::add(const ini_entry& entry) {
+	extension_entry& extension_entry::config(const ini_entry& entry) {
 		ini_entries_.push_back(entry);
 		return *this;
 	}
-	extension_entry& extension_entry::add(const constant_entry& entry) {
+	extension_entry& extension_entry::define(const constant_entry& entry) {
 		constant_entries_.push_back(entry);
 		return *this;
 	}

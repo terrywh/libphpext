@@ -8,8 +8,6 @@ namespace php {
 	void info(const char *format, ...);
 	char* exception_string(bool previous, size_t* perrlen = nullptr);
 
-	const char* ini_get(char* name, uint name_len);
-
 	inline void strtoupper_inplace(char* str, size_t len) {
 		php_strtoupper(str, len);
 	}
@@ -19,5 +17,4 @@ namespace php {
 	php::string strtoupper(char* str, size_t len);
 	php::string strtolower(char* str, size_t len);
 
-	php::value parse_ini_file(char* filename);
 }

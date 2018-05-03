@@ -9,6 +9,8 @@ namespace php {
 	struct class_wrapper;
 	class string;
 	class array;
+	class array_item_assoc;
+	class array_item_index;
 	class object;
 	class buffer;
 	class callable;
@@ -75,7 +77,7 @@ namespace php {
 			ZVAL_DOUBLE(&value_, v);
 		}
 		// 字符串
-		value(zend_string* s, bool create = false) {
+		explicit value(zend_string* s, bool create = false) {
 			ZVAL_NEW_STR(&value_, s);
 			if(!create) Z_ADDREF(value_);
 		}
@@ -88,13 +90,13 @@ namespace php {
 		value(buffer&& b);
 		// 数组
 		// ---------------------------------------------------------------------
-		value(zend_array* a, bool create = false) {
+		explicit value(zend_array* a, bool create = false) {
 			ZVAL_ARR(&value_, a);
 			if(!create) Z_ADDREF(value_);
 		}
 		// 对象
 		// ---------------------------------------------------------------------
-		value(zend_object* o, bool create = false) {
+		explicit value(zend_object* o, bool create = false) {
 			ZVAL_OBJ(&value_, o);
 			if(!create) Z_ADDREF(value_);
 		}
@@ -187,12 +189,6 @@ namespace php {
 			_zval_dtor(&value_);
 			ZVAL_PTR(&value_, p);
 		}
-		operator string&() const;
-		operator array&() const;
-		operator object&() const;
-		operator callable&() const;
-		operator generator&() const;
-
 		bool         to_bool();
 		long         to_long(int base = 10);
 		double       to_double();
@@ -203,6 +199,10 @@ namespace php {
 		value& operator =(value&& v);
 		value& operator =(buffer&& v);
 		value& operator =(std::nullptr_t np);
+		value& operator =(int v);
+		value& operator =(int64_t v);
+		value& operator =(double v);
+		value& operator =(const std::string& v);
 		bool operator ==(const value& v);
 	};
 	

@@ -7,13 +7,20 @@ namespace php {
 	class array_item_assoc;
 	class array : public value {
 	public:
-		array();
-		explicit array(std::nullptr_t n): value(n) {}
+		using value::value;
+		using value::operator =;
+		using value::operator ==;
+		using value::operator zval*;
+		using value::operator zend_array*;
+		
+		array(): value() {}
 		explicit array(int size): array(std::size_t(size)) {}
-		explicit array(std::size_t size);
-		explicit array(zend_array*  a1, bool create = false): value(a1, create) {}
-		array(const array& a2): value(a2) {}
-		array(array&& a2): value(std::move(a2)) {}
+		explicit array(std::size_t size) {
+			ZVAL_NEW_ARR(&value_);
+			_zend_hash_init(Z_ARRVAL(value_), size, ZVAL_PTR_DTOR, 0 ZEND_FILE_LINE_RELAY_CC);
+		}
+		array(const php::value& v): value(v) {}
+		array(php::value&& v): value(std::move(v)) {}
 		// ---------------------------------------------------------------------
 		// 全局对象
 		// ---------------------------------------------------------------------
@@ -33,8 +40,6 @@ namespace php {
 		inline void erase(const char* key, std::size_t len) {
 			zend_hash_str_del(Z_ARR(value_), key, len);
 		}
-		bool is_a_list();
-		bool is_a_map();
 		inline array_item_index at(std::size_t idx) {
 			return array_item_index(*this, idx);
 		}
@@ -74,22 +79,9 @@ namespace php {
 		inline bool has(int idx) {
 			return zend_hash_index_exists(Z_ARR(value_), idx);
 		}
-		array_iterator begin();
-		const array_iterator end();
-		using value::operator =;
-		inline array& operator=(const array& v) {
-			value::operator=(v);
-			return *this;
-		}
-		inline array& operator=(array&& v) {
-			value::operator=(std::move(v));
-			return *this;
-		}
-		using value::operator ==;
+		array_iterator begin() const;
+		const array_iterator end() const;
 
-		inline operator zend_array*() const {
-			return Z_ARR(value_);
-		}
 		friend class array_iterator;
 		friend class array_item_str;
 		friend class array_item_idx;
@@ -103,7 +95,7 @@ namespace php {
 		typedef ptrdiff_t   difference_type;
 		typedef value_type* pointer;
 	public:
-		array_iterator(array& a, size_t pos)
+		array_iterator(const array& a, size_t pos)
 			: buk_(static_cast<zend_array*>(a)->arData)
 			, pos_(pos)
 			, end_(static_cast<zend_array*>(a)->nNumUsed) {

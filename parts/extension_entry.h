@@ -8,8 +8,8 @@ namespace php {
 		~extension_entry();
 		void init(const char* name, const char* version);
 		void done();
-		extension_entry& add(const ini_entry& entry);
-		extension_entry& add(const constant_entry& entry);
+		extension_entry& config(const ini_entry& entry);
+		extension_entry& define(const constant_entry& entry);
 		// 函数
 		template<value FUNCTION(parameters& params)>
 		extension_entry& add(const char* name) {

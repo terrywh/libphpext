@@ -32,12 +32,12 @@ namespace php {
 
 		}
 
-		class_entry& add(const constant_entry& entry) {
+		class_entry& define(const constant_entry& entry) {
 			constant_entries_.push_back(entry);
 			return *this;
 		}
 
-		class_entry& add(property_entry&& entry) {
+		class_entry& prop(property_entry&& entry) {
 			property_entries_.emplace_back(std::move(entry));
 			return *this;
 		}

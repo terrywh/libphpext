@@ -5,13 +5,13 @@
 // php::value fn(php::parameters& params);
 php::value test_function_1(php::parameters& params) {
 	// PHP 字符串，从 params 中可以获得对象，也可以获取其 引用
-	php::string& str = params[0];
+	php::string& str = static_cast<php::string&>(params[0]);
 	// 数值( php::value 类型可以通过 static_cast 转换为常见类型)
 	int num = params[1];
 	// 构造指定长度
 	php::string buf(str.length() + 16);
 	// 在 buf 新字符串的缓冲区中构造一个新的字符串
-	buf.length() = sprintf(buf.data(), "[%.*s]:[%d]", str.length(), str.c_str(), num);
+	buf.resize(sprintf(buf.data(), "[%.*s]:[%d]", str.length(), str.c_str(), num));
 	return buf;
 }
 
@@ -34,7 +34,7 @@ php::value test_function_2(php::parameters& params) {
 	// 回调函数
 	php::callable cb = params[0];
 	// 回调函数调用传入 a 作为参数，并返回其返回值
-	return cb(a);
+	return cb({a});
 }
 
 php::value test_function_3(php::parameters& params) {
@@ -68,7 +68,13 @@ php::value test_function_4(php::parameters& params) {
 	return php::json_encode(params[0]);
 }
 php::value test_function_5(php::parameters& params) {
-	return php::json_decode(params[0]);
+	php::string str = params[0];
+	return php::json_decode(str.c_str(), str.length());
+}
+php::value test_function_6(php::parameters& params) {
+	php::value    cb1 = params[0];
+	php::callable cb2 = std::move(cb1);
+	return nullptr;
 }
 
 void extension_init(php::extension_entry& extension) {
@@ -83,6 +89,7 @@ void extension_init(php::extension_entry& extension) {
 	});
 	extension.add<test_function_4>("phpext_function_4");
 	extension.add<test_function_5>("phpext_function_5");
+	extension.add<test_function_6>("phpext_function_6");
 	php::class_entry<test_class_1> class_entry_1("phpext_class_1");
 	// 类属性
 	class_entry_1.add(php::property_entry("property_1", 123456));
@@ -93,4 +100,3 @@ void extension_init(php::extension_entry& extension) {
 	// 将 类定义转入 扩展定义，注意 std::move 必须存在
 	extension.add(std::move(class_entry_1));
 }
-

@@ -1,8 +1,6 @@
 #include "../phpext.h"
 
 namespace php {
-	callable::callable(const php::string& name)
-	: value(static_cast<zend_string*>(const_cast<php::string&>(name)), false) {}
 	value callable::__invoke(zval* cb, int argc, zval* argv, bool silent) {
 		value rv;
 		if(Z_OBJCE_P(cb) == class_entry<class_closure>::entry()) {

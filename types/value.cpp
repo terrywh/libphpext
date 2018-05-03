@@ -150,21 +150,6 @@ namespace php {
 	value::operator zend_generator*() const {
 		return reinterpret_cast<zend_generator*>(Z_OBJ(value_));
 	}
-	value::operator string&() const {
-		return (string&)*this;
-	}
-	value::operator array&() const {
-		return (array&)*this;
-	}
-	value::operator object&() const {
-		return (object&)*this;
-	}
-	value::operator callable&() const {
-		return (callable&)*this;
-	}
-	value::operator generator&() const {
-		return (generator&)*this;
-	}
 	value& value::operator=(const value& v) {
 		_zval_dtor(&value_);
 		ZVAL_COPY(&value_, &v.value_);
@@ -188,6 +173,22 @@ namespace php {
 		_zval_dtor(&value_);
 		ZVAL_NULL(&value_);
 		return *this;
+	}
+	value& value::operator =(int v) {
+		_zval_dtor(&value_);
+		ZVAL_LONG(&value_, v);
+	}
+	value& value::operator =(int64_t v) {
+		_zval_dtor(&value_);
+		ZVAL_LONG(&value_, v);
+	}
+	value& value::operator =(double v) {
+		_zval_dtor(&value_);
+		ZVAL_DOUBLE(&value_, v);
+	}
+	value& value::operator =(const std::string& v) {
+		_zval_dtor(&value_);
+		ZVAL_NEW_STR(&value_, zend_string_init(v.c_str(), v.length(), 0));
 	}
 	bool value::operator==(const value& v) {
 		return Z_PTR(value_) == Z_PTR(v.value_);

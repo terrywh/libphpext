@@ -21,12 +21,4 @@ namespace php {
 		);
 		return std::move(str);
 	}
-	string& string::operator =(php::buffer&& buf) {
-		_zval_dtor(&value_);
-		smart_str_0(&buf.str_); // 添加 \0 结束符（缺少时可能导致 JSON 解析失败）
-		ZVAL_STR(&value_, buf.str_.s);
-		buf.str_.s = nullptr;
-		buf.str_.a = 0;
-		return *this;
-	}
 }

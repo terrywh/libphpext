@@ -10,12 +10,14 @@ namespace php {
 			ZVAL_OBJ(&value_, zend_objects_new(ce));
 		}
 	public:
+		using value::value;
+		using value::operator =;
+		using value::operator ==;
+		using value::operator zval*;
+		using value::operator zend_object*;
 		object(): value() {}
-		explicit object(nullptr_t nptr): value(nptr) {}
-		explicit object(zend_object* obj, bool create = false): value(obj, create) {}
-		explicit object(class_base* obj): value(obj) {}
-		object(const object& obj): value(obj) {}
-		object(object&& obj): value(std::move(obj)) {}
+		object(const php::value& v): value(v) {}
+		object(php::value&& v): value(std::move(v)) {}
 		// 构造
 		template<class T>
 		static object create() {
@@ -73,19 +75,6 @@ namespace php {
 		};
 		inline operator zend_class_entry*() const {
 			return Z_OBJCE(value_);
-		}
-		inline operator zend_object*() const {
-			return Z_OBJ(value_);
-		}
-		using value::operator =;
-		using value::operator ==;
-		inline object& operator=(const object& v) {
-			value::operator=(v);
-			return *this;
-		}
-		inline object& operator=(object&& v) {
-			value::operator=(std::move(v));
-			return *this;
 		}
 	};
 }
