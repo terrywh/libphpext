@@ -41,7 +41,7 @@ namespace php {
 			if(perrlen) *perrlen = 0;
 			return nullptr;
 		};
-		static char errstr[4096];
+		static char errstr[8192];
 		size_t errlen = 0;
 		zval exception, rv;
 	
@@ -63,7 +63,7 @@ namespace php {
 				zend_get_exception_base(&exception), &exception, "file", sizeof("file")-1, 1, &rv));
 			line = zval_get_long(zend_read_property(
 				zend_get_exception_base(&exception), &exception, "line", sizeof("line")-1, 1, &rv));
-			errlen = sprintf(errstr, "[%s:%d] %s\n", ZSTR_VAL(file), line, ZSTR_VAL(message));
+			errlen = sprintf(errstr, "%s:%d %s\n", ZSTR_VAL(file), line, ZSTR_VAL(message));
 			zend_string_release(message);
 			zend_string_release(file);
 		} else if (instanceof_function(ce_exception, zend_ce_throwable)) {
@@ -98,7 +98,7 @@ namespace php {
 			file = zval_get_string(zend_read_property(zend_get_exception_base(&exception), &exception, "file", sizeof("file")-1, 1, &rv));
 			line = zval_get_long(zend_read_property(zend_get_exception_base(&exception), &exception, "line", sizeof("line")-1, 1, &rv));
 			
-			errlen += sprintf(errstr + errlen, "(%s:%d) Uncaught %s\n",
+			errlen += sprintf(errstr + errlen, "%s:%d Uncaught %s\n",
 				file && ZSTR_LEN(file) > 0 ? ZSTR_VAL(file) : nullptr,line, ZSTR_VAL(message));
 			zend_string_release(message);
 			zend_string_release(file);
