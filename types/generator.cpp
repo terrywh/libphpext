@@ -65,7 +65,7 @@ namespace php {
 		EG(current_execute_data) = generator->execute_data;
 		generator->execute_data->opline--;
 		// 异步流程修正错误发生的位置(注意这里需要使用基类类型)
-		if(Z_OBJCE_P(exception) != zend_ce_parse_error) {
+		if(instanceof_function(Z_OBJCE_P(exception), zend_ce_throwable)) {
 			zend_update_property_string(
 				zend_get_exception_base(exception), exception, "file", sizeof("file")-1, zend_get_executed_filename());
 			zend_update_property_long(
