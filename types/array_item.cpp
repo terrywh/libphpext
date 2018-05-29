@@ -4,7 +4,7 @@ namespace php {
 	array_item_assoc::array_item_assoc(const php::array& arr, const php::string& key)
 	: array_(arr)
 	, assoc_(key) {
-		zval* vv = zend_hash_find(array_, assoc_);
+		zval* vv = zend_hash_find_ind(array_, assoc_);
 		if(vv == nullptr) ZVAL_UNDEF(&value_);
 		else ZVAL_COPY(&value_, vv);
 	}
