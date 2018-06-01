@@ -27,7 +27,9 @@ namespace php {
 			try {
 				rv = (class_wrapper<T>::from_this(getThis())->*FUNCTION)(params);
 			}catch(const exception& e) {
-				zend_throw_exception(nullptr, e.what(), e.code());
+				zval ex;
+				ZVAL_COPY(&ex, e);
+			 	zend_throw_exception_object(&ex);
 			}catch(const std::exception& e){
 				zend_throw_exception(nullptr, e.what(), 0);
 			}catch(...){

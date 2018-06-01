@@ -34,11 +34,11 @@ namespace php {
 		inline void erase(const std::size_t idx) {
 			zend_hash_index_del(Z_ARR(value_), idx);
 		}
-		inline void erase(const std::string& key) {
-			zend_hash_str_del(Z_ARR(value_), key.c_str(), key.length());
+		inline void erase(const php::string& key) {
+			zend_hash_del(Z_ARR(value_), key);
 		}
-		inline void erase(const char* key, std::size_t len) {
-			zend_hash_str_del(Z_ARR(value_), key, len);
+		inline void erase(const char* key, std::size_t len = -1) {
+			zend_hash_str_del(Z_ARR(value_), key, (len == -1 ? std::strlen(key) : len));
 		}
 		inline array_item_index at(std::size_t idx) {
 			return array_item_index(*this, idx);
@@ -52,29 +52,20 @@ namespace php {
 		inline array_item_assoc at(const php::string& key) {
 			return array_item_assoc(*this, key);
 		}
-		inline array_item_assoc at(const char* key, std::size_t len) {
-			return at(php::string(key, len));
-		}
-		inline array_item_assoc at(const std::string& key) {
-			return at(key.c_str(), key.length());
+		inline array_item_assoc at(const char* key, std::size_t len = -1) {
+			return at(php::string(key, (len == -1 ? std::strlen(key) : len)));
 		}
 		inline array_item_assoc operator [](const php::string& key) {
 			return at(key);
 		}
-		inline array_item_assoc operator [](const std::string& key) {
-			return at(key.c_str(), key.length());
-		}
 		inline array_item_assoc operator [](const char* key) {
 			return at(key, strlen(key));
-		}
-		inline bool has(const std::string& key) {
-			return has(key.c_str(), key.length());
 		}
 		inline bool has(const php::string& key) {
 			return zend_hash_exists(Z_ARR(value_), key);
 		}
-		inline bool has(const char* key, std::size_t len) {
-			return zend_hash_str_exists(Z_ARR(value_), key, len);
+		inline bool has(const char* key, std::size_t len = -1) {
+			return zend_hash_str_exists(Z_ARR(value_), key, (len == -1 ? std::strlen(key) : len));
 		}
 		inline bool has(int idx) {
 			return zend_hash_index_exists(Z_ARR(value_), idx);

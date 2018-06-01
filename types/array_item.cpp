@@ -20,6 +20,9 @@ namespace php {
 		addref();
 		return *this;
 	}
+	array_item_assoc::operator php::value() {
+		return php::value(value_);
+	}
 	array_item_index::array_item_index(const php::array& arr, zend_ulong key)
 	: array_(arr)
 	, index_(key) {
@@ -41,5 +44,8 @@ namespace php {
 		zend_hash_index_update(array_, index_, &value_);
 		addref();
 		return *this;
+	}
+	array_item_index::operator php::value() {
+		return php::value(value_);
 	}
 }

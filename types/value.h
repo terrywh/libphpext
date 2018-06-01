@@ -46,6 +46,13 @@ namespace php {
 			ZVAL_COPY_VALUE(&value_, &v);
 			ZVAL_UNDEF(&v);
 		}
+		value(zval* v, bool create = false) {
+			if(create) {
+				ZVAL_COPY_VALUE(&value_, v);
+			}else{
+				ZVAL_COPY(&value_, v);
+			}
+		}
 		value(const value& w) {
 			ZVAL_COPY(&value_, &w.value_);
 		}
@@ -60,9 +67,6 @@ namespace php {
 		}
 		value(int v) {
 			ZVAL_LONG(&value_, v);
-		}
-		value(zend_bool v) {
-			ZVAL_BOOL(&value_, v);
 		}
 		value(std::uint32_t v) {
 			ZVAL_LONG(&value_, v);
@@ -84,11 +88,8 @@ namespace php {
 		value(const std::string& s) {
 			ZVAL_NEW_STR(&value_, zend_string_init(s.c_str(), s.length(), false));
 		}
-		explicit value(const char* str) {
-			ZVAL_NEW_STR(&value_, zend_string_init(str, std::strlen(str), false));
-		}
-		value(const char* str, std::size_t len) {
-			ZVAL_NEW_STR(&value_, zend_string_init(str, len, false));
+		explicit value(const char* str, std::size_t len = -1) {
+			ZVAL_NEW_STR(&value_, zend_string_init(str, (len == -1 ? std::strlen(str) : len), false));
 		}
 		value(buffer&& b);
 		// 数组

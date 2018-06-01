@@ -2,15 +2,15 @@
 
 #include "vendor.h"
 
-#include "types/exception.h"
 #include "types/value.h"
 #include "types/callable.h"
 #include "types/buffer.h"
 #include "types/string.h"
 #include "types/array_item.h"
 #include "types/array.h"
-#include "types/property.h"
 #include "types/object.h"
+#include "types/property.h"
+#include "types/exception.h"
 #include "types/generator.h"
 #include "types/callable.h"
 #include "types/parameters.h"

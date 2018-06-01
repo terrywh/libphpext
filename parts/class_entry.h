@@ -110,11 +110,6 @@ namespace php {
 			interfaces_.push_back(&php_json_serializable_ce);
 			return *this;
 		}
-
-		// class_entry& use(const std::string& trait_name) {
-		// 	traits_.push_back(trait_name);
-		// 	return *this;
-		// }
 		static value default_destruct(parameters& params) {
 			return nullptr;
 		}
@@ -197,7 +192,6 @@ namespace php {
 		std::vector<zend_function_entry> method_entries_;
 		std::vector<arguments>           arguments_;
 		std::vector<zend_class_entry**>  interfaces_;
-		// std::vector<std::string> traits_;
 		int flags_;
 
 		static zend_class_entry*    entry_;
@@ -210,25 +204,26 @@ namespace php {
 			handlers_.clone_obj = nullptr;
 		}
 		static zend_object* create_object_handler(zend_class_entry *entry) {
+			assert(sizeof(T) == XtOffsetOf(class_wrapper<T>, obj));
+
 			size_t psize = zend_object_properties_size(entry);
 			char*  pdata = (char*)
-				ecalloc(1, sizeof(class_wrapper<T>) + psize + sizeof(T));
+				ecalloc(1, sizeof(class_wrapper<T>) + psize);
 			class_wrapper<T>* wrapper = (class_wrapper<T>*)pdata;
 			// 初始化 PHP 对象
 			zend_object_std_init(&wrapper->obj, entry);
 			object_properties_init(&wrapper->obj, entry);
 			wrapper->obj.handlers = &handlers_;
 			// 在指定内存位置构造 C++ 对象
-			wrapper->cpp = (T*)(pdata + sizeof(class_wrapper<T>) + psize);
-			new (wrapper->cpp) T();
+			wrapper->cpp = new T();
 			ZVAL_OBJ(&wrapper->cpp->value_, &wrapper->obj);
 			return &wrapper->obj;
 		}
 
 		static void free_object_handler(zend_object* object) {
-			// wrapper 对应的内存会由 Zend 引擎在 dtor_obj 中释放 efree()
 			auto wrapper = reinterpret_cast<class_wrapper<T>*>((char*)object - XtOffsetOf(class_wrapper<T>, obj));
-			wrapper->cpp->~T();
+			// wrapper 对应的内存会由 Zend 引擎在 dtor_obj 中释放 efree()
+			delete wrapper->cpp; // 仅控制 C++ 对象内存释放即可
 			zend_object_std_dtor(&wrapper->obj);
 		}
 		// 下面类需要访问 handlers_ 私有成员（is_instance_of）
