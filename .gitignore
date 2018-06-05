@@ -1,4 +1,5 @@
 **/*.o
 **/*.d
+**/*.gch
 libphpext.a
 phpext.so
