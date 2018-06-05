@@ -149,8 +149,8 @@ namespace php {
 		inline bool is_generator() const {
 			return is_object() && instanceof_function(Z_OBJCE(value_), zend_ce_generator);
 		}
-		inline bool is_exception() const {
-			return is_object() && instanceof_function(Z_OBJCE(value_), zend_ce_exception);
+		inline bool is_throwable() const {
+			return is_object() && instanceof_function(Z_OBJCE(value_), zend_ce_throwable);
 		}
 		inline bool is_reference() const {
 			return Z_ISREF(value_);

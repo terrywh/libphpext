@@ -11,6 +11,7 @@ namespace php {
 	}
 	exception::exception_previous::~exception_previous() {
 		zend_update_property(zend_get_exception_base(&ex_.value_), &ex_.value_, "previous", sizeof("previous")-1, &prev_);
+		zval_ptr_dtor(&prev_);
 	}
 	exception::exception(const php::string& message, int code) {
 		ZVAL_OBJ(&value_, zend_ce_exception->create_object(zend_ce_exception));
@@ -33,11 +34,10 @@ namespace php {
 	bool exception::global() {
 		return Z_OBJ(value_) == EG(exception);
 	}
-	// ÏÂÃæÁ÷³ÌÖ÷Òª²Î¿¼ zend_exception.c ÖĞ
+	// å‚è€ƒ zend_exception.c ä¸‹è¿°å‡½æ•°:
 	// ZEND_API ZEND_COLD void zend_exception_error(zend_object *ex, int severity)
-	// º¯ÊıµÄÏà¹Ø´úÂë
 	php::string exception::message() const noexcept {
-		exception_previous(const_cast<exception&>(*this)); // ÁÙÊ±½« previous ÊôĞÔÇå³ı, Íê³Éºó»Ö¸´
+		exception_previous(const_cast<exception&>(*this)); // ä¸´æ—¶å…³é—­ previous çš„å¼‚å¸¸
 		zval rv;
 		zend_class_entry *ce = Z_OBJCE(value_);
 		if (ce == zend_ce_parse_error) {
@@ -52,12 +52,12 @@ namespace php {
 						goto STRING_SUCCESS;
 					}
 				}
-				ZVAL_STRINGL(&rv, "", 0); // Ä¬ÈÏ¿Õ×Ö·û´®
+				ZVAL_STRINGL(&rv, "", 0); // é»˜è®¤ç©ºå­—ç¬¦ä¸²
 STRING_SUCCESS:
 				php::string str(rv);
 				zend_update_property(zend_get_exception_base(const_cast<zval*>(&value_)), const_cast<zval*>(&value_), "string", sizeof("string")-1, &rv);
 				zval_ptr_dtor(&rv);
-				if(EG(exception)) { // ÕâÀï²»´¦Àí¼ä½ÓÒı·¢µÄÒì³£
+				if(EG(exception)) { // äºŒæ¬¡å¼•å‘å¼‚å¸¸è¿™é‡Œä¸å¤„ç†
 					ZVAL_OBJ(&rv, EG(exception));
 					EG(exception) = nullptr;
 					zval_ptr_dtor(&rv);
