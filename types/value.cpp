@@ -1,8 +1,8 @@
 #include "../phpext.h"
 
 namespace php {
-	php::value BOOL_YES;
-	php::value BOOL_NO;
+	php::value BOOL_TRUE;
+	php::value BOOL_FALSE;
 	// 字符串
 	// -------------------------------------------------------------------------
 	value::value(buffer&& buf) {

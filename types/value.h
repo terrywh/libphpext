@@ -210,6 +210,6 @@ namespace php {
 		bool operator ==(const value& v);
 	};
 	
-	extern value BOOL_YES;
-	extern value BOOL_NO;
+	extern value BOOL_TRUE;
+	extern value BOOL_FALSE;
 }
