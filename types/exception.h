@@ -20,22 +20,14 @@ namespace php {
 			INVOKE_METHOD_FAILED    = -1001,
 			PARAMETERS_INSUFFICIENT = -1002,
 		};
-		// È«¾Ö PHP Òì³£²Ù×÷
-		// ÊÇ·ñ´æÔÚÒì³£
+		// å…¨å±€ PHP å¼‚å¸¸çŠ¶æ€æ•°æ®
 		static bool has();
-		// »ñÈ¡Òì³£¶ÔÏó(µÄ¿½±´)
 		static exception get();
-		// ÇåÀí PHP µÄÒì³£×´Ì¬
 		static void off();
 		static exception create(const php::string& message, int code = 0) {
 			return exception(message, code);
 		}
-		static exception create(const char* message, size_t size = -1, int code = 0) {
-			return exception(php::string(message, (size == -1 ? std::strlen(message) : size)), code);
-		}
 		explicit exception(const php::string& message, int code = 0);
-		explicit exception(const std::string& message, int code = 0)
-		: exception(php::string(message), code) {}
 		php::string message() const noexcept;
 		php::string file() const noexcept;
 		int line() const noexcept;

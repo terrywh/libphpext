@@ -19,7 +19,13 @@ namespace php {
 	php::value generator::send(const php::value& v) {
 		return reinterpret_cast<php::object*>(this)->call(php::string("send",4), {v});
 	}
-	php::value generator::throw_exception(php::value ex) {
+	php::value generator::throw_exception(const php::value& e, int code) {
+		php::object ex;
+		if(e.is_string()) {
+			ex = php::exception::create(static_cast<php::string&>(const_cast<php::value&>(e)), code);
+		}else{
+			ex = e;
+		}
 		// 异步流程修正错误发生的位置 (注意这里需要使用基类类型)
 		zend_execute_data *original_execute_data = EG(current_execute_data);
 		zend_generator* g = (zend_generator*)Z_OBJ_P(&value_);

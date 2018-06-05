@@ -79,6 +79,7 @@ namespace php {
 			entries[i].name = nullptr; // zend_register_ini_entries() -> while(entry->name) { zend_string_copy }
 			zend_register_ini_entries(entries.data(), module);
 		}
+		entries.clear();
 		// classes_entries_ 不能再完成之前清理（zend 引擎会应用其中的内存）
 		// 常量注册
 		for(i=0;i<self->constant_entries_.size(); ++i) {

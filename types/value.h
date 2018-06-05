@@ -39,6 +39,9 @@ namespace php {
 		value() {
 			ZVAL_UNDEF(&value_);
 		}
+		value(std::nullptr_t v) {
+			ZVAL_NULL(&value_);
+		}
 		value(const zval& v) {
 			ZVAL_COPY(&value_, &v);
 		}
@@ -62,9 +65,7 @@ namespace php {
 		}
 		// 基础类型
 		// ---------------------------------------------------------------------
-		value(std::nullptr_t v) {
-			ZVAL_NULL(&value_);
-		}
+
 		value(int v) {
 			ZVAL_LONG(&value_, v);
 		}
@@ -88,7 +89,7 @@ namespace php {
 		value(const std::string& s) {
 			ZVAL_NEW_STR(&value_, zend_string_init(s.c_str(), s.length(), false));
 		}
-		explicit value(const char* str, std::size_t len = -1) {
+		value(const char* str, std::size_t len = -1) {
 			ZVAL_NEW_STR(&value_, zend_string_init(str, (len == -1 ? std::strlen(str) : len), false));
 		}
 		value(buffer&& b);
