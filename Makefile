@@ -1,57 +1,43 @@
 .SUFFIXES:
 
-.PHONY: all types types-clean parts parts-clean test test-clean test-ini test-constant test-function
+.PHONY: all test install clean
 
-PHP_PREFIX?=/data/server/php-7.0.30
+PHP_PREFIX?=/usr/local/php
 PHP_CONFIG=${PHP_PREFIX}/bin/php-config
 
 TARGET_LIBRARY=libphpext.a
 TARGET_VERSION=2.0.0
 
-SOURCES=$(wildcard types/*.cpp) $(wildcard parts/*.cpp) $(wildcard bases/*.cpp) $(wildcard funcs/*.cpp) extension.cpp
+SOURCES=$(shell find ./ -name "*.cpp")
 OBJECTS=$(SOURCES:%.cpp=%.o)
-DEPENDS=$(SOURCES:%.cpp=%.d)
+DEPENDS=$(SOURCES:%.cpp=%.d) phpext.hpp.d
+HEADERX=phpext.hpp.gch
 
-TEST_EXTENSION=phpext.so
+TARGETX=phpext.so
 
-
-CXX?=/usr/local/gcc/bin/g++
-CXXFLAGS?= -O2
-LDFLAGS?=-Wl,-rpath="/usr/local/gcc/lib64"
-LDFLAGS_EXTRA=-shared -u get_module
-CXXFLAGS_EXTRA=-std=c++11 -fPIC
+CXX=clang++
+CXXFLAGS?= -g -O0
+CXXFLAGS+= -std=c++11 -fPIC
+LDFLAGS?=
+LDFLAGS+=-shared
 INCLUDE=$(shell ${PHP_CONFIG} --includes | sed 's/-I/-isystem/g')
 LIBRARY=
 
+all:
 
-all: ${TARGET_LIBRARY}
-	@echo done.
+test: ${TARGETX}
 
-${TARGET_LIBRARY}: vendor.h.gch ${OBJECTS}
-	ar rcs $@ $^
-vendor.h.gch: vendor.h
-	${CXX} -x c++ ${CXXFLAGS} ${CXXFLAGS_EXTRA} ${INCLUDE} -c $^ -o $@
-%.o: %.cpp vendor.h.gch
-	${CXX} ${CXXFLAGS} ${CXXFLAGS_EXTRA} ${INCLUDE} -MMD -MP -c $< -o $@
--include $(DEPENDS)
-${TEST_EXTENSION}: test/extension.cpp ${TARGET_LIBRARY}
-	${CXX} ${CXXFLAGS} ${CXXFLAGS_EXTRA} ${INCLUDE} -DEXTENSION_NAME=\"phpext\" -DEXTENSION_VERSION=\"${TARGET_VERSION}\" -c test/extension.cpp -o test/extension.o
-	${CXX} ${LDFLAGS} ${LDFLAGS_EXTRA} ${LIBRARY} test/extension.o ${TARGET_LIBRARY} -o ${TEST_EXTENSION}
-
+install: ${TARGETX}
+	sudo rm -f `${PHP_CONFIG} --extension-dir`/phpext.so
+	sudo cp phpext.so `${PHP_CONFIG} --extension-dir`/phpext.so
 clean:
-	rm -f vendor.h.gch ${TARGET_LIBRARY} ${OBJECTS} ${DEPENDS}
-test: CXXFLAGS = -O0 -g
-test: ${TEST_EXTENSION}
+	rm -f ${HEADERX} ${TARGETX} ${OBJECTS} ${DEPENDS}
+	rm -f `find ./ -name "*.o"` `find ./ -name "*.d"`
+-include $(DEPENDS)
+${TARGETX}: ${HEADERX} ${OBJECTS}
+	${CXX} ${LDFLAGS} ${LDFLAGS} ${LIBRARY} ${OBJECTS} ${LIBRARY} -o $@
+${HEADERX}:
+	${CXX} -x c++-header ${CXXFLAGS} ${INCLUDE} -MMD -MP -c phpext.hpp -o $@
+%.o: %.cpp ${HEADERX}
+	${CXX} ${CXXFLAGS} ${CXXFLAGS_EXTRA} ${INCLUDE} -MMD -MP -c $< -o $@
 
-test-install:
-	cp -f ${TEST_EXTENSION} `${PHP_CONFIG} --extension-dir`
-
-test-ini: ${TEST_EXTENSION}
-	php test/extension_ini.php || exit 0
-test-constant: ${TEST_EXTENSION}
-	php test/extension_constant.php || exit 0
-test-function: ${TEST_EXTENSION}
-	php test/extension_function.php || exit 0
-
-test-clean:
-	rm -f ${TEST_EXTENSION}

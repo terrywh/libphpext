@@ -1,102 +1,125 @@
-#include "../phpext.h"
+#include "../phpext.hpp"
 #include <typeinfo>
 #include <iostream>
 // 所有导出到 PHP 的函数必须符合下面形式：
 // php::value fn(php::parameters& params);
 php::value test_function_1(php::parameters& params) {
-	// PHP 字符串，从 params 中可以获得对象，也可以获取其 引用
-	php::string& str = static_cast<php::string&>(params[0]);
+	// 参数下标必须存在, 否则会抛出异常
+	php::value v0 = params[0];
+	int v1 = static_cast<php::value>(params[1]);
 	// 数值( php::value 类型可以通过 static_cast 转换为常见类型)
-	int num = params[1];
+	double v2 = static_cast<php::value>(params[2]);
+	// 自动的类型检查
+	php::string v3 = static_cast<php::value>(params[3]);
 	// 构造指定长度
-	php::string buf(str.length() + 16);
-	// 在 buf 新字符串的缓冲区中构造一个新的字符串
-	buf.resize(sprintf(buf.data(), "[%.*s]:[%d]", str.length(), str.c_str(), num));
-	return buf;
-}
-
-php::value test_function_2(php::parameters& params) {
+	php::string rv(256 + v3.length());
+	// 在新字符串的缓冲区中构造一个新的字符串
+	rv.shrink(sprintf(rv.data(), "[%d] [%d] [%f] [%s]", v0.to_bool(), v1, v2, v3.c_str()));
 	// PHP 数组
-	php::array a(5);
-	a["aaaaa"] = php::string("1111111");
-	a["bbbbb"] = php::string("2222222");
-	// 遍历
-	for(auto i=a.begin();i!=a.end();++i) {
-		// php::value 为通用数据类型，对应 zval 结构体
-		php::value kkk = i->first;
-		php::value vvv = i->second;
-		// php::string/callable/object 为专用类型，php::value 的子类，也对应 zval 结构体
-		// 转换过程会自动进行类型检查，不符合的类型会抛出异常到 PHP 中
-		php::string key = i->first;
-		php::string val = i->second;
-		printf("\tkey: %s => val: %s\n", key.c_str(), val.c_str());
+	php::array v4;
+	try{ // 捕获参数缺失或类型()
+		v4 = static_cast<php::value>(params[4]);
+	}catch(const std::exception& ex) {
+		v4["aaaaa"] = "1111111";
+		v4["bbbbb"] = php::string("2222222", 7);
 	}
-	// 回调函数
-	php::callable cb = params[0];
-	// 回调函数调用传入 a 作为参数，并返回其返回值
-	return cb({a});
+	// 遍历
+	std::printf("\n");
+	for(auto i=v4.begin(); i!=v4.end(); ++i) {
+		php::string key = i->first;
+		php::string val = static_cast<php::value>(i->second);
+		std::printf("    key: %s => val: %s\n", key.c_str(), val.c_str());
+	}
+	return rv;
 }
-
+php::value test_function_2(php::parameters& params) {
+	// 回调函数
+	php::callable cb = static_cast<php::value>(params[0]);
+	// 回调函数调用传入 a 作为参数，并返回其返回值
+	php::value rv;
+	try{ // 捕获 PHP 用户代码异常
+		rv = cb({params[1]});
+	}catch(const php::exception& ex) {
+		rv = ex;
+	}
+	// 不改变 PHP 自己的异常逻辑
+	return rv;
+}
 php::value test_function_3(php::parameters& params) {
-	// 函数声明了首个参数为“引用”传递，可以更改其值
-	params[0] = 654321;
+	// 函数声明了首个必要参数为“引用”传递，可以更改其值
+	params[0] = static_cast<int>(static_cast<php::value>(params[0])) * 2;
 	// “无” 返回值，但对 C++ 必须要有返回值
 	return nullptr;
 }
-//
+php::value test_function_4(php::parameters& params) {
+	// 参数类型限定
+	php::object date1 = static_cast<php::value>(params[0]);
+	php::callable cb2 = static_cast<php::value>(params[1]);
+	// 调用对象方法
+	date1.call("modify", {"+1day"});
+	// 调用回调
+	return cb2({php::json_encode(date1)});
+}
+php::value test_function_5(php::parameters& params) {
+	return nullptr;
+}
+php::value test_function_6(php::parameters& params) {
+	return nullptr;
+}
+// 
 class test_class_1: public php::class_base {
 public:
+	// 属性操作方式 1
 	php::value method_1(php::parameters& params) {
-		// 参数个数
-		if(params.length() > 0)	return params[0];
-		// 常见类型能够构造为 php::value 类型
-		return params.length();
+		// 读取 1.
+		php::value p = get("property_1");
+		get("property_1");
+		// 更新 1. 
+		set("property_1", params[0]);
+		return nullptr;
 	}
+	// 属性操作方式 2
 	php::value method_2(php::parameters& params) {
-		// 访问属性
-		php::value p = prop("property_1");
-		return p;
+		(*this)["property_2"] = params[0];
+		return nullptr;
 	}
 	php::value method_3(php::parameters& params) {
-		// 设置属性
-		prop("property_1") = params[0];
-		return params[0];
+
+		return nullptr;
 	}
 };
 
-php::value test_function_4(php::parameters& params) {
-	return php::json_encode(params[0]);
-}
-php::value test_function_5(php::parameters& params) {
-	php::string str = params[0];
-	return php::json_decode(str.c_str(), str.length());
-}
-php::value test_function_6(php::parameters& params) {
-	php::value    cb1 = params[0];
-	php::callable cb2 = std::move(cb1);
-	return nullptr;
-}
+extern "C" {
+	ZEND_DLEXPORT zend_module_entry* get_module() {
+		static php::extension_entry ext("phpext", "1.0");
+		ext.constant({"CONSTANT_1", 22222});
+		ext.constant({"CONSTANT_2", "THIS_IS_EXTENSION_CONSTANT"});
+		ext.ini({"config_1", "default_1"});
+		ext.ini({"config_2", "default_2"});
+		ext.function<test_function_1>("test_function_1");
+		ext.function<test_function_2>("test_function_2");
+		ext.function<test_function_3>("test_function_3", {
+			// 引用传递一个必要参数
+			{"arg1", php::TYPE::INTEGER, true},
+		});
+		ext.function<test_function_4>("test_function_4", {
+			{"arg1", "DateTime"}, // 类
+			{"arg2", php::TYPE::CALLABLE}, // Callable 被“强化”确认正确性
+		});
+		ext.function<test_function_5>("test_function_5");
+		ext.function<test_function_6>("test_function_6");
 
-void extension_init(php::extension_entry& extension) {
-	// 扩展基本初始化 名称，版本
-	extension.init(EXTENSION_NAME, EXTENSION_VERSION);
-	// 全局或静态函数直接添加
-	extension.add<test_function_1>("phpext_function_1");
-	extension.add<test_function_2>("phpext_function_2");
-	extension.add<test_function_3>("phpext_function_3", {
-		// 参数说明可选（除 引用传递标识 true 外，实际不会有什么作用）
-		php::of_string("arg_1", true),
-	});
-	extension.add<test_function_4>("phpext_function_4");
-	extension.add<test_function_5>("phpext_function_5");
-	extension.add<test_function_6>("phpext_function_6");
-	php::class_entry<test_class_1> class_entry_1("phpext_class_1");
-	// 类属性
-	class_entry_1.add(php::property_entry("property_1", 123456));
-	// 类成员函数需要加入 & 成员函数指针
-	class_entry_1.add<&test_class_1::method_1>("method_1");
-	class_entry_1.add<&test_class_1::method_2>("method_2");
-	class_entry_1.add<&test_class_1::method_3>("method_3");
-	// 将 类定义转入 扩展定义，注意 std::move 必须存在
-	extension.add(std::move(class_entry_1));
-}
+		php::class_entry<test_class_1> class_test_1("test_class_1");
+		class_test_1.constant({"CONSTANT_1", 333333});
+		class_test_1.constant({"CONSTANT_1", "THIS_IS_CLASS_CONSTANT"});
+		class_test_1.property({"property_1", 123456});
+		class_test_1.property({"property_2", nullptr});
+		class_test_1.method<&test_class_1::method_1>("method_1");
+		class_test_1.method<&test_class_1::method_2>("method_2");
+		class_test_1.method<&test_class_1::method_3>("method_3");
+		ext.add(std::move(class_test_1));
+
+		return ext;
+	}
+};
+
