@@ -1,43 +1,47 @@
 .SUFFIXES:
 
-.PHONY: all test install clean
 
-PHP_PREFIX?=/usr/local/php
-PHP_CONFIG=${PHP_PREFIX}/bin/php-config
+VENDOR_PHP?=/usr/local/php
 
-TARGET_LIBRARY=libphpext.a
-TARGET_VERSION=2.0.0
 
-SOURCES=$(shell find ./ -name "*.cpp")
+
+SOURCES=$(shell find ./src -name "*.cpp") $(shell find ./test -name "*.cpp")
 OBJECTS=$(SOURCES:%.cpp=%.o)
-DEPENDS=$(SOURCES:%.cpp=%.d) phpext.hpp.d
-HEADERX=phpext.hpp.gch
-
-TARGETX=phpext.so
+DEPENDS=$(SOURCES:%.cpp=%.d)
+TARGETX=libphpext.a
+VERSION=1.0.0
+TARGETY=phpext.so
 
 CXX=clang++
+INCLUDES=$(shell ${VENDOR_PHP}/bin/php-config --includes | sed 's/-I/-isystem/g')
 CXXFLAGS?= -g -O0
-CXXFLAGS+= -std=c++11 -fPIC
+CXXFLAGS+= -std=c++11 -fPIC ${INCLUDES}
 LDFLAGS?=
 LDFLAGS+=-shared
-INCLUDE=$(shell ${PHP_CONFIG} --includes | sed 's/-I/-isystem/g')
-LIBRARY=
 
-all:
+PREFIX?=/data/vendor/phpext-${VERSION}
 
-test: ${TARGETX}
-
+.PHONY: all test install clean
+all: ${TARGETX} ${TARGETY}
+var:
+	@echo ${OBJECTS}
+test: ${TARGETY}
+	sudo rm -f `${VENDOR_PHP}/bin/php-config --extension-dir`/${TARGETY}
+	sudo cp ${TARGETY} `${VENDOR_PHP}/bin/php-config --extension-dir`/${TARGETY}
 install: ${TARGETX}
-	sudo rm -f `${PHP_CONFIG} --extension-dir`/phpext.so
-	sudo cp phpext.so `${PHP_CONFIG} --extension-dir`/phpext.so
+	sudo rm -rf ${PREFIX}/include/phpext ${PREFIX}/lib/${TARGETX}
+	sudo mkdir -p ${PREFIX}/include/phpext
+	sudo mkdir -p ${PREFIX}/lib
+	sudo cp -f src/*.h ${PREFIX}/include/phpext
+	sudo cp -f ${TARGETX} ${PREFIX}/lib
 clean:
 	rm -f ${HEADERX} ${TARGETX} ${OBJECTS} ${DEPENDS}
 	rm -f `find ./ -name "*.o"` `find ./ -name "*.d"`
 -include $(DEPENDS)
-${TARGETX}: ${HEADERX} ${OBJECTS}
-	${CXX} ${LDFLAGS} ${LDFLAGS} ${LIBRARY} ${OBJECTS} ${LIBRARY} -o $@
-${HEADERX}:
-	${CXX} -x c++-header ${CXXFLAGS} ${INCLUDE} -MMD -MP -c phpext.hpp -o $@
-%.o: %.cpp ${HEADERX}
-	${CXX} ${CXXFLAGS} ${CXXFLAGS_EXTRA} ${INCLUDE} -MMD -MP -c $< -o $@
+${TARGETX}: ${OBJECTS}
+	ar rcs $@ $^
+${TARGETY}: ./test/extension.o ${TARGETX}
+	${CXX} -shared $< ${LDFLAGS} -L. -lphpext -o $@
+%.o: %.cpp
+	${CXX} ${CXXFLAGS} -MMD -MP -c $< -o $@
 
