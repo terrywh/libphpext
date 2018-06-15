@@ -13,8 +13,8 @@ namespace php {
 			ZVAL_COPY_VALUE(val_, v);
 			break;
 		case IS_STRING: {
-			php::string s = v;
-			ZVAL_STR(val_, zend_string_dup(s, 1));
+			zend_string* s = v;
+			ZVAL_NEW_STR(val_, zend_string_init(s->val, s->len, 1));
 			break;
 		}
 		default:
@@ -29,5 +29,7 @@ namespace php {
 	}
 	void property_entry::declare(zend_class_entry* entry) {
 		zend_declare_property_ex(entry, key_, val_, acc_, nullptr);
+		ZVAL_UNDEF(key_.raw());
+		ZVAL_UNDEF(val_.raw());
 	}
 }

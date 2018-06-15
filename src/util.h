@@ -17,6 +17,18 @@ namespace php {
 	php::string md5(const php::string& str);
 	std::uint32_t crc32(const unsigned char* src, uint32_t src_len);
 	std::uint32_t crc32(const php::string& str);
+	/*
+	typedef struct php_url {
+		char *scheme;
+		char *user;
+		char *pass;
+		char *host;
+		unsigned short port;
+		char *path;
+		char *query;
+		char *fragment;
+	} php_url;
+	*/
 	std::shared_ptr<php_url> parse_url(const char* url, std::size_t url_len);
 	std::shared_ptr<php_url> parse_url(const php::string& url);
 	const std::string& error_type_name(int type);

@@ -312,7 +312,11 @@ namespace php {
 	}
 	value& value::operator =(const zval* v) { // 无类型检查
 		zval_ptr_dtor(&value_ins);
-		ZVAL_COPY(&value_ins, v);
+		if(v == nullptr) {
+			ZVAL_UNDEF(&value_ins);
+		}else{
+			ZVAL_COPY(&value_ins, v);
+		}
 		return *this;
 	}
 	// 带类型检查
