@@ -4,7 +4,7 @@ namespace php {
 	parameter& parameter::operator =(const value& v) {
 		if(Z_ISREF_P(arg_)) {
 			zval_ptr_dtor(Z_REFVAL_P(arg_));
-			// 引用参数直接使用，允许更改其变量内容
+			// 引用参数改其内容
 			ZVAL_COPY(Z_REFVAL_P(arg_), static_cast<zval*>(v));
 		}else{
 			zval_ptr_dtor(arg_);
@@ -13,7 +13,7 @@ namespace php {
 		return *this;
 	}
 	parameter::operator value() const {
-		if(Z_ISREF_P(arg_)) return value(Z_REFVAL_P(arg_));
+		if(Z_ISREF_P(arg_)) return value(Z_REFVAL_P(arg_), false);
 		else return value(arg_);
 	}
 	parameter::parameter(zval* arg)
@@ -31,7 +31,7 @@ namespace php {
 	, argv_(argv) {
 
 	}
-	parameter parameters::operator[](std::uint8_t index) {
+	parameter parameters::operator[](std::uint8_t index) const {
 		if(index >= argc_) {
 			// TODO 补充当前函数或方法名称信息?
 			throw exception(zend_ce_type_error, "missing argument " + std::to_string(index+1));

@@ -59,7 +59,7 @@ namespace php {
 		, arguments_(std::move(entry.arguments_)) {
 
 		}
-		static zend_class_entry* entry() {
+		static CLASS entry() {
 			assert(entry_);
 			return entry_;
 		}

@@ -8,9 +8,10 @@ namespace php {
 		string(const char* str, std::size_t len = -1);
 		string(const std::string& str);
 		string(buffer&& buf);
+		explicit string(int size);
 		explicit string(std::size_t size);
 		// 注意: 此种构造形式无类型检查
-		string(zval* v);
+		string(const zval* v, bool copy = true);
 		string(zend_string* v);
 		string(const value& v);
 		string(value&& v);

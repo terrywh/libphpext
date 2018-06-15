@@ -1,12 +1,14 @@
 #pragma once
 
 namespace php {
+	class value;
 	class buffer {
 	public:
 		~buffer();
 		// 参考 smart_str 相关实现（头部额外数据，总共 256）
 		explicit buffer(int size=231);
 		buffer(buffer&& buf);
+		void  put(const php::value& v);
 		// 需要放入指定大小的 buffer，返回放入位置
 		char* put(int size);
 		void  add(char c);

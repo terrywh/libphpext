@@ -11,9 +11,9 @@ namespace php {
 	php::string json_encode(const php::value& val);
 	php::value json_decode(const char* str, std::size_t size);
 	php::value json_decode(const php::string& str);
-	php::string sha1(const unsigned char* enc_str, size_t enc_len);
+	void sha1(const unsigned char* enc_str, size_t enc_len, char* output);
 	php::string sha1(const php::string& str);
-	php::string md5(const unsigned char* enc_str, uint32_t enc_len);
+	void md5(const unsigned char* enc_str, uint32_t enc_len, char* output);
 	php::string md5(const php::string& str);
 	std::uint32_t crc32(const unsigned char* src, uint32_t src_len);
 	std::uint32_t crc32(const php::string& str);

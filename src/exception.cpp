@@ -34,11 +34,11 @@ namespace php {
 		ZVAL_COPY(&value_ins, e);
 	}
 	exception::exception(const value& v)
-	: value(v, zend_ce_throwable) {
+	: value(v, CLASS(zend_ce_throwable)) {
 
 	}
 	exception::exception(value&& v)
-	: value(std::move(v), zend_ce_throwable) {
+	: value(std::move(v), CLASS(zend_ce_throwable)) {
 
 	}
 	// ----------------------------------------------------------------

@@ -4,9 +4,10 @@ namespace php {
 	class array: public value {
 	public:
 		array();
+		explicit array(int size);
 		explicit array(std::size_t size);
 		// 注意: 此种构造形式无类型检查
-		array(const zval* v);
+		array(const zval* v, bool copy = true);
 		array(zend_array* v);
 		array(const value& v);
 		array(value&& v);
@@ -14,8 +15,8 @@ namespace php {
 		void erase(const std::size_t idx);
 		void erase(const php::string& key);
 		// ---------------------------------------------------------------------
-		bool has(const php::string& key);
-		bool has(std::size_t idx);
+		bool exists(const php::string& key) const;
+		bool exists(std::size_t idx) const;
 		value get(std::size_t idx) const;
 		value get(const php::string& key) const;
 		void set(std::size_t idx, const php::value& val);

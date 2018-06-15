@@ -11,9 +11,14 @@ namespace php {
 		ZVAL_STR(&value_ins, zend_string_init(str.c_str(), str.length(), false));
 	}
 	string::string(buffer&& buf) {
+		smart_str_0(&buf.str_);
 		ZVAL_STR(&value_ins, buf.str_.s);
 		buf.str_.s = nullptr;
 		buf.str_.a = 0;
+	}
+	string::string(int size)
+	:string(std::size_t(size)) {
+		
 	}
 	string::string(std::size_t size) {
 		assert(size > 0);
@@ -22,8 +27,8 @@ namespace php {
 		Z_STRVAL(value_ins)[size] = '\0';
 	}
 	// 注意: 此种构造形式无类型检查
-	string::string(zval* v)
-	: value(v) {
+	string::string(const zval* v, bool copy)
+	: value(v, copy) {
 		
 	}
 	string::string(zend_string* v)

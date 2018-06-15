@@ -21,8 +21,8 @@ namespace php {
 		return std::move(rv);
 	}
 	// 注意: 此种构造形式无类型检查
-	callable::callable(const zval* v)
-	: value(v) {
+	callable::callable(const zval* v, bool copy)
+	: value(v, copy) {
 		
 	}
 	callable::callable(const char* fname)

@@ -10,7 +10,7 @@ namespace php {
 		object();
 		object(class_base* v);
 		// 注意: 此种构造形式无类型检查
-		object(const zval* v);
+		object(const zval* v, bool copy = true);
 		object(zend_object* v);
 		object(const CLASS& c);
 		object(const CLASS& c, std::vector<value> argv);

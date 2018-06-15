@@ -15,7 +15,7 @@ namespace php {
 		public:
 			parameters(zend_execute_data* execute_data);
 			parameters(int argc, zval* argv);
-			parameter operator[](std::uint8_t index);
+			parameter operator[](std::uint8_t index) const;
 			std::uint8_t length() const;
 			std::uint8_t size() const;
 			operator std::vector<value>() const;

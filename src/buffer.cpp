@@ -14,6 +14,15 @@ namespace php {
 		buf.str_.s = nullptr;
 		buf.str_.a = 0;
 	}
+	void buffer::put(const php::value& v) {
+		php::string s { static_cast<zval*>(v) }; // 绕过类型检查
+		if(s.typeof(php::TYPE::ARRAY)) {
+			s = php::json_encode(s);
+		}else{
+			s.to_string();
+		}
+		std::memcpy(put(s.size()), s.data(), s.size());
+	}
 	// 需要放入指定大小的 buffer，返回放入位置
 	char* buffer::put(int size) {
 		smart_str_alloc(&str_, size, false);

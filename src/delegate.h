@@ -29,7 +29,7 @@ namespace php {
 			if(execute_data->func->common.required_num_args > params.size()) {
 				throw exception(zend_ce_type_error, "expects at least " + std::to_string(execute_data->func->common.required_num_args) + " parameters, " + std::to_string(ZEND_NUM_ARGS()) + " given");
 			}
-			rv = (from_object<T>(getThis())->*FUNCTION)(params);
+			rv = (native<T>( Z_OBJ_P(getThis()) )->*FUNCTION)(params);
 		} catch (const exception& e) {
 			exception::rethrow(e);
 		 	return;

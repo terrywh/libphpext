@@ -3,33 +3,43 @@
 namespace php {
 	// ---------------------------------------------------------------------
 	value::~value() {
-		zval_ptr_dtor(&value_ins);
+		if(owned_) zval_ptr_dtor(&value_ins);
 	}
 	// ---------------------------------------------------------------------
-	value::value() {
+	value::value()
+	: owned_(true) {
 		ZVAL_UNDEF(&value_ins);
 	}
-	value::value(std::nullptr_t v) {
+	value::value(std::nullptr_t v)
+	: owned_(true) {
 		ZVAL_NULL(&value_ins);
 	}
 	value::value(class_base* v)
-	: value(&v->obj_) {}
-	value::value(const zval* v) {
+	: value(&v->obj_) {
+		assert(Z_TYPE(value_ins) == IS_OBJECT);
+	}
+	value::value(const zval* v, bool copy)
+	: owned_(copy) {
 		if(v == nullptr) {
 			ZVAL_UNDEF(&value_ins);
-		}else{
+		}else if(copy) {
 			ZVAL_COPY(&value_ins, v);
+		}else{
+			ZVAL_COPY_VALUE(&value_ins, v);
 		}
 	}
-	value::value(const zend_string* v) {
+	value::value(const zend_string* v)
+	: owned_(true) {
 		ZVAL_STR(&value_ins, const_cast<zend_string*>(v));
 		addref();
 	}
-	value::value(const zend_object* v) {
+	value::value(const zend_object* v)
+	: owned_(true) {
 		ZVAL_OBJ(&value_ins, const_cast<zend_object*>(v));
 		addref();
 	}
-	value::value(zend_class_entry* e) {
+	value::value(zend_class_entry* e)
+	: owned_(true) {
 		int r = object_init_ex(&value_ins, e);
 		assert(r == SUCCESS && "无法创建实例");
 		object::call(&value_ins, "__construct");
@@ -38,7 +48,8 @@ namespace php {
 	: value(static_cast<zend_class_entry*>(c)) {
 		
 	}
-	value::value(zend_class_entry* e, std::vector<value> argv) {
+	value::value(zend_class_entry* e, std::vector<value> argv)
+	: owned_(true) {
 		int r = object_init_ex(&value_ins, e);
 		assert(r == SUCCESS && "无法创建实例");
 		object::call(&value_ins, "__construct", std::move(argv));
@@ -47,73 +58,90 @@ namespace php {
 	: value(static_cast<zend_class_entry*>(c), std::move(argv)) {
 
 	}
-	value::value(const zend_array* v) {
+	value::value(const zend_array* v)
+	: owned_(true) {
 		ZVAL_ARR(&value_ins, const_cast<zend_array*>(v));
 		addref();
 	}
-	value::value(const void* data) {
+	value::value(const void* data)
+	: owned_(false) {
 		ZVAL_PTR(&value_ins, const_cast<void*>(data));
 	}
-	value::value(const value& w) {
+	value::value(const value& w)
+	: owned_(true) {
 		ZVAL_COPY(&value_ins, &w.value_ins);
 	}
-	value::value(value&& w) {
+	value::value(value&& w)
+	: owned_(true) {
 		ZVAL_COPY_VALUE(&value_ins, &w.value_ins);
 		ZVAL_UNDEF(&w.value_ins);	
 	}
 	// 类型检查构造
-	value::value(const value& v, const TYPE& t) {
+	value::value(const value& v, const TYPE& t)
+	: owned_(true) {
 		if(!v.typeof(t)) {
 			throw exception(zend_ce_type_error, "type of '" + t.name() + "' is expected, '" + v.typeof().name() + "' given");
 		}
 		ZVAL_COPY(&value_ins, v);
 	}
-	value::value(value&& v, const TYPE& t) {
+	value::value(value&& v, const TYPE& t)
+	: owned_(true) {
 		if(!v.typeof(t)) {
 			throw exception(zend_ce_type_error, "type of '" + t.name() + "' is expected, '" + v.typeof().name() + "' given");
 		}
 		ZVAL_COPY_VALUE(&value_ins, &v.value_ins);
 		ZVAL_UNDEF(&v.value_ins);
 	}
-	value::value(const value& v, const CLASS& c) {
+	value::value(const value& v, const CLASS& c)
+	: owned_(true) {
 		if(!v.instanceof(c)) throw exception(zend_ce_type_error, "instance of '" + c.name() + "' is expected, '" + v.classof().name() + "' given");
 		ZVAL_COPY(&value_ins, v);
 	}
-	value::value(value&& v, const CLASS& c) {
+	value::value(value&& v, const CLASS& c)
+	: owned_(true) {
 		if(!v.instanceof(c)) throw exception(zend_ce_type_error, "instance of '" + c.name() + "' is expected, '" + v.classof().name() + "' given");
 		ZVAL_COPY_VALUE(&value_ins, &v.value_ins);
 		ZVAL_UNDEF(&v.value_ins);
 	}
 	// 基础类型
 	// ---------------------------------------------------------------------
-	value::value(bool v) {
+	value::value(bool v)
+	: owned_(true) {
 		ZVAL_BOOL(&value_ins, v);
 	}
-	value::value(int v) {
+	value::value(int v)
+	: owned_(true)  {
 		ZVAL_LONG(&value_ins, v);
 	}
-	value::value(std::uint32_t v) {
+	value::value(std::uint32_t v)
+	: owned_(true)  {
 		ZVAL_LONG(&value_ins, v);
 	}
-	value::value(std::int64_t v) {
+	value::value(std::int64_t v)
+	: owned_(true)  {
 		ZVAL_LONG(&value_ins, v);
 	}
-	value::value(std::size_t v) {
+	value::value(std::size_t v)
+	: owned_(true)  {
 		ZVAL_LONG(&value_ins, v);
 	}
-	value::value(double v) {
+	value::value(double v)
+	: owned_(true)  {
 		ZVAL_DOUBLE(&value_ins, v);
 	}
-	value::value(const char* str) {
+	value::value(const char* str)
+	: owned_(true)  {
 		ZVAL_STRINGL(&value_ins, str, std::strlen(str));
 	}
-	value::value(const std::string& str) {
+	value::value(const std::string& str)
+	: owned_(true)  {
 		ZVAL_STRINGL(&value_ins, str.c_str(), str.length());
 	}
-	value::value(std::function<value (parameters& params)> fn) {
+	value::value(std::function<value (parameters& params)> fn)
+	: owned_(true)  {
 		int r = object_init_ex(&value_ins, class_entry<closure>::entry());
 		assert(r == SUCCESS && "无法创建实例");
-		from_object<closure>(&value_ins)->fn_ = fn;
+		native<closure>(Z_OBJ(value_ins))->fn_ = fn;
 	}
 	// ---------------------------------------------------------------------
 	bool value::empty() const {
@@ -218,6 +246,9 @@ namespace php {
 	value::operator zval*() const {
 		return const_cast<zval*>(&value_ins);
 	}
+	zval* value::raw() const {
+		return const_cast<zval*>(&value_ins);	
+	}
 	value::operator zend_string*() const {
 		assert(typeof(TYPE::STRING));
 		return Z_STR(value_ins);
@@ -311,5 +342,16 @@ namespace php {
 	}
 	bool value::operator !=(const value& v) const {
 		return Z_PTR(value_ins) != Z_PTR(v.value_ins);
+	}
+	std::ostream& operator << (std::ostream& os, const php::value& data) {
+		// 绕过类型检查
+		php::string s { &data.value_ins };
+		if(s.typeof(php::TYPE::ARRAY)) {
+			s = php::json_encode(s);
+		}else{
+			s.to_string();
+		}
+		os.write(s.c_str(), s.size());
+		return os;
 	}
 }

@@ -15,6 +15,8 @@
 #include <cstdint>
 #include <cstring>
 #include <cmath>
+#include <ostream>
+
 using std::isfinite;
 // using std::isnan;
 extern "C" {

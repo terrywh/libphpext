@@ -7,7 +7,7 @@ namespace php {
 		static value __call(const zval* cb, std::vector<value> argv);
 	public:
 		// 注意: 此种构造形式无类型检查
-		callable(const zval* v);
+		callable(const zval* v, bool copy = true);
 		callable(const char* fname);
 		callable(const std::string& fname);
 		callable(zend_object* cb);

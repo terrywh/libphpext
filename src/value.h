@@ -5,7 +5,8 @@ namespace php {
 	class parameters;
 	class value {
 	protected:
-		zval  value_ins;
+		zval value_ins;
+		bool owned_; 
 	public:
 		// ---------------------------------------------------------------------
 		virtual ~value();
@@ -13,7 +14,7 @@ namespace php {
 		value();
 		value(std::nullptr_t v);
 		value(class_base* v);
-		value(const zval* v);
+		value(const zval* v, bool copy = true);
 		value(const zend_string* v);
 		value(const zend_object* v);
 		value(zend_class_entry* e);
@@ -59,6 +60,7 @@ namespace php {
 		operator double() const;
 		operator std::string() const;
 		operator zval*() const;
+		zval* raw() const;
 		operator zend_string*() const;
 		operator zend_object*() const;
 		operator zend_array*() const;
@@ -93,5 +95,7 @@ namespace php {
 		bool operator ==(const value& v) const;
 		bool operator !=(const value& v) const;
 		// --------------------------------------------------------------------
+		friend std::ostream& operator << (std::ostream& os, const php::value& data);
 	};
+	extern std::ostream& operator << (std::ostream& os, const php::value& data);
 }

@@ -1,7 +1,12 @@
 #include "phpext.h"
 
 namespace php {
-	array::array(): array(std::size_t(0)) {
+	array::array()
+	: array(std::size_t(0)) {
+
+	}
+	array::array(int size)
+	: array(std::size_t(size)) {
 
 	}
 	array::array(std::size_t size) {
@@ -9,8 +14,8 @@ namespace php {
 		zend_hash_init(Z_ARRVAL(value_ins), size, nullptr, ZVAL_PTR_DTOR, 0);
 	}
 	// 注意: 此种构造形式无类型检查
-	array::array(const zval* v)
-	: value(v) {
+	array::array(const zval* v, bool copy)
+	: value(v, copy) {
 		
 	}
 	array::array(zend_array* v)
@@ -33,10 +38,10 @@ namespace php {
 		zend_hash_del(Z_ARR(value_ins), key);
 	}
 	// ---------------------------------------------------------------------
-	bool array::has(const php::string& key) {
+	bool array::exists(const php::string& key) const {
 		return zend_hash_exists(Z_ARR(value_ins), key);
 	}
-	bool array::has(std::size_t idx) {
+	bool array::exists(std::size_t idx) const {
 		return zend_hash_index_exists(Z_ARR(value_ins), idx);
 	}
 	value array::get(std::size_t idx) const {

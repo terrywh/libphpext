@@ -25,8 +25,8 @@ namespace php {
 	object::object(class_base* v)
 	: value(v) {}
 	// 注意: 此种构造形式无类型检查
-	object::object(const zval* v)
-	: value(v) {
+	object::object(const zval* v, bool copy)
+	: value(v, copy) {
 		
 	}
 	object::object(zend_object* v)

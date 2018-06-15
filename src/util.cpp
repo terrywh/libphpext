@@ -69,33 +69,35 @@ namespace php {
 		php_json_decode_ex(rv, const_cast<char*>(str.data()), str.size(), PHP_JSON_OBJECT_AS_ARRAY, PHP_JSON_PARSER_DEFAULT_DEPTH);
 		return std::move(rv);
 	}
-	php::string sha1(const unsigned char* enc_str, size_t enc_len) {
-		php::string s(40);
+	void sha1(const unsigned char* enc_str, size_t enc_len, char* output) {
 		PHP_SHA1_CTX context;
 		unsigned char digest[20];
 
 		PHP_SHA1Init(&context);
 		PHP_SHA1Update(&context, enc_str, enc_len);
 		PHP_SHA1Final(digest, &context);
-		make_digest_ex(s.data(), digest, 20);
-		return std::move(s);
+		make_digest_ex(output, digest, 20);
+		output[40] = '\0';
 	}
 	php::string sha1(const php::string& str) {
-		return sha1(reinterpret_cast<const unsigned char*>(str.c_str()), str.size());
+		php::string s(40);
+		sha1(reinterpret_cast<const unsigned char*>(str.c_str()), str.size(), s.data());
+		return std::move(s);
 	}
-	php::string md5(const unsigned char* enc_str, uint32_t enc_len) {
-		php::string s(32);
+	void md5(const unsigned char* enc_str, uint32_t enc_len, char* output) {
 		PHP_MD5_CTX context;
 		unsigned char digest[16];
 
 		PHP_MD5Init(&context);
 		PHP_MD5Update(&context, enc_str, enc_len);
 		PHP_MD5Final(digest, &context);
-		make_digest_ex(s.data(), digest, 16);
-		return std::move(s);
+		make_digest_ex(output, digest, 16);
+		output[32] = '\0';
 	}
 	php::string md5(const php::string& str) {
-		return md5(reinterpret_cast<const unsigned char*>(str.c_str()), str.size());
+		php::string s(32);
+		md5(reinterpret_cast<const unsigned char*>(str.c_str()), str.size(), s.data());
+		return std::move(s);
 	}
 	std::uint32_t crc32(const unsigned char* src, uint32_t src_len) {
 		uint32_t crc32_val = 0;
