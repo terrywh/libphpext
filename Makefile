@@ -1,10 +1,9 @@
 .SUFFIXES:
 
+# 依赖
+VENDOR_PHP?=/data/vendor/php-7.0.30
 
-VENDOR_PHP?=/usr/local/php
-
-
-
+# 项目
 SOURCES=$(shell find ./src -name "*.cpp") $(shell find ./test -name "*.cpp")
 OBJECTS=$(SOURCES:%.cpp=%.o)
 DEPENDS=$(SOURCES:%.cpp=%.d)
@@ -12,6 +11,7 @@ TARGETX=libphpext.a
 VERSION=1.0.0
 TARGETY=phpext.so
 
+# 编译
 CXX=clang++
 INCLUDES=$(shell ${VENDOR_PHP}/bin/php-config --includes | sed 's/-I/-isystem/g')
 CXXFLAGS?= -g -O0
@@ -19,6 +19,7 @@ CXXFLAGS+= -std=c++11 -fPIC ${INCLUDES}
 LDFLAGS?=
 LDFLAGS+=-shared
 
+# 安装
 PREFIX?=/data/vendor/phpext-${VERSION}
 
 .PHONY: all test install clean
