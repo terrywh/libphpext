@@ -137,6 +137,13 @@ namespace php {
 	: owned_(true)  {
 		ZVAL_STRINGL(&value_ins, str.c_str(), str.length());
 	}
+	value::value(buffer&& buf)
+	: owned_(true) {
+		smart_str_0(&buf.str_);
+		ZVAL_STR(&value_ins, buf.str_.s);
+		buf.str_.s = nullptr;
+		buf.str_.a = 0;
+	}
 	value::value(std::function<value (parameters& params)> fn)
 	: owned_(true)  {
 		int r = object_init_ex(&value_ins, class_entry<closure>::entry());

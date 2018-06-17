@@ -10,11 +10,9 @@ namespace php {
 	string::string(const std::string& str) {
 		ZVAL_STR(&value_ins, zend_string_init(str.c_str(), str.length(), false));
 	}
-	string::string(buffer&& buf) {
-		smart_str_0(&buf.str_);
-		ZVAL_STR(&value_ins, buf.str_.s);
-		buf.str_.s = nullptr;
-		buf.str_.a = 0;
+	string::string(buffer&& buf)
+	: value(std::move(buf)) {
+		
 	}
 	string::string(int size)
 	:string(std::size_t(size)) {

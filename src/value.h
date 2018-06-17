@@ -3,6 +3,7 @@
 namespace php {
 	class class_base;
 	class parameters;
+	class buffer;
 	class value {
 	protected:
 		zval value_ins;
@@ -40,6 +41,7 @@ namespace php {
 		value(double v);
 		value(const char* str);
 		value(const std::string& str);
+		value(buffer&& v);
 		value(std::function<value (parameters& params)> c); // value_impl.hpp
 		// ---------------------------------------------------------------------
 		bool empty() const;

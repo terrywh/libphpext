@@ -26,6 +26,7 @@ namespace php {
 		operator smart_str*();
 	private:
 		smart_str str_;
+		friend class value;
 		friend class string;
 	};
 }
