@@ -35,7 +35,7 @@ namespace php {
 			zend_symtable_update(arr_, key_, val);
 			val.addref();
 		}
-		// 直接将 value_ins 的引用, 移动到数组中, 此处无需 addref() 引用调整
+		// 直接将引用移动到数组中, 此处无需 addref() 引用调整
 		return *this;
 	}
 	bool array_member::exists() const {
@@ -49,12 +49,18 @@ namespace php {
 	}
 	// ---------------------------------------------------------
 	array_member::operator value() const {
+		return value(raw());
+	}
+	value array_member::ptr() const {
+		return value(raw(), true);
+	}
+	zval* array_member::raw() const {
 		if(idx_ != -1) {
-			return value(zend_hash_index_find(arr_, idx_));
+			return zend_hash_index_find(arr_, idx_);
 		}else if(pos_ != HT_INVALID_IDX) {
-			return value(zend_hash_get_current_data_ex(arr_, const_cast<HashPosition*>(&pos_)));
+			return zend_hash_get_current_data_ex(arr_, const_cast<HashPosition*>(&pos_));
 		}else{
-			return value(zend_symtable_find_ind(arr_, key_));
+			return zend_symtable_find_ind(arr_, key_);
 		}
 	}
 }

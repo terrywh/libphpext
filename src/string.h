@@ -10,8 +10,7 @@ namespace php {
 		string(buffer&& buf);
 		explicit string(int size);
 		explicit string(std::size_t size);
-		// 注意: 此种构造形式无类型检查
-		string(const zval* v, bool copy = true);
+		string(zval* v, bool ref = false);
 		string(zend_string* v);
 		string(const value& v);
 		string(value&& v);
@@ -24,11 +23,10 @@ namespace php {
 		// --------------------------------------------------------------------
 		string& operator =(const value& v);
 		string& operator =(value&& v);
-		string& operator =(const zval* v); // 无类型检查
 		string operator +(const string& s) const;
 		string operator +(const char* s) const;
 		string& operator +=(const string& s);
 		// ------------------------------------------------------------------
-		operator std::string() const;
+		using value::operator =;
 	};
 }

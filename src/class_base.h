@@ -8,7 +8,7 @@ namespace php {
 	protected:
 		zval obj_;
 
-		value get(const php::string& key) const;
+		value get(const php::string& key, bool ptr = false) const;
 		void set(const php::string& key, const php::value& val) const;
 		php::value call(const php::string& name) const;
 		php::value call(const php::string& name, const std::vector<php::value>& argv) const;

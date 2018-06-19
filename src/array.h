@@ -6,8 +6,7 @@ namespace php {
 		array();
 		explicit array(int size);
 		explicit array(std::size_t size);
-		// 注意: 此种构造形式无类型检查
-		array(const zval* v, bool copy = true);
+		array(zval* v, bool ref = false);
 		array(zend_array* v);
 		array(const value& v);
 		array(value&& v);
@@ -30,8 +29,6 @@ namespace php {
 		array_iterator rbegin() const;
 		const array_iterator rend() const;
 		// ------------------------------------------------------------------
-		array& operator =(const zval* v);
-		array& operator =(const value& v);
-		array& operator =(value&& v);
+		using value::operator =;
 	};
 }

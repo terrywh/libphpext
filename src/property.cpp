@@ -1,34 +1,42 @@
 #include "phpext.h"
 
 namespace php {
-	zval* property::get(const value& obj, const string& key) {
-		zval* object = static_cast<zval*>(obj), rv, *val;
-		zend_class_entry* scope = Z_OBJCE_P(object);
+	zval* property::get(zval* obj, const string& key, zval* rv) {
+		zval *val;
+		zend_class_entry* scope = Z_OBJCE_P(obj);
 		// 参考 zend_read_property 相关代码
 		zend_class_entry *old_scope = EG(scope);
 
 		EG(scope) = scope;
-		assert(Z_OBJ_HT_P(object)->read_property);
+		assert(Z_OBJ_HT_P(obj)->read_property);
 		// !!! 此处获得的 zval 指针可能时临时的对象
 		// (例如通过 __get 魔术函数获得的属性)
-		val = Z_OBJ_HT_P(object)->read_property(object, key, BP_VAR_IS, nullptr, &rv);
+		val = Z_OBJ_HT_P(obj)->read_property(obj, key, BP_VAR_IS, nullptr, rv);
 		EG(scope) = old_scope;
 		return val;
 	}
-	void property::set(const value& obj, const string& key, const value& val) {
-		zval* object = static_cast<zval*>(obj);
-		zend_update_property_ex(Z_OBJCE_P(object), object, key, val);
+	void property::set(zval* obj, const string& key, const value& val) {
+		zend_update_property_ex(Z_OBJCE_P(obj), obj, key, val);
 	}
 	
 	property::property(const value& ref, const string& key)
 	: ref_(ref), key_(key) {
 		
 	}
-	property& property::operator =(const php::value& val) {
+	property& property::operator =(const value& val) {
 		set(ref_, key_, val);
 		return *this;
 	}
 	property::operator value() const {
-		return php::value(get(ref_, key_));
+		zval rv;
+		return value(get(ref_, key_, &rv));
+	}
+	value property::ptr() const {
+		return value(raw(), true);
+	}
+	zval* property::raw() const {
+		zval rv, *op = get(ref_, key_, &rv);
+		assert(op != &rv);
+		return op;
 	}
 }

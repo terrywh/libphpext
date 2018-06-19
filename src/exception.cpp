@@ -5,7 +5,7 @@ namespace php {
 	void exception::rethrow() {
 		if(EG(exception) == nullptr) return;
 		exception ex;
-		ZVAL_OBJ(&ex.value_ins, EG(exception));
+		ZVAL_OBJ(&ex.val_, EG(exception));
 		ex.addref();
 		zend_clear_exception();
 		throw ex;
@@ -18,41 +18,30 @@ namespace php {
 	}
 	exception::exception() {}
 	// 注意: 此种构造形式无类型检查
-	exception::exception(const zval* v)
-	: value(v) {
+	exception::exception(zval* v, bool ref)
+	: value(v, ref) {
 		
 	}
 	exception::exception(zend_object* v) {
-		if(!instanceof_function(v->ce, zend_ce_throwable)) {
-			throw exception(zend_ce_type_error, "instance of '" + CLASS(zend_ce_throwable).name() + "' expected, '" + CLASS(v->ce).name() + "' given");
-		}
-		ZVAL_OBJ(&value_ins, v);
+		assert(instanceof_function(v->ce, zend_ce_throwable));
+		ZVAL_OBJ(&val_, v);
 		addref();
 	}
 	exception::exception(const CLASS& c, const std::string& message, int code) {
 		object e(c, {message, code});
-		ZVAL_COPY(&value_ins, e);
+		ZVAL_COPY(&val_, e);
 	}
 	exception::exception(const value& v)
-	: value(v, CLASS(zend_ce_throwable)) {
+	: value(v/* , CLASS(zend_ce_throwable) */) {
 
 	}
 	exception::exception(value&& v)
-	: value(std::move(v), CLASS(zend_ce_throwable)) {
+	: value(std::move(v)/* , CLASS(zend_ce_throwable) */) {
 
 	}
 	// ----------------------------------------------------------------
-	exception& exception::operator =(const value& v) {
-		assign(v, zend_ce_throwable);
-		return *this;
-	}
-	exception& exception::operator =(value&& v) {
-		assign(std::move(v), zend_ce_throwable);
-		return *this;
-	}
-	// ----------------------------------------------------------------
 	error_info exception::info() const {
-		return error_info(&value_ins);
+		return error_info(ptr_);
 	}
 	const char* exception::what() const noexcept {
 		return info().message.c_str();

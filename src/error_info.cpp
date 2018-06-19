@@ -58,28 +58,11 @@ namespace php {
 		// TODO 是否临时关闭 previous 的异常?
 		// suppressor(*this); 
 		// 按不同类型进行信息提取
-		if (ce == zend_ce_parse_error) {
+		if(instanceof_function(ce, zend_ce_throwable)) {
 			ptr = zend_read_property(
-				zend_get_exception_base(const_cast<zval*>(err)), const_cast<zval*>(err), "message", sizeof("message")-1, 0, &rv);
-		}else if(instanceof_function(ce, zend_ce_throwable)) {
-			ptr = zend_read_property(
-				zend_get_exception_base(const_cast<zval*>(err)), const_cast<zval*>(err), "string", sizeof("string")-1, 1, &rv);
-			if(Z_TYPE(rv) != IS_STRING) {
-				zend_call_method_with_0_params(const_cast<zval*>(err), ce, nullptr, "__tostring", &rv);
-				if (EG(exception)) {
-					ZVAL_OBJ(&rv, EG(exception));
-					EG(exception) = nullptr;
-					zval_ptr_dtor(&rv);
-
-					ZVAL_STRINGL(&rv, "exception in exception::__toString()", 36); 
-				}
-				assert(Z_TYPE(rv) == IS_STRING);
-				zend_update_property(
-					zend_get_exception_base(const_cast<zval*>(err)), const_cast<zval*>(err), "string", sizeof("string")-1, &rv);
-				zval_ptr_dtor(&rv);
-				ptr = zend_read_property(
-					zend_get_exception_base(const_cast<zval*>(err)), const_cast<zval*>(err), "string", sizeof("string")-1, 1, &rv);
-			}
+				zend_get_exception_base(const_cast<zval*>(err)), const_cast<zval*>(err), "message", sizeof("message")-1, 1, &rv);
+			assert(Z_TYPE_P(ptr) == IS_STRING);
+			message.assign(Z_STRVAL_P(ptr), Z_STRLEN_P(ptr));
 		}else{ // 非异常类型, 给出类名称
 			message.assign("Uncaught exception '");
 			message.append(ZSTR_VAL(ce->name), ZSTR_LEN(ce->name));
@@ -89,7 +72,6 @@ namespace php {
 			line = 0;
 			return; // !!!!!!
 		}
-		message.assign(Z_STRVAL_P(ptr), Z_STRLEN_P(ptr));
 		code = zval_get_long(zend_read_property(
 			zend_get_exception_base(const_cast<zval*>(err)), const_cast<zval*>(err), "code", sizeof("code")-1, 1, &rv));
 		ptr = zend_read_property(

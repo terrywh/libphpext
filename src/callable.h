@@ -3,11 +3,10 @@
 namespace php {
 	class callable: public value {
 	private:
-		static value __call(const zval* cb);
-		static value __call(const zval* cb, std::vector<value> argv);
+		static value __call(zval* cb);
+		static value __call(zval* cb, std::vector<value> argv);
 	public:
-		// 注意: 此种构造形式无类型检查
-		callable(const zval* v, bool copy = true);
+		callable(zval* v, bool ref = false);
 		callable(const char* fname);
 		callable(const std::string& fname);
 		callable(zend_object* cb);
@@ -20,9 +19,7 @@ namespace php {
 		value operator()() const;
 		value operator()(std::vector<value> argv) const;
 		// -------------------------------------------------------------------
-		callable& operator =(const zval* v);
-		callable& operator =(const value& v);
-		callable& operator =(value&& v);
+		using value::operator =;
 
 	};
 }

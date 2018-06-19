@@ -1,7 +1,7 @@
 #pragma once
 
 namespace php {
-	class array_member {
+	class array_member: public value_fn {
 	private:
 		value&       arr_;
 		zend_ulong   idx_;
@@ -15,5 +15,9 @@ namespace php {
 		bool exists() const;
 		// ---------------------------------------------------------
 		operator value() const;
+		virtual value ptr() const override;
+		zval* raw() const; // 不适用 operator zval* 会与 value 构造发生混淆
+
+
 	};
 }

@@ -6,8 +6,8 @@ namespace php {
 	class buffer;
 	class value {
 	protected:
-		zval value_ins;
-		bool owned_; 
+		zval  val_;
+		zval* ptr_;
 	public:
 		// ---------------------------------------------------------------------
 		virtual ~value();
@@ -15,7 +15,7 @@ namespace php {
 		value();
 		value(std::nullptr_t v);
 		value(class_base* v);
-		value(const zval* v, bool copy = true);
+		value(zval* v, bool ptr = false);
 		value(const zend_string* v);
 		value(const zend_object* v);
 		value(zend_class_entry* e);
@@ -27,10 +27,10 @@ namespace php {
 		value(const value& w);
 		value(value&& w);
 		// 类型检查构造
-		value(const value& w, const TYPE& t); // value_ex.hpp
-		value(value&& w, const TYPE& t); // value_ex.hpp
-		value(const value& w, const CLASS& ce); // value_ex.hpp
-		value(value&& w, const CLASS& ce); // value_ex.hpp
+		// value(const value& w, const TYPE& t); // value_ex.hpp
+		// value(value&& w, const TYPE& t); // value_ex.hpp
+		// value(const value& w, const CLASS& ce); // value_ex.hpp
+		// value(value&& w, const CLASS& ce); // value_ex.hpp
 		// 基础类型
 		// ---------------------------------------------------------------------
 		value(bool v);
@@ -43,17 +43,21 @@ namespace php {
 		value(const std::string& str);
 		value(buffer&& v);
 		value(std::function<value (parameters& params)> c); // value_impl.hpp
-		// ---------------------------------------------------------------------
+		// 赋值
+		// -------------------------------------------------------------------
+		value& operator =(const value& v);
+		value& operator =(value&& v);
+		// 功能项
+		// ====================================================================
+		// 检查
 		bool empty() const;
 		std::size_t length() const;
 		std::size_t size() const;
-		// --------------------------------------------------------------------
 		TYPE typeof() const;
 		bool typeof(const TYPE& t) const;
 		CLASS classof() const;
 		bool instanceof(const CLASS& c) const;
-		// 转换
-		// ---------------------------------------------------------------------
+		// 读取
 		operator bool() const;
 		operator int() const;
 		operator std::int64_t() const;
@@ -62,40 +66,27 @@ namespace php {
 		operator double() const;
 		operator std::string() const;
 		operator zval*() const;
-		zval* raw() const;
 		operator zend_string*() const;
 		operator zend_object*() const;
 		operator zend_array*() const;
 		operator zend_class_entry*() const;
 		template <typename POINTER_TYPE>
-		POINTER_TYPE* ptr() const {
+		POINTER_TYPE* pointer() const {
 			assert(typeof(TYPE::POINTER));
-			return reinterpret_cast<POINTER_TYPE*>(Z_PTR(value_ins));
+			return reinterpret_cast<POINTER_TYPE*>(Z_PTR_P(ptr_));
 		}
-		// (无类型检查)转换
-		// ---------------------------------------------------------------------
+		// 强制转换
 		bool         to_boolean();
 		std::int64_t to_integer(int base = 10);
 		double       to_float();
 		std::string  to_string();
+		// 判定
+		bool operator ==(const value& v) const;
+		bool operator !=(const value& v) const;
 		// 引用
 		// ---------------------------------------------------------------------
 		std::uint32_t addref() const;
 		std::uint32_t delref();
-		// 赋值
-		// -------------------------------------------------------------------
-		value& operator =(const value& v);
-		value& operator =(value&& v);
-		value& operator =(const zval* v);
-		// 带类型检查
-		void assign(const value& v, const TYPE& t);
-		void assign(value&& v, const TYPE& t);
-		void assign(const value& v, const CLASS& t);
-		void assign(value&& v, const CLASS& t);
-		void ptr(void* p);
-		// ---------------------------------------------------------------------
-		bool operator ==(const value& v) const;
-		bool operator !=(const value& v) const;
 		// --------------------------------------------------------------------
 		friend std::ostream& operator << (std::ostream& os, const php::value& data);
 	};

@@ -2,11 +2,12 @@
 
 namespace php {
 	void array_iterator::create() {
-		zval key;
+		zval key, *ptr;
 		zend_hash_get_current_key_zval_ex(arr_, &key, &pos_);
-		val_.reset(new value_type {
-			value(&key),
-			array_member(arr_, pos_),
+		ptr = zend_hash_get_current_data_ex(arr_, &pos_);
+		entry_.reset(new value_type {
+			value(&key), // 不允许更新 KEY
+			value(ptr, true) // 允许更新 VAL
 		});
 	}
 	array_iterator::array_iterator(value& a, HashPosition p)
@@ -17,7 +18,7 @@ namespace php {
 	array_iterator::array_iterator(const array_iterator& ai)
 	: arr_(ai.arr_)
 	, pos_(ai.pos_)
-	, val_(ai.val_)
+	, entry_(ai.entry_)
 	{
 
 	}
@@ -42,10 +43,10 @@ namespace php {
 		return ai;
 	}
 	array_iterator::value_type& array_iterator::operator*() {
-		return *val_;
+		return *entry_;
 	}
 	array_iterator::value_type* array_iterator::operator->() {
-		return val_.get();
+		return entry_.get();
 	}
 	array_iterator array_iterator::operator+(size_t n)  {
 		array_iterator tmp(*this);

@@ -10,8 +10,8 @@ namespace php {
 	class class_entry: public class_entry_base {
 	private:
 		std::string                      name_;
-		std::string                      name_parent;
-		std::vector<std::string>         name_interfaces;
+		zend_class_entry**               ce_parent;
+		std::vector<zend_class_entry**>  ce_interface;
 
 		std::vector<constant_entry>      entry_contants;
 		std::vector<property_entry>      entry_properties;
@@ -44,15 +44,16 @@ namespace php {
 		}
 	public:
 		class_entry(const std::string& name)
-		: name_(name) {
+		: name_(name)
+		, ce_parent(nullptr) {
 			std::memcpy(&entry_handler, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 			entry_handler.offset   = XtOffsetOf(class_wrapper, obj);
 			entry_handler.free_obj = class_entry::free_object;
 		}
 		class_entry(class_entry&& entry)
 		: name_(entry.name_)
-		, name_parent(entry.name_parent)
-		, name_interfaces(std::move(entry.name_interfaces))
+		, ce_parent(entry.ce_parent)
+		, ce_interface(std::move(entry.ce_interface))
 		, entry_contants(std::move(entry.entry_contants))
 		, entry_properties(std::move(entry.entry_properties))
 		, entry_methods(std::move(entry.entry_methods))
@@ -63,8 +64,15 @@ namespace php {
 			assert(entry_);
 			return entry_;
 		}
-		class_entry& implements(const std::string& iname) {
-			name_interfaces.push_back(iname);
+		static zend_class_entry** entry(bool ptr) {
+
+		}
+		class_entry& extends(zend_class_entry** c) {
+			ce_parent = c;
+			return *this;
+		}
+		class_entry& implements(zend_class_entry** c) {
+			ce_interface.push_back(c);
 			return *this;
 		}
 		class_entry& constant(const constant_entry& entry) {
@@ -106,14 +114,19 @@ namespace php {
 			zend_class_entry ce, *pce = nullptr;
 			INIT_OVERLOADED_CLASS_ENTRY_EX(ce, name_.c_str(), name_.length(),
 				entry_methods.data(), nullptr, nullptr, nullptr, nullptr, nullptr);
-			ce.create_object = class_entry::create_object;
+			// 在继承后再进行设置, 否则实际会执行父类的 create_object 函数
+			// ce.create_object = class_entry::create_object;
 			// 继承父类
-			if(name_parent.length() > 0) {
-				zend_string* name = zend_string_init(name_parent.c_str(), name_parent.length(), 0);
-				pce = zend_lookup_class(name);
-				zend_string_release(name);
+			if(ce_parent) {
+				class_entry::entry_ = zend_register_internal_class_ex(&ce, *ce_parent);
+			}else{
+				class_entry::entry_ = zend_register_internal_class_ex(&ce, nullptr);
 			}
-			class_entry::entry_ = zend_register_internal_class_ex(&ce, pce);
+			class_entry::entry_->create_object = class_entry::create_object;
+			// 实现接口
+			for(auto i=ce_interface.begin();i!=ce_interface.end();++i) {
+				zend_class_implements(class_entry::entry_, 1, **i);
+			}
 			// 常量声明
 			if(!entry_contants.empty()) {
 				for(auto i=entry_contants.begin();i!=entry_contants.end();++i) {
@@ -127,13 +140,6 @@ namespace php {
 					i->declare(class_entry::entry_);
 				}
 				entry_properties.clear();
-			}
-			// 实现接口
-			for(auto i=name_interfaces.begin();i!=name_interfaces.end();++i) {
-				php::string name(i->c_str(), i->length());
-				zend_class_entry* intf = zend_lookup_class(name);
-				assert(intf != nullptr && (intf->ce_flags & ZEND_ACC_INTERFACE));
-				zend_class_implements(class_entry::entry_, 1, intf);
 			}
 		}
 	};

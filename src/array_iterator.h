@@ -3,14 +3,14 @@
 namespace php {
 	class array_iterator {
 	public:
-		typedef std::pair<value, array_member> value_type;
+		typedef std::pair<value, value> value_type;
 		typedef value_type& reference;
 		typedef size_t      size_type;
 		typedef value_type* pointer;
 	private:
 		php::value&  arr_;
 		HashPosition pos_;
-		std::shared_ptr<value_type> val_;
+		std::shared_ptr<value_type> entry_;
 
 		void create();
 	public:

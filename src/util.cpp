@@ -109,11 +109,11 @@ namespace php {
 	std::uint32_t crc32(const php::string& str) {
 		return crc32(reinterpret_cast<const unsigned char*>(str.c_str()), str.size());
 	}
-	std::shared_ptr<php_url> parse_url(const char* url, std::size_t url_len) {
-		return std::shared_ptr<php_url>(php_url_parse_ex(url, url_len), php_url_free);
+	std::shared_ptr<url> parse_url(const char* u, std::size_t url_len) {
+		return std::shared_ptr<url>(php_url_parse_ex(u, url_len), php_url_free);
 	}
-	std::shared_ptr<php_url> parse_url(const php::string& url) {
-		return std::shared_ptr<php_url>(php_url_parse_ex(url.c_str(), url.size()), php_url_free);
+	std::shared_ptr<url> parse_url(const php::string& u) {
+		return std::shared_ptr<url>(php_url_parse_ex(u.c_str(), u.size()), php_url_free);
 	}
 	const std::string& error_type_name(int type) {
 		static std::string FATAL           {"FATAL"};

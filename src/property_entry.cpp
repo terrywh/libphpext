@@ -29,7 +29,7 @@ namespace php {
 	}
 	void property_entry::declare(zend_class_entry* entry) {
 		zend_declare_property_ex(entry, key_, val_, acc_, nullptr);
-		ZVAL_UNDEF(key_.raw());
-		ZVAL_UNDEF(val_.raw());
+		ZVAL_UNDEF(static_cast<zval*>(key_));
+		ZVAL_UNDEF(static_cast<zval*>(val_));
 	}
 }

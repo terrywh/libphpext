@@ -29,8 +29,9 @@ namespace php {
 		char *fragment;
 	} php_url;
 	*/
-	std::shared_ptr<php_url> parse_url(const char* url, std::size_t url_len);
-	std::shared_ptr<php_url> parse_url(const php::string& url);
+	typedef struct php_url url;
+	std::shared_ptr<url> parse_url(const char* url, std::size_t url_len);
+	std::shared_ptr<url> parse_url(const php::string& url);
 	const std::string& error_type_name(int type);
 	php::string uppercase(const char* str, size_t len);
 	php::string lowercase(const char* str, size_t len);

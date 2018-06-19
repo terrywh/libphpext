@@ -6,36 +6,35 @@
 php::value test_function_1(php::parameters& params) {
 	// 参数下标必须存在, 否则会抛出异常
 	php::value v0 = params[0];
-	// 类型检查
-	int v1 = static_cast<php::value>(params[1]);
-	// 不检查类型
-	double v2 = static_cast<php::value>(params[2]).to_float();
-	// 类型检查
-	php::string v3 = static_cast<php::value>(params[3]);
+	// 除非在函数声明时明确类型, 否则应添加类型检查
+	int v1;
+	if(params[1].typeof(php::TYPE::INTEGER)) {
+		v1 = static_cast<php::value>(params[1]);
+	}
+	// 强制类型转换
+	double v2 = params[2].to_float();
+	php::string v3 = params[3];
 	// 构造指定长度
 	php::string rv(256 + v3.length());
 	// 在新字符串的缓冲区中构造一个新的字符串
 	rv.shrink(sprintf(rv.data(), "[%d] [%d] [%f] [%s]", v0.to_boolean(), v1, v2, v3.c_str()));
 	// PHP 数组
-	php::array v4;
-	try{ // 捕获参数缺失或类型()
-		v4 = static_cast<php::value>(params[4]);
-	}catch(const std::exception& ex) {
-		v4["aaaaa"] = "1111111";
-		v4["bbbbb"] = php::string("2222222", 7);
-	}
+	php::array v4 = params[4];
+	// copy on write
+	v4["aaaaa"] = "1111111";
+	v4["bbbbb"] = php::string("2222222", 7);
 	// 遍历
 	std::printf("\n");
 	for(auto i=v4.begin(); i!=v4.end(); ++i) {
 		php::string key = i->first;
-		php::string val = static_cast<php::value>(i->second);
+		php::string val = i->second;
 		std::printf("    key: %s => val: %s\n", key.c_str(), val.c_str());
 	}
 	return rv;
 }
 php::value test_function_2(php::parameters& params) {
 	// 回调函数
-	php::callable cb = static_cast<php::value>(params[0]);
+	php::callable cb = params[0];
 	// 回调函数调用传入 a 作为参数，并返回其返回值
 	php::value rv;
 	try{ // 捕获 PHP 用户代码异常
@@ -48,7 +47,8 @@ php::value test_function_2(php::parameters& params) {
 }
 php::value test_function_3(php::parameters& params) {
 	// 函数声明了首个必要参数为“引用”传递，可以更改其值
-	params[0] = static_cast<int>(static_cast<php::value>(params[0])) * 2;
+	php::value v = params[0];
+	params[0] = static_cast<int>(params[0]) * 2;
 	// “无” 返回值，但对 C++ 必须要有返回值
 	return nullptr;
 }
