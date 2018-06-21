@@ -4,6 +4,10 @@ namespace php {
 	string::string() {
 		ZVAL_EMPTY_STRING(&val_);
 	}
+	string::string(std::nullptr_t n)
+	: value(n) {
+		
+	}
 	string::string(const char* str, std::size_t len) {
 		ZVAL_STR(&val_, zend_string_init(str, (len == -1 ? std::strlen(str) : len), false));
 	}

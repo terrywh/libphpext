@@ -17,7 +17,10 @@ namespace php {
 	 	zend_throw_exception_object(&c);
 	}
 	exception::exception() {}
-	// 注意: 此种构造形式无类型检查
+	exception::exception(std::nullptr_t n)
+	: value(n) {
+		
+	}
 	exception::exception(zval* v, bool ref)
 	: value(v, ref) {
 		

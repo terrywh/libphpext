@@ -10,7 +10,7 @@ namespace php {
 		static void rethrow();
 		// 将 CPP 中捕获的异常重新抛出到 PHP 中
 		static void rethrow(const php::exception& ex);
-		// 注意: 此种构造形式无类型检查
+		exception(std::nullptr_t n);
 		exception(zval* v, bool ref = false);
 		exception(zend_object* v);
 		exception(const CLASS& c, const std::string& message, int code = 0);

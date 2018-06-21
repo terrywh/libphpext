@@ -48,9 +48,6 @@ namespace php {
 		}
 	}
 	// ---------------------------------------------------------
-	array_member::operator value() const {
-		return value(raw());
-	}
 	value array_member::ptr() const {
 		return value(raw(), true);
 	}

@@ -9,7 +9,7 @@ php::value test_function_1(php::parameters& params) {
 	// 除非在函数声明时明确类型, 否则应添加类型检查
 	int v1;
 	if(params[1].typeof(php::TYPE::INTEGER)) {
-		v1 = static_cast<php::value>(params[1]);
+		v1 = params[1];
 	}
 	// 强制类型转换
 	double v2 = params[2].to_float();
@@ -54,8 +54,8 @@ php::value test_function_3(php::parameters& params) {
 }
 php::value test_function_4(php::parameters& params) {
 	// 参数类型限定
-	php::object date1 = static_cast<php::value>(params[0]);
-	php::callable cb2 = static_cast<php::value>(params[1]);
+	php::object date1 = params[0];
+	php::callable cb2 = params[1];
 	// 调用对象方法
 	date1.call("modify", {"+1day"});
 	// 调用回调
@@ -68,9 +68,9 @@ php::value test_function_5(php::parameters& params) {
 		// return static_cast<int>(a1) + static_cast<int>(static_cast<php::value>(params[0]));
 	// };
 	// C++11
-	php::value a1 = static_cast<php::value>(params[0]);
+	php::value a1 = params[0];
 	return php::value([a1] (php::parameters& params) -> php::value {
-		return static_cast<int>(a1) + static_cast<int>(static_cast<php::value>(params[0]));
+		return static_cast<int>(a1) + static_cast<int>(params[0]);
 	});
 }
 php::value test_function_6(php::parameters& params) {

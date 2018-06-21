@@ -5,6 +5,7 @@ namespace php {
     class value_fn {
     public:
         virtual value ptr() const = 0;
+		virtual zval* raw() const = 0;
         // --------------------------------------------------------------------
 		// 检查
 		bool empty() const {
@@ -46,10 +47,9 @@ namespace php {
 		operator std::string() const {
 			return ptr().operator std::string();
 		}
-		// 防止与 value(zval* v) 构造产生混淆
-		// operator zval*() const {
-		// 	return ptr().operator zval*();
-		// }
+		operator zval*() const {
+			return ptr().operator zval*();
+		}
 		operator zend_string*() const {
 			return ptr().operator zend_string*();
 		}
@@ -65,6 +65,15 @@ namespace php {
 		template <typename POINTER_TYPE>
 		POINTER_TYPE* pointer() const {
 			return ptr().pointer<POINTER_TYPE>();
+		}
+		operator value() const {
+			return value(raw());
+		}
+		operator string() const {
+			return string(raw());
+		}
+		operator exception() const {
+			return exception(raw());
 		}
 		// 强制转换
 		bool to_boolean() {

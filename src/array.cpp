@@ -5,6 +5,10 @@ namespace php {
 	: array(std::size_t(0)) {
 
 	}
+	array::array(std::nullptr_t n)
+	: value(n) {
+		
+	}
 	array::array(int size)
 	: array(std::size_t(size)) {
 
@@ -27,6 +31,18 @@ namespace php {
 	}
 	array::array(value&& v)
 	: value(std::move(v)/* , TYPE::ARRAY */) {
+
+	}
+	array::array(const parameter& v)
+	: value(v.raw()) {
+
+	}
+	array::array(const array_member& v)
+	: value(v.raw()) {
+
+	}
+	array::array(const property& v)
+	: value(v.raw()) {
 
 	}
 	// ---------------------------------------------------------------------
@@ -84,5 +100,18 @@ namespace php {
 	}
 	const array_iterator array::rend() const {
 		return array_iterator(const_cast<array&>(*this), HT_INVALID_IDX);
+	}
+	// ------------------------------------------------------------------
+	array& array::operator =(const parameter& v) {
+		value::operator =(v.operator value());
+		return *this;
+	}
+	array& array::operator =(const array_member& v) {
+		value::operator =(v.operator value());
+		return *this;
+	}
+	array& array::operator =(const property& v) {
+		value::operator =(v.operator value());
+		return *this;
 	}
 }

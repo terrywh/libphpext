@@ -2,6 +2,9 @@
 
 namespace php {
 	class value;
+	class parameter;
+	class property;
+	class array_member;
 	class buffer {
 	public:
 		~buffer();
@@ -9,6 +12,9 @@ namespace php {
 		explicit buffer(int size=231);
 		buffer(buffer&& buf);
 		void  put(const php::value& v);
+		void  put(const parameter& v);
+		void  put(const array_member& v);
+		void  put(const property& v);
 		// 需要放入指定大小的 buffer，返回放入位置
 		char* put(int size);
 		void  add(char c);

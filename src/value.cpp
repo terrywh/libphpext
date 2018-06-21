@@ -130,7 +130,7 @@ namespace php {
 	: ptr_(&val_)  {
 		int r = object_init_ex(&val_, class_entry<closure>::entry());
 		assert(r == SUCCESS && "无法创建实例");
-		native<closure>(Z_OBJ(val_))->fn_ = fn;
+		static_cast<closure*>(native(Z_OBJ(val_)))->fn_ = fn;
 	}
 	// ---------------------------------------------------------------------
 	bool value::empty() const {

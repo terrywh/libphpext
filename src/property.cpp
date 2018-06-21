@@ -27,16 +27,10 @@ namespace php {
 		set(ref_, key_, val);
 		return *this;
 	}
-	property::operator value() const {
-		zval rv;
-		return value(get(ref_, key_, &rv));
-	}
 	value property::ptr() const {
 		return value(raw(), true);
 	}
 	zval* property::raw() const {
-		zval rv, *op = get(ref_, key_, &rv);
-		assert(op != &rv);
-		return op;
+		return get(ref_, key_, const_cast<zval*>(&val_));
 	}
 }

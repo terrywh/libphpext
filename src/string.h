@@ -5,6 +5,7 @@ namespace php {
 	class string : public value {
 	public:
 		string();
+		string(std::nullptr_t n);
 		string(const char* str, std::size_t len = -1);
 		string(const std::string& str);
 		string(buffer&& buf);

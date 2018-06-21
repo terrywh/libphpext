@@ -4,12 +4,16 @@ namespace php {
 	class array: public value {
 	public:
 		array();
+		array(std::nullptr_t n);
 		explicit array(int size);
 		explicit array(std::size_t size);
 		array(zval* v, bool ref = false);
 		array(zend_array* v);
 		array(const value& v);
 		array(value&& v);
+		array(const parameter& v);
+		array(const array_member& v);
+		array(const property& v);
 		// ---------------------------------------------------------------------
 		void erase(const std::size_t idx);
 		void erase(const php::string& key);
@@ -30,5 +34,8 @@ namespace php {
 		const array_iterator rend() const;
 		// ------------------------------------------------------------------
 		using value::operator =;
+		array& operator =(const parameter& v);
+		array& operator =(const array_member& v);
+		array& operator =(const property& v);
 	};
 }

@@ -14,10 +14,7 @@ namespace php {
 		array_member& operator =(const value& val);
 		bool exists() const;
 		// ---------------------------------------------------------
-		operator value() const;
 		virtual value ptr() const override;
-		zval* raw() const; // 不适用 operator zval* 会与 value 构造发生混淆
-
-
+		virtual zval* raw() const override;
 	};
 }

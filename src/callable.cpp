@@ -20,6 +20,10 @@ namespace php {
 		exception::rethrow();
 		return std::move(rv);
 	}
+	callable::callable(std::nullptr_t n)
+	: value(n) {
+
+	}
 	callable::callable(zval* v, bool ref)
 	: value(v, ref) {
 		
@@ -48,6 +52,18 @@ namespace php {
 	: value(std::move(v)/* , TYPE::CALLABLE */) {
 
 	}
+	callable::callable(const parameter& v)
+	: value(v.raw()) {
+
+	}
+	callable::callable(const array_member& v)
+	: value(v.raw()) {
+
+	}
+	callable::callable(const property& v)
+	: value(v.raw()) {
+
+	}
 	// ---------------------------------------------------------------------
 	value callable::call() const {
 		return __call(ptr_);
@@ -60,5 +76,18 @@ namespace php {
 	}
 	value callable::operator()(std::vector<value> argv) const {
 		return __call(ptr_, argv);
+	}
+	// ---------------------------------------------------------------------
+	callable& callable::operator =(const parameter& v) {
+		value::operator =(v.operator value());
+		return *this;
+	}
+	callable& callable::operator =(const array_member& v) {
+		value::operator =(v.operator value());
+		return *this;
+	}
+	callable& callable::operator =(const property& v) {
+		value::operator =(v.operator value());
+		return *this;
 	}
 }

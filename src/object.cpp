@@ -22,6 +22,10 @@ namespace php {
 	object::object() {
 		object_init(&val_);
 	}
+	object::object(std::nullptr_t n)
+	: value(n) {
+
+	}
 	object::object(class_base* v)
 	: value(v) {
 
@@ -50,6 +54,18 @@ namespace php {
 	: value(std::move(v)/* , TYPE::OBJECT */) {
 
 	}
+	object::object(const parameter& v)
+	: value(v.raw()) {
+
+	}
+	object::object(const array_member& v)
+	: value(v.raw()) {
+
+	}
+	object::object(const property& v)
+	: value(v.raw()) {
+
+	}
 	// -----------------------------------------------------------------
 	value object::call(const string& name) const {
 		return call(ptr_, name);
@@ -68,5 +84,18 @@ namespace php {
 	}
 	property object::operator [](const char* name) const {
 		return property(*this, string(name));
+	}
+	// ----------------------------------------------------------------
+	object& object::operator =(const parameter& v) {
+		value::operator =(v.operator value());
+		return *this;
+	}
+	object& object::operator =(const array_member& v) {
+		value::operator =(v.operator value());
+		return *this;
+	}
+	object& object::operator =(const property& v) {
+		value::operator =(v.operator value());
+		return *this;
 	}
 }

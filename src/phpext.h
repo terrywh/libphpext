@@ -62,9 +62,9 @@ extern "C" {
 #include "error.h" // -> error_info
 #include "buffer.h"
 #include "value.h" // -> type
-#include "value_fn.h"
-#include "string.h" // -> value buffer
 #include "exception.h" // -> error exception
+#include "string.h" // -> value buffer
+#include "value_fn.h" // -> value exception string
 #include "parameters.h" // -> value exception
 #include "property.h" // -> value string
 #include "array_member.h" // -> value string
