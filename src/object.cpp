@@ -20,7 +20,7 @@ namespace php {
 		return std::move(rv);
 	}
 	object::object() {
-		object_init(&val_);
+		
 	}
 	object::object(std::nullptr_t n)
 	: value(n) {

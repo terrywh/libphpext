@@ -7,11 +7,12 @@ namespace php {
 		static value call(zval* obj, const string& name);
 		static value call(zval* obj, const string& name, const std::vector<value>& argv);
 	public:
-		object();
+		object(); // undefined
 		object(std::nullptr_t n);
 		object(class_base* v);
 		object(zval* v, bool ref = true);
 		object(zend_object* v);
+		// use zend_standard_class_def for standard object
 		object(const CLASS& c);
 		object(const CLASS& c, std::vector<value> argv);
 		object(const value& v);

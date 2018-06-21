@@ -6,6 +6,7 @@ namespace php {
 		static value __call(zval* cb);
 		static value __call(zval* cb, std::vector<value> argv);
 	public:
+		callable(); // undefined
 		callable(std::nullptr_t n);
 		callable(zval* v, bool ref = false);
 		callable(const char* fname);

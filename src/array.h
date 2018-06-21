@@ -3,7 +3,7 @@
 namespace php {
 	class array: public value {
 	public:
-		array();
+		array(); // undefined
 		array(std::nullptr_t n);
 		explicit array(int size);
 		explicit array(std::size_t size);

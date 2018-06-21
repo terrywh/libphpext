@@ -4,7 +4,7 @@ namespace php {
 	class parameter;
 	class string : public value {
 	public:
-		string();
+		string(); // undefined
 		string(std::nullptr_t n);
 		string(const char* str, std::size_t len = -1);
 		string(const std::string& str);

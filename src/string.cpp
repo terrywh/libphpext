@@ -2,7 +2,7 @@
 
 namespace php {
 	string::string() {
-		ZVAL_EMPTY_STRING(&val_);
+		
 	}
 	string::string(std::nullptr_t n)
 	: value(n) {
@@ -23,10 +23,13 @@ namespace php {
 		
 	}
 	string::string(std::size_t size) {
-		assert(size > 0);
-		ZVAL_STR(&val_, zend_string_alloc(size, false));
-		// 参考 zend_string_init 流程，部分逻辑(例如 JSON)依赖结尾的 \0 字节
-		Z_STRVAL(val_)[size] = '\0';
+		if(size <= 0) {
+			ZVAL_EMPTY_STRING(&val_);
+		}else{
+			ZVAL_STR(&val_, zend_string_alloc(size, false));
+			// 参考 zend_string_init 流程，部分逻辑(例如 JSON)依赖结尾的 \0 字节
+			Z_STRVAL(val_)[size] = '\0';
+		}
 	}
 	// 注意: 此种构造形式无类型检查
 	string::string(zval* v, bool ref)

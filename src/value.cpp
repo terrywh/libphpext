@@ -257,20 +257,6 @@ namespace php {
 		convert_to_string(ptr_);
 		return std::string(Z_STRVAL_P(ptr_), Z_STRLEN_P(ptr_));
 	}
-	// 引用
-	// ---------------------------------------------------------------------
-	std::uint32_t value::addref() const {
-		if(Z_REFCOUNTED_P(ptr_)) {
-			return ++GC_REFCOUNT(Z_COUNTED_P(ptr_));
-		}
-		return 1;
-	}
-	std::uint32_t value::delref() {
-		if(Z_REFCOUNTED_P(ptr_)) {
-			return --GC_REFCOUNT(Z_COUNTED_P(ptr_));
-		}
-		return 1;
-	}
 	// 赋值
 	// -------------------------------------------------------------------
 	value& value::operator =(const value& v) {
@@ -300,5 +286,24 @@ namespace php {
 		}
 		os.write(s.c_str(), s.size());
 		return os;
+	}
+	// 引用
+	// ---------------------------------------------------------------------
+	std::uint32_t value::addref() const {
+		if(Z_REFCOUNTED_P(ptr_)) {
+			return ++GC_REFCOUNT(Z_COUNTED_P(ptr_));
+		}
+		return 1;
+	}
+	std::uint32_t value::delref() {
+		if(Z_REFCOUNTED_P(ptr_)) {
+			return --GC_REFCOUNT(Z_COUNTED_P(ptr_));
+		}
+		return 1;
+	}
+	value value::ref() const {
+		value v;
+		ZVAL_NEW_REF(&v.val_, ptr_);
+		return std::move(v);
 	}
 }

@@ -12,7 +12,7 @@ namespace php {
 		// ---------------------------------------------------------------------
 		virtual ~value();
 		// ---------------------------------------------------------------------
-		value();
+		value(); // undefined
 		value(std::nullptr_t v);
 		value(class_base* v);
 		value(zval* v, bool ptr = false);
@@ -87,6 +87,7 @@ namespace php {
 		// ---------------------------------------------------------------------
 		std::uint32_t addref() const;
 		std::uint32_t delref();
+		value ref() const;
 		// --------------------------------------------------------------------
 		friend std::ostream& operator << (std::ostream& os, const php::value& data);
 	};

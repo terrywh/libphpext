@@ -20,6 +20,9 @@ namespace php {
 		exception::rethrow();
 		return std::move(rv);
 	}
+	callable::callable() {
+		
+	}
 	callable::callable(std::nullptr_t n)
 	: value(n) {
 

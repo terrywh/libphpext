@@ -1,8 +1,7 @@
 #include "phpext.h"
 
 namespace php {
-	array::array()
-	: array(std::size_t(0)) {
+	array::array() {
 
 	}
 	array::array(std::nullptr_t n)
