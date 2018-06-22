@@ -9,7 +9,7 @@ namespace php {
 	template <class T>
 	class class_entry: public class_entry_base {
 	private:
-		std::string                      name_;
+		php::string                      name_;
 		zend_class_entry**               ce_parent;
 		std::vector<zend_class_entry**>  ce_interface;
 
@@ -31,27 +31,28 @@ namespace php {
 			zend_object_std_init(&wrapper->obj, entry_);
 			object_properties_init(&wrapper->obj, entry_);
 			wrapper->obj.handlers = &entry_handler;
-			// 在指定内存位置构造 C++ 对象
-			wrapper->cpp.reset(new T());
+			wrapper->cpp = new T();
 			ZVAL_OBJ(&wrapper->cpp->obj_, &wrapper->obj);
 			return &wrapper->obj;
 		}
 		static void free_object(zend_object* obj) {
 			class_wrapper* wrapper = reinterpret_cast<class_wrapper*>( ((char*)obj) - entry_handler.offset );
-			wrapper->cpp.reset();
+			delete wrapper->cpp;
 			zend_object_std_dtor(obj);
 			// efree 会被 php 自行调用
 		}
 	public:
 		class_entry(const std::string& name)
-		: name_(name)
-		, ce_parent(nullptr) {
+		: ce_parent(nullptr) {
+			zend_string* n = zend_string_init(name.c_str(), name.size(), 1);
+			php_strtoupper(name_.data(), name_.size());
+			name_ = string(n);
 			std::memcpy(&entry_handler, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 			entry_handler.offset   = XtOffsetOf(class_wrapper, obj);
 			entry_handler.free_obj = class_entry::free_object;
 		}
 		class_entry(class_entry&& entry)
-		: name_(entry.name_)
+		: name_(std::move(entry.name_))
 		, ce_parent(entry.ce_parent)
 		, ce_interface(std::move(entry.ce_interface))
 		, entry_contants(std::move(entry.entry_contants))
@@ -63,9 +64,6 @@ namespace php {
 		static CLASS entry() {
 			assert(entry_);
 			return entry_;
-		}
-		static zend_class_entry** entry(bool ptr) {
-
 		}
 		class_entry& extends(zend_class_entry** c) {
 			ce_parent = c;
@@ -110,12 +108,16 @@ namespace php {
 		}
 		// TODO 优化内部对象定义, 使用封装后的类型?
 		virtual void declare() override {
+			// 防止同名类型重复声明 (其他 function/method/constant/property 均存在类似防止重复的机制)
+			if(zend_hash_find_ptr(CG(class_table), name_) != nullptr) return;
+
 			entry_methods.push_back(zend_function_entry{}); // 结束数组条件
 			zend_class_entry ce, *pce = nullptr;
-			INIT_OVERLOADED_CLASS_ENTRY_EX(ce, name_.c_str(), name_.length(),
-				entry_methods.data(), nullptr, nullptr, nullptr, nullptr, nullptr);
+
+			ce.name = zend_new_interned_string(name_);
+			INIT_CLASS_ENTRY_INIT_METHODS(ce, entry_methods.data(), nullptr, nullptr, nullptr, nullptr, nullptr);
 			// 在继承后再进行设置, 否则实际会执行父类的 create_object 函数
-			// ce.create_object = class_entry::create_object;
+			ce.create_object = class_entry::create_object;
 			// 继承父类
 			if(ce_parent) {
 				class_entry::entry_ = zend_register_internal_class_ex(&ce, *ce_parent);

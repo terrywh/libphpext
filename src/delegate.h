@@ -15,6 +15,9 @@ namespace php {
 		} catch (const exception& e) {
 			exception::rethrow(e);
 		 	return;
+		} catch (const std::exception& e) {
+			zend_throw_exception(zend_ce_error, e.what(), 0);
+			return;
 		}/* catch(...) {
 			// 非可控范围的异常继续抛出
 		}*/
@@ -33,6 +36,9 @@ namespace php {
 		} catch (const exception& e) {
 			exception::rethrow(e);
 		 	return;
+		} catch (const std::exception& e) {
+			zend_throw_exception(zend_ce_error, e.what(), 0);
+			return;
 		}/* catch(...) {
 			// 非可控范围的异常继续抛出
 		}*/

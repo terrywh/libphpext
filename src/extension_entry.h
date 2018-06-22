@@ -13,7 +13,7 @@ namespace php {
 		std::vector<std::shared_ptr<constant_entry>> constant_entries_;
 		std::vector<zend_function_entry>             function_entries_;
 		std::vector<arguments>                              arguments_;
-		std::vector<std::shared_ptr<class_entry_base>>  class_entries_;
+		std::vector<class_entry_base*>                  class_entries_;
 		std::vector<std::pair<std::string, std::string>>  decriptions_;
 
 		std::list<std::function<bool(extension_entry&)>> handler_rsd_;

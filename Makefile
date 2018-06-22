@@ -4,7 +4,7 @@
 VENDOR_PHP?=/data/vendor/php-7.0.30
 
 # 项目
-SOURCES=$(shell find ./src -name "*.cpp") $(shell find ./test -name "*.cpp")
+SOURCES=$(shell find ./src -name "*.cpp")
 OBJECTS=$(SOURCES:%.cpp=%.o)
 DEPENDS=$(SOURCES:%.cpp=%.d)
 TARGETX=libphpext.a

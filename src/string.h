@@ -22,8 +22,6 @@ namespace php {
 		string substr(std::size_t pos, std::size_t count = 0) const;
 		static string concat(const string& s1, const string& s2);
 		// --------------------------------------------------------------------
-		string& operator =(const value& v);
-		string& operator =(value&& v);
 		string operator +(const string& s) const;
 		string operator +(const char* s) const;
 		string& operator +=(const string& s);
