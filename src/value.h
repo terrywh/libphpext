@@ -42,6 +42,7 @@ namespace php {
 		value(const char* str);
 		value(const std::string& str);
 		value(buffer&& v);
+		value(stream_buffer&& v);
 		value(std::function<value (parameters& params)> c); // value_impl.hpp
 		// 赋值
 		// -------------------------------------------------------------------

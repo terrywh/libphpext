@@ -126,6 +126,16 @@ namespace php {
 		buf.str_.s = nullptr;
 		buf.str_.a = 0;
 	}
+	value::value(stream_buffer&& buf)
+	: ptr_(&val_) {
+		assert(buf.gptr() == buf.str_.s->val); // 不能以其他方式读取
+		buf.str_.s->len = buf.pptr() - buf.str_.s->val;
+		smart_str_0(&buf.str_);
+		ZVAL_STR(&val_, buf.str_.s);
+		buf.str_.s = nullptr;
+		buf.str_.a = 0;
+		buf.reset();
+	}
 	value::value(std::function<value (parameters& params)> fn)
 	: ptr_(&val_)  {
 		int r = object_init_ex(&val_, class_entry<closure>::entry());
@@ -279,9 +289,10 @@ namespace php {
 	}
 	std::ostream& operator << (std::ostream& os, const php::value& data) {
 		php::string s = data;
-		if(s.typeof(php::TYPE::ARRAY)) {
+		if(!s.typeof(php::TYPE::STRING)) {
 			s = php::json_encode(s);
-		}else{
+		}
+		if(!s.typeof(php::TYPE::STRING)) {
 			s.to_string();
 		}
 		os.write(s.c_str(), s.size());

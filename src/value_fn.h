@@ -20,7 +20,9 @@ namespace php {
 		TYPE typeof() const {
 			return ptr().typeof();
 		}
-		bool typeof(const TYPE& t) const;
+		bool typeof(const TYPE& t) const {
+			return ptr().typeof(t);
+		}
 		CLASS classof() const {
 			return ptr().classof();
 		}

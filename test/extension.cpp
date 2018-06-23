@@ -62,11 +62,6 @@ php::value test_function_4(php::parameters& params) {
 	return cb2({php::json_encode(date1)});
 }
 php::value test_function_5(php::parameters& params) {
-	// 返回一个 C++ 定义的回调函数
-	// C++14
-	// return [a1 = static_cast<php::value>(params[0])] (php::parameters& params) -> php::value {
-		// return static_cast<int>(a1) + static_cast<int>(static_cast<php::value>(params[0]));
-	// };
 	// C++11
 	php::value a1 = params[0];
 	return php::value([a1] (php::parameters& params) -> php::value {
@@ -74,7 +69,13 @@ php::value test_function_5(php::parameters& params) {
 	});
 }
 php::value test_function_6(php::parameters& params) {
-	return nullptr;
+	php::stream_buffer sb;
+	std::ostream os(&sb);
+	os << php::exception("exception");
+	for(int i = 0; i< params.length(); ++i) {
+		os << " " << params[i].ptr();
+	}
+	return sb; // php::value 移动构造
 }
 // 
 class test_class_1: public php::class_base {
