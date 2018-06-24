@@ -76,7 +76,7 @@ php::value test_function_6(php::parameters& params) {
 	for(int i = 0; i< params.length(); ++i) {
 		os << " " << params[i].ptr();
 	}
-	return sb; // php::value 移动构造
+	return std::move(sb); // php::value 移动构造
 }
 // 
 class test_class_1: public php::class_base {

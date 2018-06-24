@@ -43,12 +43,12 @@ namespace php {
 		ZVAL_STR(&val_, const_cast<zend_string*>(v));
 		addref();
 	}
-	value::value(smart_str* s)
+	value::value(smart_str* str)
 	: ptr_(&val_) {
-		smart_str_0(s);
-		ZVAL_STR(&val_, s->s);
-		s->s = nullptr;
-		s->a = 0;
+		smart_str_0(str);
+		ZVAL_STR(&val_, str->s);
+		str->s = nullptr;
+		str->a = 0;
 	}
 	value::value(const zend_object* v)
 	: ptr_(&val_) {
@@ -135,9 +135,15 @@ namespace php {
 		ZVAL_STRINGL(&val_, str.c_str(), str.length());
 	}
 	value::value(stream_buffer&& buf)
-	: value(&buf.str_) {
-		assert(buf.gptr() == Z_STRVAL(val_) && "缓冲已被读取");
-		buf.reset();
+	: ptr_(&val_) {
+		assert(buf.gptr() == buf.eback() && "缓冲已被读取");
+		buf.str_.s->len = buf.size();
+		smart_str_0(&buf.str_);
+		ZVAL_STR(&val_, buf.str_.s);
+		// 此状态继续使用时会重新分配内存
+		buf.str_ = {nullptr, 0};
+		buf.setg(nullptr, nullptr, nullptr);
+		buf.setp(nullptr, nullptr);
 	}
 	value::value(std::function<value (parameters& params)> fn)
 	: ptr_(&val_)  {

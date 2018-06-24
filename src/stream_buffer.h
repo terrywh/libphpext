@@ -25,7 +25,6 @@ namespace php {
 	private:
 		// 重新分配（扩容），超出最大限制时抛出异常
 		void realloc(std::size_t n);
-		void reset();
 
 		friend class value;
 	};
