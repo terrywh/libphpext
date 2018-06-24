@@ -1,4 +1,5 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "error.h"
 
 namespace php {
 	// 全局 PHP 错误

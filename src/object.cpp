@@ -1,4 +1,8 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "object.h"
+
+#include "parameters.h"
+#include "array_member.h"
 
 namespace php {
 	value object::call(zval* obj, const string& name) {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "value.h"
+
 namespace php {
 	class array_iterator {
 	public:

@@ -1,14 +1,14 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "array_iterator.h"
 
 namespace php {
 	void array_iterator::create() {
-		zval key, *ptr;
-		zend_hash_get_current_key_zval_ex(arr_, &key, &pos_);
-		ptr = zend_hash_get_current_data_ex(arr_, &pos_);
-		entry_.reset(new value_type {
-			value(&key), // 不允许更新 KEY
-			value(ptr, true) // 允许更新 VAL
-		});
+		value_type* vt = new value_type {
+			value(), // 不允许更新 KEY
+			value(zend_hash_get_current_data_ex(arr_, &pos_), true) // 允许更新 VAL
+		};
+		zend_hash_get_current_key_zval_ex(arr_, vt->first, &pos_); // 内部 ZVAL_STR_COPY
+		entry_.reset(vt);
 	}
 	array_iterator::array_iterator(value& a, HashPosition p)
 	: arr_(a)

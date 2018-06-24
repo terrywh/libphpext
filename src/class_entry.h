@@ -1,5 +1,13 @@
 #pragma once
 
+#include "class_wrapper.h"
+#include "string.h"
+#include "constant_entry.h"
+#include "property_entry.h"
+#include "arguments.h"
+#include "delegate.h"
+#include "class_base.h"
+
 namespace php {
 	class class_entry_base {
 	public:

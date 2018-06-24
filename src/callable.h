@@ -1,6 +1,12 @@
 #pragma once
 
+#include "value.h"
+
 namespace php {
+	class parameter;
+	class array_member;
+	class property;
+	
 	class callable: public value {
 	private:
 		static value __call(zval* cb);

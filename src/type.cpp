@@ -1,4 +1,5 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "type.h"
 
 namespace php {
 	TYPE::TYPE(zend_uchar t)

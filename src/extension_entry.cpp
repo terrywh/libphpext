@@ -1,4 +1,8 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "extension_entry.h"
+
+#include "class_entry.h"
+#include "closure.h"
 
 namespace php {
 	extension_entry* extension_entry::self;

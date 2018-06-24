@@ -1,5 +1,8 @@
 #pragma once
 
+#include "value.h"
+#include "value_fn.h"
+
 namespace php {
 	class parameter: public value_fn {
 	public:

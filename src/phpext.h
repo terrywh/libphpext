@@ -6,7 +6,6 @@
 #include "class.h"
 #include "error_info.h"
 #include "error.h" // -> error_info
-#include "buffer.h"
 #include "stream_buffer.h"
 #include "value.h" // -> type
 #include "exception.h" // -> error exception

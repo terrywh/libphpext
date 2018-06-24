@@ -1,7 +1,12 @@
 #pragma once
 
+#include "value.h"
+#include "property.h"
+
 namespace php {
-	class class_wrapper;
+	class string;
+	class parameter;
+	class array_member;	
 	class object: public value {
 	private:
 		static value call(zval* obj, const string& name);

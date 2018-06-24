@@ -1,4 +1,8 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "class.h"
+
+#include "string.h"
+#include "exception.h"
 
 namespace php {
 	CLASS::CLASS(const zend_class_entry* ce)

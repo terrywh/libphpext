@@ -1,5 +1,7 @@
 #pragma once
 
+#include "error_info.h"
+
 namespace php {
 	class error {
 	public:

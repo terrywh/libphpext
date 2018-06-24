@@ -1,4 +1,5 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "constant_entry.h"
 
 namespace php {
 	constant_entry::constant_entry(const php::string& k, const php::value& v)

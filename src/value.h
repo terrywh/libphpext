@@ -1,9 +1,12 @@
 #pragma once
 
+#include "type.h"
+#include "class.h"
+
 namespace php {
 	class class_base;
 	class parameters;
-	class buffer;
+	class stream_buffer;
 	class value {
 	protected:
 		zval  val_;
@@ -17,6 +20,7 @@ namespace php {
 		value(class_base* v);
 		value(zval* v, bool ptr = false);
 		value(const zend_string* v);
+		value(smart_str* s);
 		value(const zend_object* v);
 		value(zend_class_entry* e);
 		value(const CLASS& c);
@@ -41,7 +45,6 @@ namespace php {
 		value(double v);
 		value(const char* str);
 		value(const std::string& str);
-		value(buffer&& v);
 		value(stream_buffer&& v);
 		value(std::function<value (parameters& params)> c); // value_impl.hpp
 		// 赋值
@@ -92,5 +95,4 @@ namespace php {
 		// --------------------------------------------------------------------
 		friend std::ostream& operator << (std::ostream& os, const php::value& data);
 	};
-	extern std::ostream& operator << (std::ostream& os, const php::value& data);
 }

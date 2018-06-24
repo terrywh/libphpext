@@ -1,5 +1,10 @@
 #pragma once
 
+#include "value.h"
+#include "parameters.h"
+#include "exception.h"
+#include "class_wrapper.h"
+
 namespace php {
 	// 普通函数
 	template <value FUNCTION(parameters& params)>

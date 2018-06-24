@@ -1,4 +1,5 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "array_member.h"
 
 namespace php {
 	array_member::array_member(value& arr, const string& key)

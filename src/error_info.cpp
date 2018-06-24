@@ -1,4 +1,5 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "error_info.h"
 
 namespace php {
 	error_info::suppressor::suppressor(zval* err)

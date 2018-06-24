@@ -1,5 +1,9 @@
 #pragma once
 
+#include "value.h"
+#include "string.h"
+#include "value_fn.h"
+
 namespace php {
 	class property: public value_fn {
 	private:

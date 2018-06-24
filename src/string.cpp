@@ -1,4 +1,5 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "string.h"
 
 namespace php {
 	string::string() {
@@ -14,7 +15,7 @@ namespace php {
 	string::string(const std::string& str) {
 		ZVAL_STR(&val_, zend_string_init(str.c_str(), str.length(), false));
 	}
-	string::string(buffer&& buf)
+	string::string(stream_buffer&& buf)
 	: value(std::move(buf)) {
 		
 	}
@@ -37,6 +38,10 @@ namespace php {
 		
 	}
 	string::string(zend_string* v)
+	: value(v) {
+		
+	}
+	string::string(smart_str* v)
 	: value(v) {
 		
 	}

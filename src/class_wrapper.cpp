@@ -1,4 +1,5 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "class_wrapper.h"
 
 namespace php {
 	class_base* native(zend_object* obj) {

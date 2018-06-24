@@ -1,4 +1,8 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "class_base.h"
+
+#include "string.h"
+#include "object.h"
 
 namespace php {
 	value class_base::get(const php::string& key, bool ptr) const {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "type.h"
+
 namespace php {
 	class argument {
 	public:

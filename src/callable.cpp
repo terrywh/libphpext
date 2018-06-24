@@ -1,4 +1,10 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "callable.h"
+
+#include "exception.h"
+#include "parameters.h"
+#include "array_member.h"
+#include "property.h"
 
 namespace php {
 	value callable::__call(zval* cb) {

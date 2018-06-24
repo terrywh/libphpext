@@ -1,4 +1,5 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "property.h"
 
 namespace php {
 	zval* property::get(zval* obj, const string& key, zval* rv) {

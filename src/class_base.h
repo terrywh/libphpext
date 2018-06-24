@@ -1,6 +1,10 @@
 #pragma once
 
+#include "value.h"
+#include "property.h"
+
 namespace php {
+	class string;
 	class class_base {
 	public:
 		class_base() {}
@@ -8,12 +12,12 @@ namespace php {
 	protected:
 		zval obj_;
 
-		value get(const php::string& key, bool ptr = false) const;
-		void set(const php::string& key, const php::value& val) const;
-		php::value call(const php::string& name) const;
-		php::value call(const php::string& name, const std::vector<php::value>& argv) const;
-		property operator [](const php::string& name) const;
-		property property(const php::string& name) const;
+		value get(const string& key, bool ptr = false) const;
+		void set(const string& key, const value& val) const;
+		value call(const string& name) const;
+		value call(const string& name, const std::vector<value>& argv) const;
+		property operator [](const string& name) const;
+		property property(const string& name) const;
 
 		friend class value;
 		friend class object;

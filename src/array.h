@@ -1,6 +1,14 @@
 #pragma once
 
+#include "value.h"
+#include "array_iterator.h"
+#include "array_member.h"
+
 namespace php {
+	class parameter;
+	class string;
+	class property;
+
 	class array: public value {
 	public:
 		array(); // undefined

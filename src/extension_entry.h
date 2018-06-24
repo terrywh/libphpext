@@ -1,5 +1,11 @@
 #pragma once
 
+#include "ini_entry.h"
+#include "constant_entry.h"
+#include "delegate.h"
+#include "arguments.h"
+#include "class_entry.h"
+
 namespace php {
 	class extension_entry {
 	private:

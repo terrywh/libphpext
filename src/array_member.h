@@ -1,5 +1,8 @@
 #pragma once
 
+#include "string.h"
+#include "value_fn.h"
+
 namespace php {
 	class array_member: public value_fn {
 	private:

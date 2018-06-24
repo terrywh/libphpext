@@ -1,4 +1,5 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "arguments.h"
 
 namespace php {
 	argument::argument(const char* name, bool byref, bool nullable)

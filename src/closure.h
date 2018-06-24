@@ -1,5 +1,9 @@
 #pragma once
 
+#include "class_base.h"
+#include "value.h"
+#include "parameters.h"
+
 namespace php {
 	class closure: public class_base {
 	public:

@@ -1,4 +1,7 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "exception.h"
+
+#include "object.h"
 
 namespace php {
 	// 将 PHP 中发生的异常重新抛出到 CPP 中
@@ -30,9 +33,9 @@ namespace php {
 		ZVAL_OBJ(&val_, v);
 		addref();
 	}
-	exception::exception(const CLASS& c, const std::string& message, int code) {
-		object e(c, {message, code});
-		ZVAL_COPY(&val_, e);
+	exception::exception(const CLASS& c, const std::string& message, int code)
+	: value(c, {message, code}) {
+		
 	}
 	exception::exception(const value& v)
 	: value(v/* , CLASS(zend_ce_throwable) */) {

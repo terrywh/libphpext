@@ -1,6 +1,20 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "util.h"
+
+#include "exception.h"
 
 namespace php {
+	std::ostream& operator << (std::ostream& os, const php::value& data) {
+		php::string s = data;
+		if(!s.typeof(php::TYPE::STRING)) {
+			s = php::json_encode(s);
+		}
+		if(!s.typeof(php::TYPE::STRING)) {
+			s.to_string();
+		}
+		os.write(s.c_str(), s.size());
+		return os;
+	}
 	php::string base64_encode(const unsigned char* str, std::size_t len) {
 		return php::string(php_base64_encode(str, len));
 	}
@@ -55,9 +69,9 @@ namespace php {
 		return std::move(s);
 	}
 	php::string json_encode(const php::value& val) {
-		php::buffer str;
-		php_json_encode(str, val, PHP_JSON_UNESCAPED_UNICODE);
-		return std::move(str);
+		smart_str str {nullptr, 0};
+		php_json_encode(&str, val, PHP_JSON_UNESCAPED_UNICODE);
+		return &str;
 	}
 	php::value json_decode(const char* str, std::size_t size) {
 		php::value rv;

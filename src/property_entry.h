@@ -1,5 +1,9 @@
 #pragma once
 
+#include "specifier.h"
+#include "value.h"
+#include "string.h"
+
 namespace php {
 	class property_entry {
 	public:

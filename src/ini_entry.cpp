@@ -1,4 +1,5 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "ini_entry.h"
 
 namespace php {
 	ini_entry::ini_entry(const php::string& name, const php::value& val)

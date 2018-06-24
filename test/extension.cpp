@@ -27,6 +27,7 @@ php::value test_function_1(php::parameters& params) {
 	std::printf("\n");
 	for(auto i=v4.begin(); i!=v4.end(); ++i) {
 		php::string key = i->first;
+		i->second.to_string();
 		php::string val = i->second;
 		std::printf("    key: %s => val: %s\n", key.c_str(), val.c_str());
 	}

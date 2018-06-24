@@ -1,4 +1,12 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "value.h"
+
+#include "class_base.h"
+#include "object.h"
+#include "stream_buffer.h"
+#include "class_entry.h"
+#include "closure.h"
+#include "class_wrapper.h"
 
 namespace php {
 	// ---------------------------------------------------------------------
@@ -34,6 +42,13 @@ namespace php {
 	: ptr_(&val_) {
 		ZVAL_STR(&val_, const_cast<zend_string*>(v));
 		addref();
+	}
+	value::value(smart_str* s)
+	: ptr_(&val_) {
+		smart_str_0(s);
+		ZVAL_STR(&val_, s->s);
+		s->s = nullptr;
+		s->a = 0;
 	}
 	value::value(const zend_object* v)
 	: ptr_(&val_) {
@@ -119,21 +134,9 @@ namespace php {
 	: ptr_(&val_)  {
 		ZVAL_STRINGL(&val_, str.c_str(), str.length());
 	}
-	value::value(buffer&& buf)
-	: ptr_(&val_) {
-		smart_str_0(&buf.str_);
-		ZVAL_STR(&val_, buf.str_.s);
-		buf.str_.s = nullptr;
-		buf.str_.a = 0;
-	}
 	value::value(stream_buffer&& buf)
-	: ptr_(&val_) {
-		assert(buf.gptr() == buf.str_.s->val); // 不能以其他方式读取
-		buf.str_.s->len = buf.pptr() - buf.str_.s->val;
-		smart_str_0(&buf.str_);
-		ZVAL_STR(&val_, buf.str_.s);
-		buf.str_.s = nullptr;
-		buf.str_.a = 0;
+	: value(&buf.str_) {
+		assert(buf.gptr() == Z_STRVAL(val_) && "缓冲已被读取");
 		buf.reset();
 	}
 	value::value(std::function<value (parameters& params)> fn)
@@ -286,17 +289,6 @@ namespace php {
 	}
 	bool value::operator !=(const value& v) const {
 		return Z_PTR_P(ptr_) != Z_PTR_P(v.ptr_);
-	}
-	std::ostream& operator << (std::ostream& os, const php::value& data) {
-		php::string s = data;
-		if(!s.typeof(php::TYPE::STRING)) {
-			s = php::json_encode(s);
-		}
-		if(!s.typeof(php::TYPE::STRING)) {
-			s.to_string();
-		}
-		os.write(s.c_str(), s.size());
-		return os;
 	}
 	// 引用
 	// ---------------------------------------------------------------------

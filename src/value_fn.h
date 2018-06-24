@@ -1,16 +1,21 @@
-
 #pragma once
 
+#include "type.h"
+#include "class.h"
+#include "value.h"
+#include "string.h"
+#include "exception.h"
+
 namespace php {
-    class value_fn {
-    public:
-        virtual value ptr() const = 0;
+	class value_fn {
+	public:
+		virtual value ptr() const = 0;
 		virtual zval* raw() const = 0;
-        // --------------------------------------------------------------------
+		// --------------------------------------------------------------------
 		// 检查
 		bool empty() const {
-            return ptr().empty();
-        }
+			return ptr().empty();
+		}
 		std::size_t length() const {
 			return ptr().length();
 		}
@@ -79,23 +84,23 @@ namespace php {
 		}
 		// 强制转换
 		bool to_boolean() {
-            return ptr().to_boolean();
-        }
+			return ptr().to_boolean();
+		}
 		std::int64_t to_integer(int base = 10) {
-            return ptr().to_integer();
-        }
+			return ptr().to_integer();
+		}
 		double to_float() {
-            return ptr().to_float();
-        }
+			return ptr().to_float();
+		}
 		std::string to_string() {
-            return ptr().to_string();
-        }
+			return ptr().to_string();
+		}
 		// 判定
 		bool operator ==(const value& v) const {
-            return ptr() == v;
-        }
+			return ptr() == v;
+		}
 		bool operator !=(const value& v) const {
-            return ptr() != v;
-        }
-    };
+			return ptr() != v;
+		}
+	};
 }

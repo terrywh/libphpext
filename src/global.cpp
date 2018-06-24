@@ -1,4 +1,5 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "global.h"
 
 namespace php {
 	array server() {

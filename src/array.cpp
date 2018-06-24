@@ -1,4 +1,8 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "array.h"
+
+#include "parameters.h"
+#include "property.h"
 
 namespace php {
 	array::array() {

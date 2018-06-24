@@ -1,4 +1,5 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "ini.h"
 
 namespace php {
 	ini::ini(const std::string& key)

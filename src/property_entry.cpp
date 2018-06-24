@@ -1,4 +1,5 @@
-#include "phpext.h"
+#include "vendor.h"
+#include "property_entry.h"
 
 namespace php {
 	property_entry::property_entry(const php::string& name, const php::value& v, int access)

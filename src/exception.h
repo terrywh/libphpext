@@ -1,6 +1,10 @@
 #pragma once
 
+#include "error_info.h"
+#include "value.h"
+
 namespace php {
+	class CLASS;
 	// exception => zend_ce_throwable
 	class exception: public value, public std::exception {
 	public:
