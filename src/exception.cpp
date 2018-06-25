@@ -50,7 +50,10 @@ namespace php {
 		return error_info(ptr_);
 	}
 	const char* exception::what() const noexcept {
-		return info().message.c_str();
+		static char buffer[4096];
+		error_info i = info();
+		sprintf(buffer, "%s on %s:%d", i.message.c_str(), i.file.c_str(), i.line);
+		return buffer;
 	}
 
 }
