@@ -3,11 +3,15 @@
 
 namespace php {
 	stream_buffer::stream_buffer(std::size_t max_size)
-	: str_({nullptr, 0}) {
+	: max_(max_size)
+	, str_({nullptr, 0}) {
 		realloc(199);
 	}
 	stream_buffer::~stream_buffer() {
 		smart_str_free(&str_);
+	}
+	std::size_t stream_buffer::max_size() {
+		return max_;
 	}
 	// 可读取数据大小
 	std::size_t stream_buffer::size() {

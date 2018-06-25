@@ -5,6 +5,7 @@ namespace php {
 	public:
 		stream_buffer(std::size_t max_size = 8 * 1024 * 1024);
 		~stream_buffer();
+		std::size_t max_size();
 		// 可读取数据大小
 		std::size_t size();
 		// 可读取数据缓冲区

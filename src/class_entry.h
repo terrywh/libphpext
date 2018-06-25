@@ -32,8 +32,7 @@ namespace php {
 		static zend_object* create_object(zend_class_entry *entry) {
 			assert(entry == entry_);
 			size_t psize = zend_object_properties_size(entry_);
-			char*  pdata = (char*)
-				ecalloc(1, sizeof(class_wrapper) + psize);
+			char*  pdata = (char*) ecalloc(1, sizeof(class_wrapper) + psize);
 			class_wrapper* wrapper = reinterpret_cast<class_wrapper*>(pdata);
 			// 初始化 PHP 对象
 			zend_object_std_init(&wrapper->obj, entry_);

@@ -10,7 +10,7 @@ namespace php {
 	value callable::__call(zval* cb) {
 		value rv;
 		int r = call_user_function(EG(function_table), nullptr, cb, rv, 0, nullptr);
-		assert(r == SUCCESS && "调用失败");
+		// assert(r == SUCCESS && "调用失败");
 		exception::rethrow();
 		return std::move(rv);
 	}
@@ -22,7 +22,7 @@ namespace php {
 	
 		value rv;
 		int r = call_user_function(EG(function_table), nullptr, cb, rv, argv.size(), params);
-		assert(r == SUCCESS && "调用失败");
+		// assert(r == SUCCESS && "调用失败");
 		exception::rethrow();
 		return std::move(rv);
 	}
