@@ -13,5 +13,6 @@ namespace php {
 	private:
 		std::function<value (parameters&)> fn_;
 		friend class value;
+		friend class callable;
 	};
 }

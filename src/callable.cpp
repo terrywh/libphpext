@@ -5,26 +5,38 @@
 #include "parameters.h"
 #include "array_member.h"
 #include "property.h"
+#include "class_wrapper.h"
+#include "class_entry.h"
+#include "closure.h"
 
 namespace php {
 	value callable::__call(zval* cb) {
-		value rv;
-		int r = call_user_function(EG(function_table), nullptr, cb, rv, 0, nullptr);
-		// assert(r == SUCCESS && "调用失败");
-		exception::rethrow();
-		return std::move(rv);
+		if(Z_OBJCE_P(cb) == class_entry<closure>::entry()) {
+			php::parameters params(0, nullptr);
+			return static_cast<closure*>(native(Z_OBJ_P(cb)))->fn_(params);
+		}else{
+			value rv;
+			int r = call_user_function(EG(function_table), nullptr, cb, rv, 0, nullptr);
+			// assert(r == SUCCESS && "调用失败");
+			exception::rethrow();
+			return std::move(rv);
+		}
 	}
 	value callable::__call(zval* cb, std::vector<value> argv) {
 		zval params[argv.size()];
 		for(int i=0;i<argv.size();++i) {
 			ZVAL_COPY_VALUE(&params[i], static_cast<zval*>(argv[i]));
 		}
-	
-		value rv;
-		int r = call_user_function(EG(function_table), nullptr, cb, rv, argv.size(), params);
-		// assert(r == SUCCESS && "调用失败");
-		exception::rethrow();
-		return std::move(rv);
+		if(Z_OBJCE_P(cb) == class_entry<closure>::entry()) {
+			php::parameters args(argv.size(), params);
+			return static_cast<closure*>(native(Z_OBJ_P(cb)))->fn_(args);
+		}else{
+			value rv;
+			int r = call_user_function(EG(function_table), nullptr, cb, rv, argv.size(), params);
+			// assert(r == SUCCESS && "调用失败");
+			exception::rethrow();
+			return std::move(rv);
+		}
 	}
 	callable::callable() {
 		

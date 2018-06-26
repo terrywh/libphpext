@@ -140,8 +140,13 @@ namespace php {
 		ZVAL_STRINGL(&val_, str.c_str(), str.length());
 	}
 	value::value(buffer&& v)
-	: value(static_cast<smart_str*>(v)) {
-
+	: ptr_(&val_) {
+		assert(v.str_.s && v.get_ == 0 && "缓冲区已被读取");
+		smart_str_0(&v.str_);
+		ZVAL_STR(&val_, v.str_.s);
+		// 此状态继续使用时会重新分配内存
+		v.str_ = {nullptr, 0};
+		v.get_ = 0;
 	}
 	value::value(stream_buffer&& buf)
 	: ptr_(&val_) {
