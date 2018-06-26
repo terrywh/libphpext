@@ -3,6 +3,7 @@
 
 #include "class_base.h"
 #include "object.h"
+#include "buffer.h"
 #include "stream_buffer.h"
 #include "class_entry.h"
 #include "closure.h"
@@ -11,7 +12,11 @@
 namespace php {
 	// ---------------------------------------------------------------------
 	value::~value() {
-		if(ptr_ == &val_) zval_ptr_dtor(ptr_);
+		// ptr_ 存在 3 中状态指向:
+		// 1. &val_;
+		// 2. &val_.value.ref->val ( Z_TYPE(val_) == IS_REFERENCE )
+		// 3. 其他
+		if(ptr_ == &val_ || (Z_TYPE(val_) == IS_REFERENCE && ptr_ == &val_.value.ref->val)) zval_ptr_dtor(&val_);
 	}
 	// ---------------------------------------------------------------------
 	value::value()
@@ -133,6 +138,10 @@ namespace php {
 	value::value(const std::string& str)
 	: ptr_(&val_)  {
 		ZVAL_STRINGL(&val_, str.c_str(), str.length());
+	}
+	value::value(buffer&& v)
+	: value(static_cast<smart_str*>(v)) {
+
 	}
 	value::value(stream_buffer&& buf)
 	: ptr_(&val_) {
@@ -310,9 +319,13 @@ namespace php {
 		}
 		return 1;
 	}
-	value value::ref() const {
+	value value::make_ref() {
+		assert(ptr_ == &val_ || (Z_TYPE(val_) == IS_REFERENCE && ptr_ == &val_.value.ref->val));
+		ZVAL_MAKE_REF(&val_);
+		ptr_ = &val_.value.ref->val;
+
 		value v;
-		ZVAL_NEW_REF(&v.val_, ptr_);
+		ZVAL_COPY(&v.val_, &val_);
 		return std::move(v);
 	}
 }

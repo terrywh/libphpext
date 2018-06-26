@@ -8,18 +8,23 @@ namespace php {
 		buffer(): str_({nullptr, 0}) {
 			smart_str_alloc(&str_, 199, 0);
 		}
+		buffer(buffer&& b)
+		: str_(b.str_) {
+			b.str_.s = nullptr;
+			b.str_.a = 0;
+		}
 		~buffer() {
 			smart_str_free(&str_);
 		}
 		void push_back(char c) {
-			if(str_.s->len + 1 > str_.a) {
+			if(!str_.s || str_.s->len + 1 > str_.a) {
 				smart_str_realloc(&str_, str_.a + 64); // PHP 会自动靠齐 4096 整页
 			}
 			str_.s->val[str_.s->len] = c;
 			++str_.s->len;
 		}
 		void append(const char* data, std::size_t size) {
-			if(str_.s->len + size > str_.a) {
+			if(!str_.s || str_.s->len + size > str_.a) {
 				smart_str_realloc(&str_, str_.a + size); // PHP 会自动靠齐 4096 整页
 			}
 			std::memcpy(&str_.s->val[str_.s->len], data, size);
@@ -30,12 +35,13 @@ namespace php {
 			return const_cast<char*>(&str_.s->val[0]);
 		}
 		std::size_t size() const {
-			return str_.s->len;
+			return str_.s ? str_.s->len : 0;
 		}
 		std::size_t capacity() const {
 			return str_.a;
 		}
 		operator smart_str*() {
+			assert(str_.s && "数据已失效");
 			return &str_;
 		}
 	private:

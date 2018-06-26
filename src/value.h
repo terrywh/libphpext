@@ -6,6 +6,7 @@
 namespace php {
 	class class_base;
 	class parameters;
+	class buffer;
 	class stream_buffer;
 	class value {
 	protected:
@@ -45,6 +46,7 @@ namespace php {
 		value(double v);
 		value(const char* str);
 		value(const std::string& str);
+		value(buffer&& v);
 		value(stream_buffer&& v);
 		value(std::function<value (parameters& params)> c); // value_impl.hpp
 		// 赋值
@@ -91,7 +93,8 @@ namespace php {
 		// ---------------------------------------------------------------------
 		std::uint32_t addref() const;
 		std::uint32_t delref();
-		value ref() const;
+		// 制作引用 (当前对象持有也会变, 但 ptr_ 对应不便)
+		value make_ref();
 		// --------------------------------------------------------------------
 		friend std::ostream& operator << (std::ostream& os, const php::value& data);
 	};

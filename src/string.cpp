@@ -15,6 +15,10 @@ namespace php {
 	string::string(const std::string& str) {
 		ZVAL_STR(&val_, zend_string_init(str.c_str(), str.length(), false));
 	}
+	string::string(buffer&& buf)
+	: value(std::move(buf)) {
+		
+	}
 	string::string(stream_buffer&& buf)
 	: value(std::move(buf)) {
 		

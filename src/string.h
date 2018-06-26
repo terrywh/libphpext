@@ -3,6 +3,7 @@
 #include "value.h"
 
 namespace php {
+	class buffer;
 	class stream_buffer;
 	class string : public value {
 	public:
@@ -10,6 +11,7 @@ namespace php {
 		string(std::nullptr_t n);
 		string(const char* str, std::size_t len = -1);
 		string(const std::string& str);
+		string(buffer&& buf);
 		string(stream_buffer&& buf);
 		explicit string(int size);
 		explicit string(std::size_t size);
