@@ -73,15 +73,6 @@ namespace php {
 		POINTER_TYPE* pointer() const {
 			return ptr().pointer<POINTER_TYPE>();
 		}
-		operator value() const {
-			return value(raw());
-		}
-		operator string() const {
-			return string(raw());
-		}
-		operator exception() const {
-			return exception(raw());
-		}
 		// 强制转换
 		bool to_boolean() {
 			return ptr().to_boolean();

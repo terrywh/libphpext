@@ -89,17 +89,4 @@ namespace php {
 	property object::operator [](const char* name) const {
 		return property(*this, string(name));
 	}
-	// ----------------------------------------------------------------
-	object& object::operator =(const parameter& v) {
-		value::operator =(v.operator value());
-		return *this;
-	}
-	object& object::operator =(const array_member& v) {
-		value::operator =(v.operator value());
-		return *this;
-	}
-	object& object::operator =(const property& v) {
-		value::operator =(v.operator value());
-		return *this;
-	}
 }

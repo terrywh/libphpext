@@ -48,8 +48,10 @@ php::value test_function_2(php::parameters& params) {
 }
 php::value test_function_3(php::parameters& params) {
 	// 函数声明了首个必要参数为“引用”传递，可以更改其值
-	php::value v = params[0];
+	
 	params[0] = static_cast<int>(params[0]) * 2;
+	php::value v = 654321;
+	v = 123456;
 	// “无” 返回值，但对 C++ 必须要有返回值
 	return nullptr;
 }

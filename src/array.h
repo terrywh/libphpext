@@ -33,6 +33,7 @@ namespace php {
 		void set(std::size_t idx, const php::value& val);
 		void set(const php::string& key, const php::value& val);
 		array_member operator [](std::size_t idx) const;
+		array_member operator [](int idx) const;
 		array_member operator [](const php::string& key) const;
 		array_member operator [](const char* key) const;
 		// --------------------------------------------------------------------
@@ -42,8 +43,5 @@ namespace php {
 		const array_iterator rend() const;
 		// ------------------------------------------------------------------
 		using value::operator =;
-		array& operator =(const parameter& v);
-		array& operator =(const array_member& v);
-		array& operator =(const property& v);
 	};
 }

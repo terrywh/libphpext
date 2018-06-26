@@ -35,9 +35,6 @@ namespace php {
 		property operator [](const char* name) const;
 		// ------------------------------------------------------------------
 		using value::operator =;
-		object& operator =(const parameter& v);
-		object& operator =(const array_member& v);
-		object& operator =(const property& v);
 		friend class value;
 		friend class class_base;
 	};

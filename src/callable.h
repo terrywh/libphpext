@@ -31,8 +31,5 @@ namespace php {
 		value operator()(std::vector<value> argv) const;
 		// -------------------------------------------------------------------
 		using value::operator =;
-		callable& operator =(const parameter& v);
-		callable& operator =(const array_member& v);
-		callable& operator =(const property& v);
 	};
 }

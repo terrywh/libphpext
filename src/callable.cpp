@@ -74,15 +74,15 @@ namespace php {
 
 	}
 	callable::callable(const parameter& v)
-	: value(v.raw()) {
+	: value(v) {
 
 	}
 	callable::callable(const array_member& v)
-	: value(v.raw()) {
+	: value(v) {
 
 	}
 	callable::callable(const property& v)
-	: value(v.raw()) {
+	: value(v) {
 
 	}
 	// ---------------------------------------------------------------------
@@ -97,18 +97,5 @@ namespace php {
 	}
 	value callable::operator()(std::vector<value> argv) const {
 		return __call(ptr_, argv);
-	}
-	// ---------------------------------------------------------------------
-	callable& callable::operator =(const parameter& v) {
-		value::operator =(v.operator value());
-		return *this;
-	}
-	callable& callable::operator =(const array_member& v) {
-		value::operator =(v.operator value());
-		return *this;
-	}
-	callable& callable::operator =(const property& v) {
-		value::operator =(v.operator value());
-		return *this;
 	}
 }

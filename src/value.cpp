@@ -8,6 +8,9 @@
 #include "class_entry.h"
 #include "closure.h"
 #include "class_wrapper.h"
+#include "parameters.h"
+#include "property.h"
+#include "array_member.h"
 
 namespace php {
 	// ---------------------------------------------------------------------
@@ -159,6 +162,18 @@ namespace php {
 		buf.setg(nullptr, nullptr, nullptr);
 		buf.setp(nullptr, nullptr);
 	}
+	value::value(const parameter& v)
+	: value(v.raw()) {
+
+	}
+	value::value(const property& v)
+	: value(v.raw()) { // 由于属性存在动态生成的可能, 这里稍有不同
+
+	}
+	value::value(const array_member& v)
+	: value(v.raw()) {
+
+	}
 	value::value(std::function<value (parameters& params)> fn)
 	: ptr_(&val_)  {
 		int r = object_init_ex(&val_, class_entry<closure>::entry());
@@ -301,6 +316,26 @@ namespace php {
 		zval_ptr_dtor(ptr_);
 		ZVAL_COPY_VALUE(ptr_, v.ptr_);
 		ZVAL_UNDEF(v.ptr_ = &v.val_);
+		return *this;
+	}
+	value& value::operator = (const parameter& v) {
+		zval_ptr_dtor(ptr_);
+		ZVAL_COPY(ptr_, v.raw());
+		return *this;
+	}
+	value& value::operator = (const property& v) {
+		zval_ptr_dtor(ptr_);
+		ZVAL_COPY(ptr_, v.raw());
+		return *this;
+	}
+	value& value::operator = (const array_member& v) {
+		zval_ptr_dtor(ptr_);
+		ZVAL_COPY(ptr_, v.raw());
+		return *this;
+	}
+	value& value::operator = (std::nullptr_t v) {
+		zval_ptr_dtor(ptr_);
+		ZVAL_NULL(ptr_);
 		return *this;
 	}
 	// ---------------------------------------------------------------------

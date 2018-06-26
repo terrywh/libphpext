@@ -6,6 +6,9 @@
 namespace php {
 	class class_base;
 	class parameters;
+	class parameter;
+	class property;
+	class array_member;
 	class buffer;
 	class stream_buffer;
 	class value {
@@ -48,11 +51,18 @@ namespace php {
 		value(const std::string& str);
 		value(buffer&& v);
 		value(stream_buffer&& v);
+		value(const parameter& v);
+		value(const property& v);
+		value(const array_member& v);
 		value(std::function<value (parameters& params)> c); // value_impl.hpp
 		// 赋值
 		// -------------------------------------------------------------------
-		value& operator =(const value& v);
-		value& operator =(value&& v);
+		value& operator = (const value& v);
+		value& operator = (value&& v);
+		value& operator = (const parameter& v);
+		value& operator = (const property& v);
+		value& operator = (const array_member& v);
+		value& operator = (std::nullptr_t v);
 		// 功能项
 		// ====================================================================
 		// 检查

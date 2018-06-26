@@ -33,6 +33,18 @@ namespace php {
 		ZVAL_OBJ(&val_, v);
 		addref();
 	}
+	exception::exception(const parameter& v)
+	: value(v) {
+
+	}
+	exception::exception(const property& v)
+	: value(v) {
+
+	}
+	exception::exception(const array_member& v)
+	: value(v) {
+
+	}
 	exception::exception(const CLASS& c, const std::string& message, int code)
 	: value(c, {message, code}) {
 		

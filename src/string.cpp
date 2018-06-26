@@ -23,6 +23,18 @@ namespace php {
 	: value(std::move(buf)) {
 		
 	}
+	string::string(const parameter& v)
+	: value(v) {
+
+	}
+	string::string(const property& v)
+	: value(v) {
+
+	}
+	string::string(const array_member& v)
+	: value(v) {
+
+	}
 	string::string(int size)
 	:string(std::size_t(size)) {
 		

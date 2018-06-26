@@ -5,6 +5,9 @@
 namespace php {
 	class buffer;
 	class stream_buffer;
+	class parameter;
+	class property;
+	class array_member;
 	class string : public value {
 	public:
 		string(); // undefined
@@ -13,6 +16,9 @@ namespace php {
 		string(const std::string& str);
 		string(buffer&& buf);
 		string(stream_buffer&& buf);
+		string(const parameter& v);
+		string(const property& v);
+		string(const array_member& v);
 		explicit string(int size);
 		explicit string(std::size_t size);
 		string(zval* v, bool ref = false);

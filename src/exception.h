@@ -5,6 +5,9 @@
 
 namespace php {
 	class CLASS;
+	class parameter;
+	class property;
+	class array_member;
 	// exception => zend_ce_throwable
 	class exception: public value, public std::exception {
 	public:
@@ -16,6 +19,9 @@ namespace php {
 		exception(std::nullptr_t n);
 		exception(zval* v, bool ref = false);
 		exception(zend_object* v);
+		exception(const parameter& v);
+		exception(const property& v);
+		exception(const array_member& v);
 		exception(const CLASS& c, const std::string& message, int code = 0);
 		exception(const value& v);
 		exception(value&& v);
