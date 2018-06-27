@@ -11,7 +11,7 @@
 
 namespace php {
 	value callable::__call(zval* cb) {
-		if(Z_OBJCE_P(cb) == class_entry<closure>::entry()) {
+		if(Z_OBJCE_P(cb) == class_entry<closure>::entry() && class_entry<closure>::entry() != nullptr) {
 			php::parameters params(0, nullptr);
 			return static_cast<closure*>(native(Z_OBJ_P(cb)))->fn_(params);
 		}else{

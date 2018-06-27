@@ -98,14 +98,18 @@ public:
 		return nullptr;
 	}
 	php::value method_3(php::parameters& params) {
-
-		return nullptr;
+		return php::array(8);
 	}
 };
 
 extern "C" {
 	ZEND_DLEXPORT zend_module_entry* get_module() {
 		static php::extension_entry ext("phpext", "1.0");
+		// !!! 内部 class 需要使用 php::value([] (php::parameters& params) -> php::value {}); 函数须要
+		php::class_entry<php::closure> class_closure("ext_closure");
+		class_closure.method<&php::closure::__invoke>("__invoke");
+		ext.add(std::move(class_closure));
+
 		ext
 			.desc({"DESC_1", "DESC_CONTENT_111111111111111111111111"})
 			.desc({"DESC_2", "DESC_CONTENT_22222222222222222222"})

@@ -30,7 +30,7 @@ namespace php {
 		static zend_object_handlers  entry_handler;
 
 		static zend_object* create_object(zend_class_entry *entry) {
-			assert(entry == entry_);
+			assert(entry_ == entry);
 			size_t psize = zend_object_properties_size(entry_);
 			char*  pdata = (char*) ecalloc(1, sizeof(class_wrapper) + psize);
 			class_wrapper* wrapper = reinterpret_cast<class_wrapper*>(pdata);
@@ -57,6 +57,8 @@ namespace php {
 			std::memcpy(&entry_handler, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 			entry_handler.offset   = XtOffsetOf(class_wrapper, obj);
 			entry_handler.free_obj = class_entry::free_object;
+
+			entry_ = nullptr;
 		}
 		class_entry(class_entry&& entry)
 		: name_(std::move(entry.name_))
@@ -69,7 +71,6 @@ namespace php {
 
 		}
 		static CLASS entry() {
-			assert(entry_);
 			return entry_;
 		}
 		class_entry& extends(zend_class_entry** c) {
@@ -116,7 +117,11 @@ namespace php {
 		// TODO 优化内部对象定义, 使用封装后的类型?
 		virtual void declare() override {
 			// 防止同名类型重复声明 (其他 function/method/constant/property 均存在类似防止重复的机制)
-			if(zend_hash_find_ptr(CG(class_table), name_) != nullptr) return;
+			if(zend_hash_find_ptr(CG(class_table), name_) != nullptr) {
+				char message[256];
+				sprintf(message, "cannot redeclare internal class '%s'", name_.c_str());
+				throw php::exception(zend_ce_type_error, message);
+			}
 
 			entry_methods.push_back(zend_function_entry{}); // 结束数组条件
 			zend_class_entry ce, *pce = nullptr;
