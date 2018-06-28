@@ -31,7 +31,9 @@ namespace php {
 		CLASS classof() const {
 			return ptr().classof();
 		}
-		bool instanceof(const CLASS& c) const;
+		bool instanceof(const CLASS& c) const {
+			return ptr().instanceof(c);
+		}
 		// 读取
 		operator bool() const {
 			return ptr().operator bool();

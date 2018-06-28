@@ -40,9 +40,11 @@ namespace php {
 			wrapper->obj.handlers = &entry_handler;
 			wrapper->cpp = new T();
 			ZVAL_OBJ(&wrapper->cpp->obj_, &wrapper->obj);
+			// std::printf("create_object: %s %08x => %lu\n", entry->name->val, &wrapper->obj, sizeof(class_wrapper) + psize);
 			return &wrapper->obj;
 		}
 		static void free_object(zend_object* obj) {
+			// std::printf("destory_object: %s %08x\n", obj->ce->name->val, obj);
 			class_wrapper* wrapper = reinterpret_cast<class_wrapper*>( ((char*)obj) - entry_handler.offset );
 			delete wrapper->cpp;
 			zend_object_std_dtor(obj);

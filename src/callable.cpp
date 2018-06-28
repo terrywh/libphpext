@@ -27,7 +27,7 @@ namespace php {
 		for(int i=0;i<argv.size();++i) {
 			ZVAL_COPY_VALUE(&params[i], static_cast<zval*>(argv[i]));
 		}
-		if(Z_OBJCE_P(cb) == class_entry<closure>::entry()) {
+		if(Z_OBJCE_P(cb) == class_entry<closure>::entry() && class_entry<closure>::entry() != nullptr) {
 			php::parameters args(argv.size(), params);
 			return static_cast<closure*>(native(Z_OBJ_P(cb)))->fn_(args);
 		}else{
