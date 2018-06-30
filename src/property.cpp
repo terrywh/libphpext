@@ -29,7 +29,12 @@ namespace php {
 		return *this;
 	}
 	value property::ptr() const {
-		return value(raw(), true);
+		zval* ptr = raw(0;)
+		if(Z_ISREF_P(ptr)) {
+			return value(Z_REFVAL_P(ptr), true);
+		}else{
+			return value(ptr, true);
+		}
 	}
 	zval* property::raw() const {
 		return get(ref_, key_, const_cast<zval*>(&val_));

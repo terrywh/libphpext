@@ -14,12 +14,14 @@ namespace php {
 		return *this;
 	}
 	value parameter::ptr() const {
-		if(Z_ISREF_P(arg_)) return value(Z_REFVAL_P(arg_), true);
-		else return value(arg_, true);
+		if(Z_ISREF_P(arg_)) {
+			return value(Z_REFVAL_P(arg_), true);
+		}else{
+			return value(arg_, true);
+		}
 	}
 	zval* parameter::raw() const {
-		if(Z_ISREF_P(arg_)) return Z_REFVAL_P(arg_);
-		else return arg_;
+		return arg_;
 	}
 	parameter::parameter(zval* arg)
 	: arg_(arg) {
@@ -41,11 +43,7 @@ namespace php {
 			// TODO 补充当前函数或方法名称信息?
 			throw exception(zend_ce_type_error, "missing argument " + std::to_string(index+1));
 		}
-		if(Z_ISREF(argv_[index])) {
-			return parameter(Z_REFVAL(argv_[index]));
-		}else{
-			return parameter(&argv_[index]);
-		}
+		return parameter(&argv_[index]);
 	}
 	value parameters::get(std::uint8_t index, bool ptr) const {
 		if(index >= argc_) {

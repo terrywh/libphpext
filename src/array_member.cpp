@@ -50,7 +50,12 @@ namespace php {
 	}
 	// ---------------------------------------------------------
 	value array_member::ptr() const {
-		return value(raw(), true);
+		zval* ptr = raw();
+		if(Z_ISREF_P(ptr)) {
+			return value(Z_REFVAL_P(ptr), true);
+		}else{
+			return value(ptr, true);
+		}
 	}
 	zval* array_member::raw() const {
 		if(idx_ != -1) {

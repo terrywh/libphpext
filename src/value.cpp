@@ -38,12 +38,16 @@ namespace php {
 		if(v == nullptr) {
 			ZVAL_UNDEF(&val_);
 			ptr_ = &val_;
-		}else if(ptr) {
+		}else if(ptr) { // 3.
 			ZVAL_UNDEF(&val_);
 			ptr_ = v;
 		}else{
 			ZVAL_COPY(&val_, v);
-			ptr_ = &val_;
+			if(Z_ISREF(val_)) { // 2.
+				ptr_ = Z_REFVAL(val_);
+			}else{ // 1.
+				ptr_ = &val_;
+			}
 		}
 	}
 	value::value(const zend_string* v)
@@ -94,14 +98,26 @@ namespace php {
 	}
 	value::value(const value& v)
 	: ptr_(&val_) {
-		ZVAL_COPY(&val_, v.ptr_);
+		if(v.ptr_ == &v.val_) { // 1.
+			ZVAL_COPY(&val_, v.ptr_);
+		}else if(Z_ISREF(v.val_)) { // 2.
+			ZVAL_COPY(&val_, &v.val_);
+			ptr_ = Z_REFVAL(val_);
+		}else{ // 3.
+			ZVAL_COPY(&val_, v.ptr_);
+		}
 	}
 	value::value(value&& v) {
-		if(v.ptr_ == &v.val_) {
+		if(v.ptr_ == &v.val_) { // 1.
 			ZVAL_COPY_VALUE(&val_, &v.val_);
 			ZVAL_UNDEF(&v.val_);
 			ptr_ = &val_;
-		}else{
+		}else if(Z_ISREF(v.val_)) { // 2.
+			ZVAL_COPY_VALUE(&val_, &v.val_);
+			ZVAL_UNDEF(&v.val_);
+			v.ptr_ = &v.val_;
+			ptr_ = Z_REFVAL(val_);
+		}else{ // 3.
 			ZVAL_UNDEF(&val_);
 			ptr_ = v.ptr_;
 			v.ptr_ = &v.val_;
@@ -167,7 +183,7 @@ namespace php {
 
 	}
 	value::value(const property& v)
-	: value(v.raw()) { // 由于属性存在动态生成的可能, 这里稍有不同
+	: value(v.raw()) {
 
 	}
 	value::value(const array_member& v)
@@ -242,49 +258,50 @@ namespace php {
 	// 转换
 	// ---------------------------------------------------------------------
 	value::operator bool() const {
-		return !empty();
+		if(!typeof(TYPE::BOOLEAN)) throw php::exception(zend_ce_type_error, "type '" + TYPE::BOOLEAN.name()+ "' expected, '" + typeof().name() + "' given");
+		return typeof(TYPE::TRUE);
 	}
 	value::operator int() const {
-		assert(typeof(TYPE::INTEGER));
+		if(!typeof(TYPE::INTEGER)) throw php::exception(zend_ce_type_error, "type '" + TYPE::INTEGER.name()+ "' expected, '" + typeof().name() + "' given");
 		return Z_LVAL_P(ptr_);
 	}
 	value::operator std::int64_t() const {
-		assert(typeof(TYPE::INTEGER));
+		if(!typeof(TYPE::INTEGER)) throw php::exception(zend_ce_type_error, "type '" + TYPE::INTEGER.name()+ "' expected, '" + typeof().name() + "' given");
 		return Z_LVAL_P(ptr_);
 	}
 	value::operator std::size_t() const {
-		assert(typeof(TYPE::INTEGER));
+		if(!typeof(TYPE::INTEGER)) throw php::exception(zend_ce_type_error, "type '" + TYPE::INTEGER.name()+ "' expected, '" + typeof().name() + "' given");
 		return Z_LVAL_P(ptr_);
 	}
 	value::operator float() const {
-		assert(typeof(TYPE::FLOAT));
+		if(!typeof(TYPE::FLOAT)) throw php::exception(zend_ce_type_error, "type '" + TYPE::FLOAT.name()+ "' expected, '" + typeof().name() + "' given");
 		return Z_DVAL_P(ptr_);
 	}
 	value::operator double() const {
-		assert(typeof(TYPE::FLOAT));
+		if(!typeof(TYPE::FLOAT)) throw php::exception(zend_ce_type_error, "type '" + TYPE::FLOAT.name()+ "' expected, '" + typeof().name() + "' given");
 		return Z_DVAL_P(ptr_);
 	}
 	value::operator std::string() const {
-		assert(typeof(TYPE::STRING));
+		if(!typeof(TYPE::STRING)) throw php::exception(zend_ce_type_error, "type '" + TYPE::STRING.name()+ "' expected, '" + typeof().name() + "' given");
 		return std::string(Z_STRVAL_P(ptr_), Z_STRLEN_P(ptr_));
 	}
 	value::operator zval*() const {
 		return ptr_;
 	}
 	value::operator zend_string*() const {
-		assert(typeof(TYPE::STRING));
+		if(!typeof(TYPE::STRING)) throw php::exception(zend_ce_type_error, "type '" + TYPE::STRING.name() + "' expected, '" + typeof().name() + "' given");
 		return Z_STR_P(ptr_);
 	}
 	value::operator zend_object*() const {
-		assert(typeof(TYPE::OBJECT));
+		if(!typeof(TYPE::OBJECT)) throw php::exception(zend_ce_type_error, "type '" + TYPE::OBJECT.name()+ "' expected, '" + typeof().name() + "' given");
 		return Z_OBJ_P(ptr_);
 	}
 	value::operator zend_array*() const {
-		assert(typeof(TYPE::ARRAY));
+		if(!typeof(TYPE::ARRAY)) throw php::exception(zend_ce_type_error, "type '" + TYPE::ARRAY.name()+ "' expected, '" + typeof().name() + "' given");
 		return Z_ARR_P(ptr_);
 	}
 	value::operator zend_class_entry*() const {
-		assert(typeof(TYPE::OBJECT));
+		if(!typeof(TYPE::OBJECT)) throw php::exception(zend_ce_type_error, "type '" + TYPE::OBJECT.name()+ "' expected, '" + typeof().name() + "' given");
 		return Z_OBJCE_P(ptr_);
 	}
 	// (无类型检查)转换
