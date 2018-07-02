@@ -9,6 +9,9 @@ echo "test_function_1:\n";
 echo "--------------------------------------------------------\n";
 echo "    ", var_export(test_function_1(true, 123, 456.789, "abcdefg", ["a"=>"aaaaa"])), "\n";
 
+echo "========================================================\n";
+echo "test_function_2:\n";
+echo "--------------------------------------------------------\n";
 test_function_2(function($abc) {
 	echo "this is the callback being call from cpp: [", $abc, "]\n";
 }, "abc");

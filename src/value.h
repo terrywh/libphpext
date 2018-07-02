@@ -58,11 +58,12 @@ namespace php {
 		// 赋值
 		// -------------------------------------------------------------------
 		value& operator = (const value& v);
-		value& operator = (value&& v);
+		// value& operator = (value&& v);
 		value& operator = (const parameter& v);
 		value& operator = (const property& v);
 		value& operator = (const array_member& v);
 		value& operator = (std::nullptr_t v);
+		value& operator = (const std::string& v);
 		// 功能项
 		// ====================================================================
 		// 检查

@@ -329,12 +329,12 @@ namespace php {
 		ZVAL_COPY(ptr_, v.ptr_);
 		return *this;
 	}
-	value& value::operator =(value&& v) {
-		zval_ptr_dtor(ptr_);
-		ZVAL_COPY_VALUE(ptr_, v.ptr_);
-		ZVAL_UNDEF(v.ptr_ = &v.val_);
-		return *this;
-	}
+	// value& value::operator =(value&& v) {
+	// 	zval_ptr_dtor(ptr_);
+	// 	ZVAL_COPY_VALUE(ptr_, v.ptr_);
+	// 	ZVAL_UNDEF(v.ptr_ = &v.val_);
+	// 	return *this;
+	// }
 	value& value::operator = (const parameter& v) {
 		zval_ptr_dtor(ptr_);
 		ZVAL_COPY(ptr_, v.raw());
@@ -353,6 +353,11 @@ namespace php {
 	value& value::operator = (std::nullptr_t v) {
 		zval_ptr_dtor(ptr_);
 		ZVAL_NULL(ptr_);
+		return *this;
+	}
+	value& value::operator = (const std::string& v) {
+		zval_ptr_dtor(ptr_);
+		ZVAL_NEW_STR(ptr_, zend_string_init(v.c_str(), v.size(), 0));
 		return *this;
 	}
 	// ---------------------------------------------------------------------

@@ -117,15 +117,17 @@ extern "C" {
 			.constant({"CONSTANT_2", "THIS_IS_EXTENSION_CONSTANT"})
 			.ini({"config_1", "default_1"})
 			.ini({"config_2", "default_2"})
-			.function<test_function_1>("test_function_1")
+			.function<test_function_1>("test_function_1", {
+				{"boolean", php::TYPE::BOOLEAN}, // 基础类型无法强化检查 (用户代码需要自行检查)
+			})
 			.function<test_function_2>("test_function_2")
 			.function<test_function_3>("test_function_3", {
 				// 引用传递一个必要参数
 				{"arg1", php::TYPE::INTEGER, true},
 			})
 			.function<test_function_4>("test_function_4", {
-				{"arg1", "DateTime"}, // 类
-				{"arg2", php::TYPE::CALLABLE}, // Callable 被“强化”确认正确性
+				{"arg1", "DateTime"}, // 类 被"强化"确认类型正确
+				{"arg2", php::TYPE::CALLABLE}, // Callable 被“强化”确认类型正确
 			})
 			.function<test_function_5>("test_function_5")
 			.function<test_function_6>("test_function_6");
