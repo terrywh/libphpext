@@ -9,7 +9,7 @@ namespace php {
 		: max_(max)
 		, str_({nullptr, 0})
 		, get_(0) {
-			smart_str_alloc(&str_, 199, 0);
+			smart_str_erealloc(&str_, 199);
 		}
 		buffer(buffer&& b)
 		: max_(b.max_)
@@ -23,14 +23,14 @@ namespace php {
 		}
 		void push_back(char c) {
 			if(!str_.s || str_.s->len + 1 > str_.a) {
-				smart_str_realloc(&str_, str_.a + 64); // PHP 会自动靠齐 4096 整页
+				smart_str_erealloc(&str_, str_.a + 64); // PHP 会自动靠齐 4096 整页
 			}
 			str_.s->val[str_.s->len] = c;
 			++str_.s->len;
 		}
 		void append(const char* data, std::size_t size) {
 			if(!str_.s || str_.s->len + size > str_.a) {
-				smart_str_realloc(&str_, str_.a + size); // PHP 会自动靠齐 4096 整页
+				smart_str_erealloc(&str_, str_.s->len + size); // PHP 会自动靠齐 4096 整页
 			}
 			std::memcpy(&str_.s->val[str_.s->len], data, size);
 			str_.s->len += size;
@@ -38,7 +38,7 @@ namespace php {
 		void append(const php::value& v);
 		char* prepare(std::size_t size) {
 			if(!str_.s || str_.s->len + size > str_.a) {
-				smart_str_realloc(&str_, str_.s->len + size); // PHP 会自动靠齐 4096 整页
+				smart_str_erealloc(&str_, str_.s->len + size); // PHP 会自动靠齐 4096 整页
 			}
 			return &str_.s->val[str_.s->len];
 		}

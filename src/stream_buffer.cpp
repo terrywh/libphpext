@@ -106,7 +106,7 @@ namespace php {
 			g = 0;
 			p = 0;
 		}
-		smart_str_realloc(&str_, n); // 指针位置可能发生变更，需要重新设置
+		smart_str_erealloc(&str_, n); // 指针位置可能发生变更，需要重新设置
 		setg(str_.s->val, str_.s->val + g, str_.s->val + p);
 		setp(str_.s->val + p, str_.s->val + str_.a);
 	}
