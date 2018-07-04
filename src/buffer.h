@@ -51,6 +51,13 @@ namespace php {
 			}
 			str_.s->len += size;
 		}
+		void shrink(std::size_t size) {
+			if(!str_.s) return;
+			if(size > str_.a) {
+				size = str_.a;
+			}
+			str_.s->len = size;
+		}
 		char* data() const {
 			return const_cast<char*>(str_.s->val + get_);
 		}
