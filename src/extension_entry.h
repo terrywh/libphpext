@@ -14,7 +14,7 @@ namespace php {
 		std::string                                              name_;
 		std::string                                           version_;
 		zend_module_entry                                       entry_;
-		zend_module_dep                                  dependencies_[3];
+		zend_module_dep                                  dependencies_[4];
 		std::vector<std::shared_ptr<ini_entry>>           ini_entries_;
 		std::vector<std::shared_ptr<constant_entry>> constant_entries_;
 		std::vector<zend_function_entry>             function_entries_;

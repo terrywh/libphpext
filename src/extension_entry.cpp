@@ -12,7 +12,8 @@ namespace php {
 		self = this;
 		dependencies_[0] = {"standard", "ge", "7.0.0", MODULE_DEP_REQUIRED};
 		dependencies_[1] = {"json", "ge", "7.0.0", MODULE_DEP_REQUIRED};
-		dependencies_[2] = {nullptr, nullptr, nullptr, 0};
+		dependencies_[2] = {"date", "ge", "7.0.0", MODULE_DEP_REQUIRED};
+		dependencies_[3] = {nullptr, nullptr, nullptr, 0};
 		entry_.size                  = sizeof(entry_);
 		entry_.zend_api              = ZEND_MODULE_API_NO;
 		entry_.zend_debug            = ZEND_DEBUG;

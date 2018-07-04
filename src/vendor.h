@@ -30,6 +30,7 @@ extern "C" {
 #include <ext/standard/sha1.h>
 #include <ext/standard/crc32.h>
 #include <ext/json/php_json.h>
+#include <ext/date/php_date.h>
 
 #include <Zend/zend.h>
 #include <Zend/zend_API.h>

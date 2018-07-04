@@ -2,10 +2,11 @@
 
 #include "value.h"
 #include "string.h"
+#include "object.h"
 
 namespace php {
 	extern std::ostream& operator << (std::ostream& os, const php::value& data);
-
+	object datetime(std::int64_t now = 0);
 	string base64_encode(const unsigned char* str, std::size_t len);
 	string base64_decode(const unsigned char* str, std::size_t len);
 	string url_encode(const char* str, std::size_t len);
