@@ -90,7 +90,6 @@ namespace php {
 	std::streamsize stream_buffer::xsputn(const char* s, std::streamsize n) {
 		char* p = prepare(n);
 		std::memcpy(p, s, n);
-		p += n;
 		commit(n);
 		return n;
 	}
@@ -102,6 +101,7 @@ namespace php {
 		if(str_.s) {
 			g = gptr() - str_.s->val;
 			p = pptr() - str_.s->val;
+			str_.s->len = p;
 		}else{
 			g = 0;
 			p = 0;
