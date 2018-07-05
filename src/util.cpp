@@ -17,7 +17,7 @@ namespace php {
 	}
 	object datetime(std::int64_t ms) {
 		object obj {CLASS(php_date_get_date_ce())};
-		obj.call("setTimestamp", {std::int64_t(ms/1000)});
+		obj.call("__construct", { "@" + std::to_string(std::int64_t(ms/1000))});
 		return std::move(obj);
 	}
 	php::string base64_encode(const unsigned char* str, std::size_t len) {
