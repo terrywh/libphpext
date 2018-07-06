@@ -9,8 +9,8 @@ namespace php {
 		static const TYPE UNDEFINED;
 		static const TYPE NULLABLE;
 		static const TYPE BOOLEAN; // 仅用于参数说明
-		static const TYPE TRUE;
-		static const TYPE FALSE;
+		static const TYPE YES;
+		static const TYPE NO;
 		static const TYPE INTEGER;
 		static const TYPE FLOAT;
 		static const TYPE STRING;

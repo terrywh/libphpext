@@ -35,6 +35,9 @@ namespace php {
 			std::memcpy(&str_.s->val[str_.s->len], data, size);
 			str_.s->len += size;
 		}
+		void append(const std::string& v) {
+			append(v.c_str(), v.size());
+		}
 		void append(const php::value& v);
 		char* prepare(std::size_t size) {
 			if(!str_.s || str_.s->len + size > str_.a) {

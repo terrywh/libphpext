@@ -259,7 +259,7 @@ namespace php {
 	// ---------------------------------------------------------------------
 	value::operator bool() const {
 		if(!typeof(TYPE::BOOLEAN)) throw php::exception(zend_ce_type_error, "type '" + TYPE::BOOLEAN.name()+ "' expected, '" + typeof().name() + "' given");
-		return typeof(TYPE::TRUE);
+		return typeof(TYPE::YES);
 	}
 	value::operator int() const {
 		if(!typeof(TYPE::INTEGER)) throw php::exception(zend_ce_type_error, "type '" + TYPE::INTEGER.name()+ "' expected, '" + typeof().name() + "' given");
@@ -308,7 +308,7 @@ namespace php {
 	// ---------------------------------------------------------------------
 	bool value::to_boolean() {
 		convert_to_boolean(ptr_);
-		return typeof() == TYPE::TRUE;
+		return typeof(TYPE::YES);
 	}
 	std::int64_t value::to_integer(int base) {
 		convert_to_long(ptr_);

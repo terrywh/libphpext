@@ -47,8 +47,8 @@ namespace php {
 	const TYPE TYPE::UNDEFINED = zend_uchar(IS_UNDEF);
 	const TYPE TYPE::NULLABLE  = zend_uchar(IS_NULL);
 	const TYPE TYPE::BOOLEAN   = zend_uchar(_IS_BOOL);
-	const TYPE TYPE::TRUE      = zend_uchar(IS_TRUE);
-	const TYPE TYPE::FALSE     = zend_uchar(IS_FALSE);
+	const TYPE TYPE::YES       = zend_uchar(IS_TRUE);
+	const TYPE TYPE::NO        = zend_uchar(IS_FALSE);
 	const TYPE TYPE::INTEGER   = zend_uchar(IS_LONG);
 	const TYPE TYPE::FLOAT     = zend_uchar(IS_DOUBLE);
 	const TYPE TYPE::STRING    = zend_uchar(IS_STRING);
