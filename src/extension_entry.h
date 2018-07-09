@@ -64,10 +64,10 @@ namespace php {
 		}
 		extension_entry& desc(std::pair<std::string, std::string> kv);
 		operator zend_module_entry*();
-		void on_module_startup(std::function<bool (extension_entry&)> handler);
-		void on_module_shutdown(std::function<bool (extension_entry&)> handler);
-		void on_request_startup(std::function<bool (extension_entry&)> handler);
-		void on_request_shutdown(std::function<bool (extension_entry&)> handler);
+		extension_entry& on_module_startup(std::function<bool (extension_entry&)> handler);
+		extension_entry& on_module_shutdown(std::function<bool (extension_entry&)> handler);
+		extension_entry& on_request_startup(std::function<bool (extension_entry&)> handler);
+		extension_entry& on_request_shutdown(std::function<bool (extension_entry&)> handler);
 	private:
 		// 扩展回调函数
 		static int on_module_startup_handler  (int type, int module);

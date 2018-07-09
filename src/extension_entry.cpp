@@ -62,17 +62,21 @@ namespace php {
 		}
 		return &entry_;
 	}
-	void extension_entry::on_module_startup(std::function<bool (extension_entry&)> handler) {
+	extension_entry& extension_entry::on_module_startup(std::function<bool (extension_entry&)> handler) {
 		handler_mst_.push_back(handler);
+		return *this;
 	}
-	void extension_entry::on_module_shutdown(std::function<bool (extension_entry&)> handler) {
+	extension_entry& extension_entry::on_module_shutdown(std::function<bool (extension_entry&)> handler) {
 		handler_msd_.push_back(handler);
+		return *this;
 	}
-	void extension_entry::on_request_startup(std::function<bool (extension_entry&)> handler) {
+	extension_entry& extension_entry::on_request_startup(std::function<bool (extension_entry&)> handler) {
 		handler_rst_.push_back(handler);
+		return *this;
 	}
-	void extension_entry::on_request_shutdown(std::function<bool (extension_entry&)> handler) {
+	extension_entry& extension_entry::on_request_shutdown(std::function<bool (extension_entry&)> handler) {
 		handler_rsd_.push_back(handler);
+		return *this;
 	}
 	// 扩展回调函数
 	int extension_entry::on_module_startup_handler  (int type, int module) {
