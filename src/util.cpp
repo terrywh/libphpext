@@ -6,6 +6,10 @@
 namespace php {
 	std::ostream& operator << (std::ostream& os, const php::value& data) {
 		php::string s = data;
+		if(s.instanceof(zend_ce_throwable)) {
+			php::object o = data;
+			s = o.call("getMessage");
+		}
 		if(!s.typeof(php::TYPE::STRING)) {
 			s = php::json_encode(s);
 		}
