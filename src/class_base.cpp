@@ -27,7 +27,7 @@ namespace php {
 		assert(Z_TYPE(obj_) == IS_OBJECT);
 		return php::property(const_cast<zval*>(&obj_), name);
 	}
-	property class_base::property(const php::string& name) const {
+	property class_base::prop(const php::string& name) const {
 		assert(Z_TYPE(obj_) == IS_OBJECT);
 		return php::property(const_cast<zval*>(&obj_), name);
 	}

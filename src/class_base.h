@@ -17,7 +17,7 @@ namespace php {
 		value call(const string& name) const;
 		value call(const string& name, const std::vector<value>& argv) const;
 		property operator [](const string& name) const;
-		property property(const string& name) const;
+		property prop(const string& name) const;
 
 		friend class value;
 		friend class object;
