@@ -6,11 +6,11 @@ namespace php {
 	class argument {
 	public:
 		argument(const char* name, bool byref = false, bool nullable = false);
-		argument(const char* name, const char* class_name, bool nullable = false);
+		argument(const char* name, const char* class_name);
 		// 注意：基础类型的 type_hint 类型检查实际未检查 (除 Callable 及 类类型 外)
 		argument(const char* name, TYPE type_hint, bool byref = false, bool nullable = false);
 	private:
-		argument(const char* name, const char* class_name, zend_uchar type_hint, bool byref, bool nullable);
+		argument(const char* name, const char* class_name, bool byref);
 		zend_internal_arg_info arg_;
 		friend class arguments;
 	};

@@ -3,29 +3,27 @@
 
 namespace php {
 	argument::argument(const char* name, bool byref, bool nullable)
-	: argument(name, nullptr, TYPE::UNDEFINED, byref, nullable) {}
-	argument::argument(const char* name, const char* class_name, bool nullable)
-	: argument(name, class_name, TYPE::OBJECT, false, nullable) {}
+	: argument(name, TYPE::UNDEFINED, false, nullable) {}
+	argument::argument(const char* name, const char* class_name)
+	: argument(name, class_name, false) {}
 	// 注意：基础类型的 type_hint 检查 PHP 暂时还未实现
 	argument::argument(const char* name, TYPE type_hint, bool byref, bool nullable)
-	: argument(name, nullptr, type_hint, byref, nullable) {}
-	argument::argument(const char* name, const char* class_name, zend_uchar type_hint, bool byref, bool nullable)
-	: arg_ {name, class_name, type_hint, byref, nullable, false} {
+	: arg_ {name, ZEND_TYPE_ENCODE(type_hint, nullable), byref, false} {}
+	argument::argument(const char* name, const char* class_name, bool byref)
+	: arg_ {name, (zend_type) class_name, byref, false} {
 
 	}
 	arguments::arguments(std::initializer_list<argument> args) {
 		int required = 0, rset = 0;
 		args_.emplace_back( zend_internal_arg_info {
 			(const char*)(zend_uintptr_t)(required),
-			nullptr, // class_name
-			0,       // type_hint
+			0, // zend_type
 			false,   // retrun_reference
-			false,   // allow_null
-			0,
+			false,   // _is_variadic
 		} );
 		for(auto i=args.begin(); i!=args.end(); ++i) {
 			if(!rset) {
-				if(!i->arg_.allow_null) ++required;
+				if(!ZEND_TYPE_ALLOW_NULL(i->arg_.type)) ++required;
 				else rset = 1;
 			}
 			args_.push_back( i->arg_ );

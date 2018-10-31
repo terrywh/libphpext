@@ -32,6 +32,7 @@ extern "C" {
 #include <ext/json/php_json.h>
 #include <ext/date/php_date.h>
 
+#include <Zend/zend_types.h>
 #include <Zend/zend.h>
 #include <Zend/zend_API.h>
 #include <Zend/zend_ini.h>
