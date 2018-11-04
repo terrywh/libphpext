@@ -1,7 +1,7 @@
 .SUFFIXES:
 
 # 依赖
-VENDOR_PHP?=/data/vendor/php-7.0.30
+VENDOR_PHP?=/data/vendor/php-7.0.32
 
 # 项目
 SOURCES=$(shell find ./src -name "*.cpp")
@@ -12,9 +12,9 @@ VERSION=1.0.0
 TARGETY=phpext.so
 
 # 编译
-CXX=clang++
+CXX=g++
 INCLUDES=$(shell ${VENDOR_PHP}/bin/php-config --includes | sed 's/-I/-isystem/g')
-CXXFLAGS?= -g -O0
+CXXFLAGS?= -O2
 CXXFLAGS+= -std=c++11 -fPIC ${INCLUDES}
 LDFLAGS?=
 LDFLAGS+=-shared
@@ -45,4 +45,3 @@ ${TARGETY}: ./test/extension.o ${TARGETX}
 	${CXX} -shared $< ${LDFLAGS} -L. -lphpext -o $@
 %.o: %.cpp
 	${CXX} ${CXXFLAGS} -MMD -MP -c $< -o $@
-
