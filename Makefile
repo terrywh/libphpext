@@ -45,4 +45,3 @@ ${TARGETY}: ./test/extension.o ${TARGETX}
 	${CXX} -shared $< ${LDFLAGS} -L. -lphpext -o $@
 %.o: %.cpp
 	${CXX} ${CXXFLAGS} -MMD -MP -c $< -o $@
-

@@ -3,11 +3,11 @@
 
 namespace php {
 	string::string() {
-		
+
 	}
 	string::string(std::nullptr_t n)
 	: value(n) {
-		
+
 	}
 	string::string(const char* str, std::size_t len) {
 		ZVAL_STR(&val_, zend_string_init(str, (len == -1 ? std::strlen(str) : len), false));
@@ -17,11 +17,11 @@ namespace php {
 	}
 	string::string(buffer&& buf)
 	: value(std::move(buf)) {
-		
+
 	}
 	string::string(stream_buffer&& buf)
 	: value(std::move(buf)) {
-		
+
 	}
 	string::string(const parameter& v)
 	: value(v) {
@@ -37,7 +37,7 @@ namespace php {
 	}
 	string::string(int size)
 	:string(std::size_t(size)) {
-		
+
 	}
 	string::string(std::size_t size) {
 		if(size <= 0) {
@@ -51,15 +51,15 @@ namespace php {
 	// 注意: 此种构造形式无类型检查
 	string::string(zval* v, bool ref)
 	: value(v, ref) {
-		
+
 	}
 	string::string(zend_string* v)
 	: value(v) {
-		
+
 	}
 	string::string(smart_str* v)
 	: value(v) {
-		
+
 	}
 	string::string(const value& v)
 	: value(v/*, TYPE::STRING*/) {
@@ -109,5 +109,19 @@ namespace php {
 		string str = concat(*this, s);
 		value::operator =(std::move(str));
 		return *this;
+	}
+	bool string::operator <(const string& s) const {
+		int d = std::strncmp(c_str(), s.c_str(), std::min(size(), s.size()));
+		if(d < 0) {
+			return true;
+		}else if(d == 0) {
+			return size() < s.size();
+		}else{
+			return false;
+		}
+	}
+	bool string::operator ==(const string& s) const {
+		if(size() != s.size()) return false;
+		return std::strncmp(c_str(), s.c_str(), std::min(size(), s.size())) == 0;
 	}
 }

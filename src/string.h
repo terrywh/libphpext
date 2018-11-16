@@ -35,6 +35,8 @@ namespace php {
 		// --------------------------------------------------------------------
 		string operator +(const string& s) const;
 		string operator +(const char* s) const;
+		bool   operator <(const string& s) const;
+		bool   operator ==(const string& s) const;
 		string& operator +=(const string& s);
 		// ------------------------------------------------------------------
 		using value::operator =;
