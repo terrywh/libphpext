@@ -31,8 +31,7 @@ namespace php {
 	}
 	//
 	void constant_entry::declare(zend_class_entry* ce) {
-		// 参见 zend_API.c 中 zend_declare_class_constant() 函数
-		zval* r = zend_hash_update(&ce->constants_table, key_, val_);
-		assert(r != nullptr && "声明常量失败");
+		int r = zend_declare_class_constant_ex(ce, key_, val_, ZEND_ACC_PUBLIC, nullptr);
+		assert(r == 0 && "声明常量失败");
 	}
 }
