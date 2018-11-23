@@ -22,11 +22,11 @@ namespace php {
 	exception::exception() {}
 	exception::exception(std::nullptr_t n)
 	: value(n) {
-		
+
 	}
 	exception::exception(zval* v, bool ref)
 	: value(v, ref) {
-		
+
 	}
 	exception::exception(zend_object* v) {
 		assert(instanceof_function(v->ce, zend_ce_throwable));
@@ -47,7 +47,7 @@ namespace php {
 	}
 	exception::exception(const CLASS& c, const std::string& message, int code)
 	: value(c, {message, code}) {
-		
+
 	}
 	exception::exception(const value& v)
 	: value(v/* , CLASS(zend_ce_throwable) */) {

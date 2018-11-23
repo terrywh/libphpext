@@ -19,6 +19,7 @@ namespace php {
 		array(zend_array* v);
 		array(const value& v);
 		array(value&& v);
+		array(const parameters& v);
 		array(const parameter& v);
 		array(const array_member& v);
 		array(const property& v);

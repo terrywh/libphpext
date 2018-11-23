@@ -10,7 +10,7 @@ namespace php {
 	}
 	array::array(std::nullptr_t n)
 	: value(n) {
-		
+
 	}
 	array::array(int size)
 	: array(std::size_t(size)) {
@@ -22,7 +22,7 @@ namespace php {
 	}
 	array::array(zval* v, bool ref)
 	: value(v, ref) {
-		
+
 	}
 	array::array(zend_array* v)
 	: value(v) {
@@ -35,6 +35,12 @@ namespace php {
 	array::array(value&& v)
 	: value(std::move(v)/* , TYPE::ARRAY */) {
 
+	}
+	array::array(const parameters& v)
+	: array(v.size()) {
+		for(int i=0;i<v.size();++i) {
+			set(i, v[i]);
+		}
 	}
 	array::array(const parameter& v)
 	: value(v) {
