@@ -20,10 +20,10 @@ namespace php {
 		} catch (const exception& e) {
 			exception::rethrow(e);
 		 	return;
-		} catch (const std::exception& e) {
+		}/*catch (const std::exception& e) {
 			zend_throw_exception(zend_ce_error, e.what(), 0);
 			return;
-		}/* catch(...) {
+		} catch(...) {
 			// 非可控范围的异常继续抛出
 		}*/
 		ZVAL_COPY(return_value, rv);
@@ -38,13 +38,13 @@ namespace php {
 				throw exception(zend_ce_type_error, "expects at least " + std::to_string(execute_data->func->common.required_num_args) + " parameters, " + std::to_string(ZEND_NUM_ARGS()) + " given");
 			}
 			rv = (static_cast<T*>(native( Z_OBJ_P(getThis()) ))->*FUNCTION)(params);
-		} catch (const exception& e) {
+		}catch (const exception& e) {
 			exception::rethrow(e);
 		 	return;
-		} catch (const std::exception& e) {
+		}/*catch (const std::exception& e) {
 			zend_throw_exception(zend_ce_error, e.what(), 0);
 			return;
-		}/* catch(...) {
+		} catch(...) {
 			// 非可控范围的异常继续抛出
 		}*/
 		ZVAL_COPY(return_value, rv);
