@@ -48,7 +48,7 @@ php::value test_function_2(php::parameters& params) {
 }
 php::value test_function_3(php::parameters& params) {
 	// 函数声明了首个必要参数为“引用”传递，可以更改其值
-	
+
 	params[0] = static_cast<int>(params[0]) * 2;
 	php::value v = 654321;
 	v = 123456;
@@ -62,7 +62,15 @@ php::value test_function_4(php::parameters& params) {
 	// 调用对象方法
 	date1.call("modify", {"+1day"});
 	// 调用回调
-	return cb2({php::json_encode(date1)});
+	try{
+		cb2.call();
+	}
+	catch(const php::exception& ex)
+	{
+		std::cout << "exception caught!\n";
+
+	}
+	return nullptr;
 }
 php::value test_function_5(php::parameters& params) {
 	// C++11
@@ -80,7 +88,7 @@ php::value test_function_6(php::parameters& params) {
 	}
 	return std::move(sb); // php::value 移动构造
 }
-// 
+//
 class test_class_1: public php::class_base {
 public:
 	// 属性操作方式 1
@@ -88,7 +96,7 @@ public:
 		// 读取 1.
 		php::value p = get("property_1");
 		get("property_1");
-		// 更新 1. 
+		// 更新 1.
 		set("property_1", params[0]);
 		return nullptr;
 	}
@@ -132,17 +140,16 @@ extern "C" {
 			.function<test_function_5>("test_function_5")
 			.function<test_function_6>("test_function_6");
 
-		php::class_entry<test_class_1> class_test_1("test_class_1");
-		class_test_1.constant({"CONSTANT_1", 333333});
-		class_test_1.constant({"CONSTANT_1", "THIS_IS_CLASS_CONSTANT"});
-		class_test_1.property({"property_1", 123456});
-		class_test_1.property({"property_2", nullptr});
-		class_test_1.method<&test_class_1::method_1>("method_1");
-		class_test_1.method<&test_class_1::method_2>("method_2");
-		class_test_1.method<&test_class_1::method_3>("method_3");
-		ext.add(std::move(class_test_1));
+		// php::class_entry<test_class_1> class_test_1("test_class_1");
+		// class_test_1.constant({"CONSTANT_1", 333333});
+		// class_test_1.constant({"CONSTANT_1", "THIS_IS_CLASS_CONSTANT"});
+		// class_test_1.property({"property_1", 123456});
+		// class_test_1.property({"property_2", nullptr});
+		// class_test_1.method<&test_class_1::method_1>("method_1");
+		// class_test_1.method<&test_class_1::method_2>("method_2");
+		// class_test_1.method<&test_class_1::method_3>("method_3");
+		// ext.add(std::move(class_test_1));
 
 		return ext;
 	}
 };
-

@@ -8,7 +8,7 @@ SOURCES=$(shell find ./src -name "*.cpp")
 OBJECTS=$(SOURCES:%.cpp=%.o)
 DEPENDS=$(SOURCES:%.cpp=%.d)
 TARGETX=libphpext.a
-VERSION=1.1.0
+VERSION=1.1.1
 TARGETY=phpext.so
 
 # 编译
@@ -33,7 +33,7 @@ install: ${TARGETX}
 	sudo rm -rf ${PREFIX}/include/phpext ${PREFIX}/lib/${TARGETX}
 	sudo mkdir -p ${PREFIX}/include/phpext
 	sudo mkdir -p ${PREFIX}/lib
-	sudo cp -f src/*.h ${PREFIX}/include/phpext
+	sudo cp -f --preserve=timestamps src/*.h ${PREFIX}/include/phpext
 	sudo cp -f ${TARGETX} ${PREFIX}/lib
 clean:
 	rm -f ${HEADERX} ${TARGETX} ${OBJECTS} ${DEPENDS}
@@ -42,6 +42,6 @@ clean:
 ${TARGETX}: ${OBJECTS}
 	ar rcs $@ $^
 ${TARGETY}: ./test/extension.o ${TARGETX}
-	${CXX} -shared $< ${LDFLAGS} -L. -lphpext -o $@
+	${CXX} -shared $< ${LDFLAGS} -L. -lphpext -static-libstdc++ -o $@
 %.o: %.cpp
 	${CXX} ${CXXFLAGS} -MMD -MP -c $< -o $@

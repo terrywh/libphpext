@@ -24,4 +24,26 @@ namespace php {
 	ini::operator double() {
 		return zend_ini_double(const_cast<char*>(key_.data()), key_.length(), 0);
 	}
+	std::int64_t ini::calc() {
+		std::int64_t size = zend_ini_long(const_cast<char *>(key_.data()), key_.length(), 0);
+		std::string  val_ = static_cast<std::string>(*this);
+		std::size_t npos = val_.find_last_not_of(' ');
+		if(npos != val_.npos) {
+			switch(val_[npos]) {
+			case 't':
+			case 'T':
+				size *= 1024;
+			case 'g':
+			case 'G':
+				size *= 1024;
+			case 'm':
+			case 'M':
+				size *= 1024;
+			case 'k':
+			case 'K':
+				size *= 1024;
+			}
+		}
+		return size;
+	}
 }
