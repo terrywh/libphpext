@@ -79,17 +79,26 @@ namespace php {
 	}
 	php::string json_encode(const php::value& val) {
 		smart_str str {nullptr, 0};
-		php_json_encode(&str, val, PHP_JSON_UNESCAPED_UNICODE);
+		if(FAILURE == php_json_encode(&str, val, PHP_JSON_UNESCAPED_UNICODE)) {
+			php::exception::rethrow();
+			return nullptr;
+		}
 		return &str;
 	}
 	php::value json_decode(const char* str, std::size_t size) {
 		php::value rv;
-		php_json_decode_ex(rv, const_cast<char*>(str), size, PHP_JSON_OBJECT_AS_ARRAY, PHP_JSON_PARSER_DEFAULT_DEPTH);
+		if(FAILURE == php_json_decode_ex(rv, const_cast<char*>(str), size, PHP_JSON_OBJECT_AS_ARRAY, PHP_JSON_PARSER_DEFAULT_DEPTH)) {
+			php::exception::rethrow();
+			return nullptr;
+		}
 		return std::move(rv);
 	}
 	php::value json_decode(const php::string& str) {
 		php::value rv;
-		php_json_decode_ex(rv, const_cast<char*>(str.data()), str.size(), PHP_JSON_OBJECT_AS_ARRAY, PHP_JSON_PARSER_DEFAULT_DEPTH);
+		if(FAILURE == php_json_decode_ex(rv, const_cast<char*>(str.data()), str.size(), PHP_JSON_OBJECT_AS_ARRAY, PHP_JSON_PARSER_DEFAULT_DEPTH)) {
+			php::exception::rethrow();
+			return nullptr;
+		}
 		return std::move(rv);
 	}
 	void sha1(const unsigned char* enc_str, size_t enc_len, char* output) {
