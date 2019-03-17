@@ -1,6 +1,6 @@
 #pragma once
 
-#define PHPEXT_LIB_VERSION "1.0.0"
+#define PHPEXT_LIB_VERSION "1.1.3"
 #include "vendor.h"
 
 #include "type.h"
@@ -34,4 +34,3 @@
 #include "util.h"
 #include "ini.h"
 #include "global.h"
-
