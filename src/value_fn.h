@@ -22,11 +22,11 @@ namespace php {
 		std::size_t size() const {
 			return ptr().size();
 		}
-		TYPE typeof() const {
-			return ptr().typeof();
+		TYPE type_of() const {
+			return ptr().type_of();
 		}
-		bool typeof(const TYPE& t) const {
-			return ptr().typeof(t);
+		bool type_of(const TYPE& t) const {
+			return ptr().type_of(t);
 		}
 		CLASS classof() const {
 			return ptr().classof();

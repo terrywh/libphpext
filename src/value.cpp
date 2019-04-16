@@ -239,76 +239,76 @@ namespace php {
 	}
 	// --------------------------------------------------------------------
 	
-	TYPE value::typeof() const {
+	TYPE value::type_of() const {
 		return TYPE(ptr_);
 	}
-	bool value::typeof(const TYPE& t) const {
+	bool value::type_of(const TYPE& t) const {
 		zend_uchar t_ = Z_TYPE_P(ptr_);
 		return t == t_ // 类型相同
 			|| (t == TYPE::BOOLEAN && (t_ == IS_TRUE || t_ == IS_FALSE))
 			|| (t == TYPE::CALLABLE && zend_is_callable(ptr_, IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr));
 	}
 	CLASS value::classof() const {
-		assert(typeof(TYPE::OBJECT));
+		assert(type_of(TYPE::OBJECT));
 		return CLASS(Z_OBJCE_P(ptr_));
 	}
 	bool value::instanceof(const CLASS& c) const {
-		return typeof(TYPE::OBJECT) && instanceof_function(Z_OBJCE_P(ptr_), c);
+		return type_of(TYPE::OBJECT) && instanceof_function(Z_OBJCE_P(ptr_), c);
 	}
 	// 转换
 	// ---------------------------------------------------------------------
 	value::operator bool() const {
-		if(!typeof(TYPE::BOOLEAN)) throw php::exception(zend_ce_type_error, "type '" + TYPE::BOOLEAN.name()+ "' expected, '" + typeof().name() + "' given");
-		return typeof(TYPE::YES);
+		if(!type_of(TYPE::BOOLEAN)) throw php::exception(zend_ce_type_error, "type '" + TYPE::BOOLEAN.name()+ "' expected, '" + type_of().name() + "' given");
+		return type_of(TYPE::YES);
 	}
 	value::operator int() const {
-		if(!typeof(TYPE::INTEGER)) throw php::exception(zend_ce_type_error, "type '" + TYPE::INTEGER.name()+ "' expected, '" + typeof().name() + "' given");
+		if(!type_of(TYPE::INTEGER)) throw php::exception(zend_ce_type_error, "type '" + TYPE::INTEGER.name()+ "' expected, '" + type_of().name() + "' given");
 		return Z_LVAL_P(ptr_);
 	}
 	value::operator std::int64_t() const {
-		if(!typeof(TYPE::INTEGER)) throw php::exception(zend_ce_type_error, "type '" + TYPE::INTEGER.name()+ "' expected, '" + typeof().name() + "' given");
+		if(!type_of(TYPE::INTEGER)) throw php::exception(zend_ce_type_error, "type '" + TYPE::INTEGER.name()+ "' expected, '" + type_of().name() + "' given");
 		return Z_LVAL_P(ptr_);
 	}
 	value::operator std::size_t() const {
-		if(!typeof(TYPE::INTEGER)) throw php::exception(zend_ce_type_error, "type '" + TYPE::INTEGER.name()+ "' expected, '" + typeof().name() + "' given");
+		if(!type_of(TYPE::INTEGER)) throw php::exception(zend_ce_type_error, "type '" + TYPE::INTEGER.name()+ "' expected, '" + type_of().name() + "' given");
 		return Z_LVAL_P(ptr_);
 	}
 	value::operator float() const {
-		if(!typeof(TYPE::FLOAT)) throw php::exception(zend_ce_type_error, "type '" + TYPE::FLOAT.name()+ "' expected, '" + typeof().name() + "' given");
+		if(!type_of(TYPE::FLOAT)) throw php::exception(zend_ce_type_error, "type '" + TYPE::FLOAT.name()+ "' expected, '" + type_of().name() + "' given");
 		return Z_DVAL_P(ptr_);
 	}
 	value::operator double() const {
-		if(!typeof(TYPE::FLOAT)) throw php::exception(zend_ce_type_error, "type '" + TYPE::FLOAT.name()+ "' expected, '" + typeof().name() + "' given");
+		if(!type_of(TYPE::FLOAT)) throw php::exception(zend_ce_type_error, "type '" + TYPE::FLOAT.name()+ "' expected, '" + type_of().name() + "' given");
 		return Z_DVAL_P(ptr_);
 	}
 	value::operator std::string() const {
-		if(!typeof(TYPE::STRING)) throw php::exception(zend_ce_type_error, "type '" + TYPE::STRING.name()+ "' expected, '" + typeof().name() + "' given");
+		if(!type_of(TYPE::STRING)) throw php::exception(zend_ce_type_error, "type '" + TYPE::STRING.name()+ "' expected, '" + type_of().name() + "' given");
 		return std::string(Z_STRVAL_P(ptr_), Z_STRLEN_P(ptr_));
 	}
 	value::operator zval*() const {
 		return ptr_;
 	}
 	value::operator zend_string*() const {
-		if(!typeof(TYPE::STRING)) throw php::exception(zend_ce_type_error, "type '" + TYPE::STRING.name() + "' expected, '" + typeof().name() + "' given");
+		if(!type_of(TYPE::STRING)) throw php::exception(zend_ce_type_error, "type '" + TYPE::STRING.name() + "' expected, '" + type_of().name() + "' given");
 		return Z_STR_P(ptr_);
 	}
 	value::operator zend_object*() const {
-		if(!typeof(TYPE::OBJECT)) throw php::exception(zend_ce_type_error, "type '" + TYPE::OBJECT.name()+ "' expected, '" + typeof().name() + "' given");
+		if(!type_of(TYPE::OBJECT)) throw php::exception(zend_ce_type_error, "type '" + TYPE::OBJECT.name()+ "' expected, '" + type_of().name() + "' given");
 		return Z_OBJ_P(ptr_);
 	}
 	value::operator zend_array*() const {
-		if(!typeof(TYPE::ARRAY)) throw php::exception(zend_ce_type_error, "type '" + TYPE::ARRAY.name()+ "' expected, '" + typeof().name() + "' given");
+		if(!type_of(TYPE::ARRAY)) throw php::exception(zend_ce_type_error, "type '" + TYPE::ARRAY.name()+ "' expected, '" + type_of().name() + "' given");
 		return Z_ARR_P(ptr_);
 	}
 	value::operator zend_class_entry*() const {
-		if(!typeof(TYPE::OBJECT)) throw php::exception(zend_ce_type_error, "type '" + TYPE::OBJECT.name()+ "' expected, '" + typeof().name() + "' given");
+		if(!type_of(TYPE::OBJECT)) throw php::exception(zend_ce_type_error, "type '" + TYPE::OBJECT.name()+ "' expected, '" + type_of().name() + "' given");
 		return Z_OBJCE_P(ptr_);
 	}
 	// (无类型检查)转换
 	// ---------------------------------------------------------------------
 	bool value::to_boolean() {
 		convert_to_boolean(ptr_);
-		return typeof(TYPE::YES);
+		return type_of(TYPE::YES);
 	}
 	std::int64_t value::to_integer(int base) {
 		convert_to_long(ptr_);

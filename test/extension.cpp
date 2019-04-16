@@ -8,7 +8,7 @@ php::value test_function_1(php::parameters& params) {
 	php::value v0 = params[0];
 	// 除非在函数声明时明确类型, 否则应添加类型检查
 	int v1;
-	if(params[1].typeof(php::TYPE::INTEGER)) {
+	if(params[1].type_of(php::TYPE::INTEGER)) {
 		v1 = params[1];
 	}
 	// 强制类型转换

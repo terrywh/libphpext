@@ -70,8 +70,8 @@ namespace php {
 		bool empty() const;
 		std::size_t length() const;
 		std::size_t size() const;
-		TYPE typeof() const;
-		bool typeof(const TYPE& t) const;
+		TYPE type_of() const;
+		bool type_of(const TYPE& t) const;
 		CLASS classof() const;
 		bool instanceof(const CLASS& c) const;
 		// 读取
@@ -89,7 +89,7 @@ namespace php {
 		operator zend_class_entry*() const;
 		template <typename POINTER_TYPE>
 		POINTER_TYPE* pointer() const {
-			assert(typeof(TYPE::POINTER));
+			assert(type_of(TYPE::POINTER));
 			return reinterpret_cast<POINTER_TYPE*>(Z_PTR_P(ptr_));
 		}
 		// 强制转换

@@ -58,7 +58,7 @@ namespace php {
 	}
 	callable::callable(zend_object* cb) {
 		ZVAL_OBJ(&val_, cb);
-		assert(typeof(TYPE::CALLABLE));
+		assert(type_of(TYPE::CALLABLE));
 		addref();
 	}
 	callable::callable(std::function<php::value (php::parameters& params)> v)

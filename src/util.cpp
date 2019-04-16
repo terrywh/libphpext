@@ -10,10 +10,10 @@ namespace php {
 			php::object o = data;
 			s = o.call("getMessage");
 		}
-		if(!s.typeof(php::TYPE::STRING)) {
+		if(!s.type_of(php::TYPE::STRING)) {
 			s = php::json_encode(s);
 		}
-		if(!s.typeof(php::TYPE::STRING)) {
+		if(!s.type_of(php::TYPE::STRING)) {
 			s.to_string();
 		}
 		os.write(s.c_str(), s.size());
