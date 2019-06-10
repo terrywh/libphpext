@@ -1,7 +1,7 @@
 .SUFFIXES:
 
 # 依赖
-VENDOR_PHP?=/data/vendor/php-7.2.17
+VENDOR_PHP?=/data/vendor/php-7.2.19
 
 # 项目
 SOURCES=$(shell find ./src -name "*.cpp")
@@ -44,4 +44,5 @@ ${TARGETX}: ${OBJECTS}
 ${TARGETY}: ./test/extension.o ${TARGETX}
 	${CXX} -shared $< ${LDFLAGS} -L. -lphpext -static-libstdc++ -o $@
 %.o: %.cpp
+	echo ${CXXFLAGS}
 	${CXX} ${CXXFLAGS} -MMD -MP -c $< -o $@
