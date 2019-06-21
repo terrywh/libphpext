@@ -2,14 +2,15 @@
 
 namespace php {
 	class value;
-	// stream_buffer 由于实现 streambuf 接口(相对较重内部指针*6) buffer 提供更简单高效的单纯缓存区
+	// buffer 提供更简单高效的单纯缓存区
+	// 注意：stream_buffer 由于实现 streambuf 接口(相对较重内部指针*6) 
 	class buffer {
 	public:
-		buffer(std::size_t max = 16 * 1024 * 1024)
+		buffer(std::size_t max = 16 * 1024 * 1024, std::size_t init = 199)
 		: max_(max)
 		, str_({nullptr, 0})
 		, get_(0) {
-			smart_str_erealloc(&str_, 199);
+			smart_str_erealloc(&str_, init);
 		}
 		buffer(buffer&& b)
 		: max_(b.max_)

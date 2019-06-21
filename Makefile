@@ -8,7 +8,7 @@ SOURCES=$(shell find ./src -name "*.cpp")
 OBJECTS=$(SOURCES:%.cpp=%.o)
 DEPENDS=$(SOURCES:%.cpp=%.d)
 TARGETX=libphpext.a
-VERSION=2.0.0
+VERSION=2.1.0
 TARGETY=phpext.so
 
 # 编译
