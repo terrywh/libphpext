@@ -22,8 +22,15 @@ namespace php {
 	object datetime(std::int64_t ms) {
 		object obj {CLASS(php_date_get_date_ce())};
 		obj.call("__construct", { "@" + std::to_string(std::int64_t(ms/1000))});
-		return std::move(obj);
+		return obj;
 	}
+
+	object datetime(const char* datetime) {
+		object obj {CLASS(php_date_get_date_ce())};
+		obj.call("__construct", { datetime });
+		return obj;
+	}
+
 	php::string base64_encode(const unsigned char* str, std::size_t len) {
 		return php::string(php_base64_encode(str, len));
 	}
@@ -36,7 +43,7 @@ namespace php {
  	php::string url_decode(const char* str, std::size_t len) {
 		php::string dec(str, len);
 		dec.shrink(php_url_decode(dec.data(), len));
-		return std::move(dec);
+		return dec;
 	}
 	std::size_t url_decode_inplace(char* str, std::size_t len) {
 		return php_url_decode(str, len);
@@ -45,7 +52,7 @@ namespace php {
 		php::string str(2*len);
 		// md5.c
 		make_digest_ex(str.data(), old, len);
-		return std::move(str);
+		return str;
 	}
 	php::string php_hex2bin(const unsigned char *old, const size_t len)	{
 		size_t target_length = len >> 1;
@@ -75,7 +82,7 @@ namespace php {
 		}
 		ret[i] = '\0';
 
-		return std::move(s);
+		return s;
 	}
 	php::string json_encode(const php::value& val) {
 		smart_str str {nullptr, 0};
@@ -91,7 +98,7 @@ namespace php {
 			php::exception::rethrow();
 			return nullptr;
 		}
-		return std::move(rv);
+		return rv;
 	}
 	php::value json_decode(const php::string& str) {
 		php::value rv;
@@ -99,7 +106,7 @@ namespace php {
 			php::exception::rethrow();
 			return nullptr;
 		}
-		return std::move(rv);
+		return rv;
 	}
 	void sha1(const unsigned char* enc_str, size_t enc_len, char* output) {
 		PHP_SHA1_CTX context;
@@ -114,7 +121,7 @@ namespace php {
 	php::string sha1(const php::string& str) {
 		php::string s(40);
 		sha1(reinterpret_cast<const unsigned char*>(str.c_str()), str.size(), s.data());
-		return std::move(s);
+		return s;
 	}
 	void md5(const unsigned char* enc_str, uint32_t enc_len, char* output) {
 		PHP_MD5_CTX context;
@@ -129,7 +136,7 @@ namespace php {
 	php::string md5(const php::string& str) {
 		php::string s(32);
 		md5(reinterpret_cast<const unsigned char*>(str.c_str()), str.size(), s.data());
-		return std::move(s);
+		return s;
 	}
 	std::uint32_t crc32(const unsigned char* src, uint32_t src_len) {
 		uint32_t crc32_val = 0;
@@ -185,11 +192,11 @@ namespace php {
 	php::string uppercase(const char* str, size_t len) {
 		php::string s(str, len);
 		php_strtoupper(s.data(), len);
-		return std::move(s);
+		return s;
 	}
 	php::string lowercase(const char* str, size_t len) {
 		php::string s(str, len);
 		php_strtolower(s.data(), len);
-		return std::move(s);
+		return s;
 	}
 }

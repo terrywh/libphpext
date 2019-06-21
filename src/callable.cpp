@@ -19,7 +19,7 @@ namespace php {
 			int r = call_user_function(EG(function_table), nullptr, cb, rv, 0, nullptr);
 			// assert(r == SUCCESS && "调用失败");
 			exception::rethrow();
-			return std::move(rv);
+			return rv;
 		// }
 	}
 	value callable::__call(zval* cb, std::vector<value> argv) {
@@ -35,7 +35,7 @@ namespace php {
 			int r = call_user_function(EG(function_table), nullptr, cb, rv, argv.size(), params);
 			// assert(r == SUCCESS && "调用失败");
 			exception::rethrow();
-			return std::move(rv);
+			return rv;
 		// }
 	}
 	callable::callable() {

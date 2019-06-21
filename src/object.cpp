@@ -10,7 +10,7 @@ namespace php {
 		int r = call_user_function(EG(function_table), obj, name, rv, 0, nullptr);
 		// assert(r == SUCCESS && "调用方法失败");
 		exception::rethrow();
-		return std::move(rv);
+		return rv;
 	}
 	value object::call(zval* obj, const string& name, const std::vector<value>& argv) {
 		zval params[argv.size()];
@@ -21,7 +21,7 @@ namespace php {
 		int r = call_user_function(EG(function_table), obj, name, rv, argv.size(), params);
 		// assert(r == SUCCESS && "调用方法失败");
 		exception::rethrow();
-		return std::move(rv);
+		return rv;
 	}
 	object::object() {
 		

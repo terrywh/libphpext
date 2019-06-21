@@ -78,6 +78,6 @@ namespace php {
 		for(int i=0;i<argc_;++i) {
 			ZVAL_COPY(argv[i], argv_ + i);
 		}
-		return std::move(argv);
+		return argv;
 	}
 }

@@ -388,6 +388,6 @@ namespace php {
 
 		value v;
 		ZVAL_COPY(&v.val_, &val_);
-		return std::move(v);
+		return v;
 	}
 }

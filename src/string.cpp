@@ -96,7 +96,7 @@ namespace php {
 		std::memcpy(Z_STRVAL_P(str.ptr_)              , s1.c_str(), s1.length());
 		std::memcpy(Z_STRVAL_P(str.ptr_) + s1.length(), s2.c_str(), s2.length());
 		Z_STRVAL_P(str.ptr_)[Z_STRLEN_P(str.ptr_)] = '\0';
-		return std::move(str);
+		return str;
 	}
 	// -------------------------------------------------------------------
 	string string::operator +(const string& s) const {
