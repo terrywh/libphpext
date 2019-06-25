@@ -31,7 +31,7 @@ namespace php {
 		}
 		void append(const char* data, std::size_t size) {
 			if(!str_.s || str_.s->len + size > str_.a) {
-				smart_str_erealloc(&str_, str_.s->len + size); // PHP 会自动靠齐 4096 整页
+				smart_str_erealloc(&str_, str_.s ? str_.s->len + size : size); // PHP 会自动靠齐 4096 整页
 			}
 			std::memcpy(&str_.s->val[str_.s->len], data, size);
 			str_.s->len += size;
@@ -41,10 +41,8 @@ namespace php {
 		}
 		void append(const php::value& v);
 		char* prepare(std::size_t size) {
-			if(!str_.s) {
-				smart_str_erealloc(&str_, size); // PHP 会自动靠齐 4096 整页
-			}else if(str_.s->len + size > str_.a) {
-				smart_str_erealloc(&str_, str_.s->len + size); // PHP 会自动靠齐 4096 整页
+			if(!str_.s || str_.s->len + size > str_.a) {
+				smart_str_erealloc(&str_, str_.s ? str_.s->len + size : size); // PHP 会自动靠齐 4096 整页
 			}
 			return &str_.s->val[str_.s->len];
 		}
