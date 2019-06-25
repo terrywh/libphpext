@@ -1,6 +1,3 @@
-#ifdef NDEBUG
-#define PHPEXT_NDEBUG
-#endif
 
 #include <exception>
 #include <string>
@@ -16,6 +13,12 @@
 #include <ostream>
 
 using std::isfinite;
+
+#ifdef NDEBUG
+#define PHPEXT_NDEBUG
+#undef NDEBUG
+#endif
+
 // using std::isnan;
 extern "C" {
 #include <main/php.h>
@@ -51,7 +54,5 @@ extern "C" {
 
 #ifdef PHPEXT_NDEBUG
 #define NDEBUG
-#else
-#undef NDEBUG
 #endif
 #include <cassert>

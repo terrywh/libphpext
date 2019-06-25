@@ -1,7 +1,7 @@
 .SUFFIXES:
 
 # 依赖
-VENDOR_PHP?=/data/vendor/php-7.2.19
+VENDOR_PHP?=/data/server/php-7.2.19
 
 # 项目
 SOURCES=$(shell find ./src -name "*.cpp")

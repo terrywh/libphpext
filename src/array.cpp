@@ -74,13 +74,13 @@ namespace php {
 	value array::get(const php::string& key) const {
 		return value(zend_symtable_find_ind(Z_ARR_P(ptr_), key));
 	}
-	void array::set(std::size_t idx, const php::value& val) {
-		SEPARATE_ARRAY(ptr_);
+	void array::set(std::size_t idx, const php::value& val, bool seperate) {
+		if (seperate) SEPARATE_ARRAY(ptr_);
 		zend_hash_index_update(Z_ARR_P(ptr_), idx, val);
 		val.addref();
 	}
-	void array::set(const php::string& key, const php::value& val) {
-		SEPARATE_ARRAY(ptr_);
+	void array::set(const php::string& key, const php::value& val, bool seperate) {
+		if (seperate) SEPARATE_ARRAY(ptr_);
 		zend_symtable_update(Z_ARR_P(ptr_), key, val);
 		val.addref();
 	}

@@ -31,8 +31,8 @@ namespace php {
 		bool exists(std::size_t idx) const;
 		value get(std::size_t idx) const;
 		value get(const php::string& key) const;
-		void set(std::size_t idx, const php::value& val);
-		void set(const php::string& key, const php::value& val);
+		void set(std::size_t idx, const php::value& val, bool seperate = true);
+		void set(const php::string& key, const php::value& val, bool seperate = true);
 		array_member operator [](std::size_t idx) const;
 		array_member operator [](int idx) const;
 		array_member operator [](const php::string& key) const;
