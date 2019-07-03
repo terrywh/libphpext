@@ -1,6 +1,6 @@
 #pragma once
 
-#define PHPEXT_LIB_VERSION "2.1.0"
+#define PHPEXT_LIB_VERSION "2.2.0"
 #include "vendor.h"
 
 #include "type.h"

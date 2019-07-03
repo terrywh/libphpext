@@ -1,7 +1,7 @@
 #include "vendor.h"
 #include "util.h"
-
 #include "exception.h"
+#include "buffer.h"
 
 namespace php {
 	std::ostream& operator << (std::ostream& os, const php::value& data) {
@@ -92,6 +92,13 @@ namespace php {
 		}
 		return &str;
 	}
+
+	void json_encode_to(php::buffer& str, const php::value& val) {
+		if(FAILURE == php_json_encode(str, val, PHP_JSON_UNESCAPED_UNICODE)) {
+			php::exception::rethrow();
+		}
+	}
+
 	php::value json_decode(const char* str, std::size_t size) {
 		php::value rv;
 		if(FAILURE == php_json_decode_ex(rv, const_cast<char*>(str), size, PHP_JSON_OBJECT_AS_ARRAY, PHP_JSON_PARSER_DEFAULT_DEPTH)) {

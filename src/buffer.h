@@ -84,6 +84,9 @@ namespace php {
 		std::size_t max_size() const {
 			return max_;
 		}
+		operator smart_str*() {
+			return &str_;
+		}
 	private:
 		std::size_t max_;
 		smart_str   str_;
