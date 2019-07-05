@@ -93,7 +93,7 @@ namespace php {
 		return &str;
 	}
 
-	void json_encode_to(php::buffer& str, const php::value& val) {
+	void json_encode_to(smart_str* str, const php::value& val) {
 		if(FAILURE == php_json_encode(str, val, PHP_JSON_UNESCAPED_UNICODE)) {
 			php::exception::rethrow();
 		}

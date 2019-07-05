@@ -99,7 +99,7 @@ namespace php {
 				method_delegate<T, METHOD>, // handler
 				nullptr, // arg_info,
 				0, // num_args
-				0,
+				s,
 			});
 			return *this;
 		}
@@ -112,7 +112,7 @@ namespace php {
 				method_delegate<T, METHOD>, // handler
 				argv, // arg_info,
 				argv.size(), // num_args
-				0,
+				s,
 			});
 			return *this;
 		}

@@ -16,7 +16,8 @@ namespace php {
 	string bin2hex(const unsigned char *old, std::size_t len);
 	string php_hex2bin(const unsigned char *old, const size_t len);
 	string json_encode(const value& val);
-	void json_encode_to(php::buffer& str, const php::value& val);
+	// buffer& -> smart_str*
+	void json_encode_to(smart_str* str, const php::value& val);
 	value json_decode(const char* str, std::size_t size);
 	value json_decode(const string& str);
 	void sha1(const unsigned char* enc_str, size_t enc_len, char* output);
