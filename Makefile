@@ -1,14 +1,14 @@
 .SUFFIXES:
 
 # 依赖
-VENDOR_PHP?=/data/server/php-7.2.19
+VENDOR_PHP?=/data/server/php-7.2.21
 
 # 项目
 SOURCES=$(shell find ./src -name "*.cpp")
 OBJECTS=$(SOURCES:%.cpp=%.o)
 DEPENDS=$(SOURCES:%.cpp=%.d)
 TARGETX=libphpext.a
-VERSION=2.2.0
+VERSION=2.2.1
 TARGETY=phpext.so
 
 # 编译
