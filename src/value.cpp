@@ -371,13 +371,21 @@ namespace php {
 	// ---------------------------------------------------------------------
 	std::uint32_t value::addref() const {
 		if(Z_REFCOUNTED_P(ptr_)) {
+#if PHP_VERSION_ID < 70300
 			return ++GC_REFCOUNT(Z_COUNTED_P(ptr_));
+#else
+			return GC_ADDREF(Z_COUNTED_P(ptr_));
+#endif
 		}
 		return 1;
 	}
 	std::uint32_t value::delref() {
 		if(Z_REFCOUNTED_P(ptr_)) {
+#if PHP_VERSION_ID < 70300
 			return --GC_REFCOUNT(Z_COUNTED_P(ptr_));
+#else
+			return GC_DELREF(Z_COUNTED_P(ptr_));
+#endif
 		}
 		return 1;
 	}
