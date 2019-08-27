@@ -92,6 +92,11 @@ namespace php {
 		ZVAL_ARR(&val_, const_cast<zend_array*>(v));
 		addref();
 	}
+	value::value(const zend_resource* r)
+	: ptr_(&val_) {
+		ZVAL_RES(&val_, const_cast<zend_resource*>(r));
+		addref();
+	}
 	value::value(const void* data)
 	: ptr_(&val_) {
 		ZVAL_PTR(&val_, const_cast<void*>(data));
@@ -299,6 +304,10 @@ namespace php {
 	value::operator zend_array*() const {
 		if(!type_of(TYPE::ARRAY)) throw php::exception(zend_ce_type_error, "type '" + TYPE::ARRAY.name()+ "' expected, '" + type_of().name() + "' given");
 		return Z_ARR_P(ptr_);
+	}
+	value::operator zend_resource*() const {
+		if(!type_of(TYPE::ARRAY)) throw php::exception(zend_ce_type_error, "type '" + TYPE::RESOURCE.name() + "' expected, '" + type_of().name() + "' given");
+		return Z_RES_P(ptr_);
 	}
 	value::operator zend_class_entry*() const {
 		if(!type_of(TYPE::OBJECT)) throw php::exception(zend_ce_type_error, "type '" + TYPE::OBJECT.name()+ "' expected, '" + type_of().name() + "' given");

@@ -105,6 +105,10 @@ namespace php {
 		for(auto i=self->class_entries_.begin();i!=self->class_entries_.end();++i) {
 			(*i)->declare();
 		}
+		// 完成 resource 注册
+		for(auto i=self->resrc_entries_.begin();i!=self->resrc_entries_.end();++i) {
+			(*i)->declare(module);
+		}
 		// 正向调用
 		for(auto i=self->handler_mst_.begin(); i!= self->handler_mst_.end(); ++i) {
 			if(! (*i)(*self) ) return FAILURE;

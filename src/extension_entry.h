@@ -5,6 +5,7 @@
 #include "delegate.h"
 #include "arguments.h"
 #include "class_entry.h"
+#include "resource_entry.h"
 
 namespace php {
 	class extension_entry {
@@ -20,6 +21,7 @@ namespace php {
 		std::vector<zend_function_entry>             function_entries_;
 		std::vector<arguments>                              arguments_;
 		std::vector<class_entry_base*>                  class_entries_;
+		std::vector<resource_entry_base*>               resrc_entries_;
 		std::vector<std::pair<std::string, std::string>>  decriptions_;
 
 		std::list<std::function<bool(extension_entry&)>> handler_rsd_;
@@ -60,6 +62,11 @@ namespace php {
 		template <class CLASS_TYPE>
 		extension_entry& add(class_entry<CLASS_TYPE>&& entry) {
 			class_entries_.emplace_back(new class_entry<CLASS_TYPE>(std::move(entry)) );
+			return *this;
+		}
+		template <typename T>
+		extension_entry& resource(resource_entry<T>&& entry) {
+			resrc_entries_.emplace_back(new resource_entry<T>(std::move(entry)));
 			return *this;
 		}
 		extension_entry& desc(std::pair<std::string, std::string> kv);

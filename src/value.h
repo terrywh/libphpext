@@ -31,6 +31,7 @@ namespace php {
 		value(zend_class_entry* e, std::vector<value> argv);
 		value(const CLASS& c, std::vector<value> argv);
 		value(const zend_array* v);
+		value(const zend_resource* r);
 		explicit value(const void* data);
 		value(const value& w);
 		value(value&& w);
@@ -86,6 +87,7 @@ namespace php {
 		operator zend_string*() const;
 		operator zend_object*() const;
 		operator zend_array*() const;
+		operator zend_resource*() const;
 		operator zend_class_entry*() const;
 		template <typename POINTER_TYPE>
 		POINTER_TYPE* pointer() const {

@@ -1,6 +1,6 @@
 #pragma once
 
-#define PHPEXT_LIB_VERSION "2.2.1"
+#define PHPEXT_LIB_VERSION "2.3.0"
 #include "vendor.h"
 
 #include "type.h"
@@ -28,6 +28,8 @@
 #include "delegate.h"
 #include "property_entry.h"
 #include "constant_entry.h"
+#include "resource_entry.h"
+#include "resource.h"
 #include "class_entry.h"
 #include "ini_entry.h"
 #include "extension_entry.h"
