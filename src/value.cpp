@@ -333,8 +333,7 @@ namespace php {
 	// 赋值
 	// -------------------------------------------------------------------
 	value& value::operator =(const value& v) {
-		zval_ptr_dtor(ptr_);
-		ZVAL_COPY(ptr_, v.ptr_);
+		ZEND_TRY_ASSIGN_COPY(ptr_, v.ptr_);
 		return *this;
 	}
 	// value& value::operator =(value&& v) {
@@ -344,28 +343,23 @@ namespace php {
 	// 	return *this;
 	// }
 	value& value::operator = (const parameter& v) {
-		zval_ptr_dtor(ptr_);
-		ZVAL_COPY(ptr_, v.raw());
+		ZEND_TRY_ASSIGN_COPY(ptr_, v.raw());
 		return *this;
 	}
 	value& value::operator = (const property& v) {
-		zval_ptr_dtor(ptr_);
-		ZVAL_COPY(ptr_, v.raw());
+		ZEND_TRY_ASSIGN_COPY(ptr_, v.raw());
 		return *this;
 	}
 	value& value::operator = (const array_member& v) {
-		zval_ptr_dtor(ptr_);
-		ZVAL_COPY(ptr_, v.raw());
+		ZEND_TRY_ASSIGN_COPY(ptr_, v.raw());
 		return *this;
 	}
 	value& value::operator = (std::nullptr_t v) {
-		zval_ptr_dtor(ptr_);
-		ZVAL_NULL(ptr_);
+		ZEND_TRY_ASSIGN_NULL(ptr_);
 		return *this;
 	}
 	value& value::operator = (const std::string& v) {
-		zval_ptr_dtor(ptr_);
-		ZVAL_NEW_STR(ptr_, zend_string_init(v.c_str(), v.size(), 0));
+		ZEND_TRY_ASSIGN_NEW_STR(ptr_, zend_string_init(v.data(), v.size(), 0));
 		return *this;
 	}
 	// ---------------------------------------------------------------------

@@ -8,7 +8,7 @@ SOURCES=$(shell find ./src -name "*.cpp")
 OBJECTS=$(SOURCES:%.cpp=%.o)
 DEPENDS=$(SOURCES:%.cpp=%.d)
 TARGETX=libphpext.a
-VERSION=2.3.0
+VERSION=3.0.0
 TARGETY=phpext.so
 
 # 编译
@@ -30,11 +30,11 @@ test: ${TARGETY}
 	sudo rm -f `${VENDOR_PHP}/bin/php-config --extension-dir`/${TARGETY}
 	sudo cp ${TARGETY} `${VENDOR_PHP}/bin/php-config --extension-dir`/${TARGETY}
 install: ${TARGETX}
-	sudo rm -rf ${PREFIX}/include/phpext ${PREFIX}/lib/${TARGETX}
-	sudo mkdir -p ${PREFIX}/include/phpext
-	sudo mkdir -p ${PREFIX}/lib
-	sudo cp -f --preserve=timestamps src/*.h ${PREFIX}/include/phpext
-	sudo cp -f ${TARGETX} ${PREFIX}/lib
+	rm -rf ${PREFIX}/include/phpext ${PREFIX}/lib/${TARGETX}
+	mkdir -p ${PREFIX}/include/phpext
+	mkdir -p ${PREFIX}/lib
+	cp -f --preserve=timestamps src/*.h ${PREFIX}/include/phpext
+	cp -f ${TARGETX} ${PREFIX}/lib
 clean:
 	rm -f ${HEADERX} ${TARGETX} ${OBJECTS} ${DEPENDS}
 	rm -f `find ./ -name "*.o"` `find ./ -name "*.d"`

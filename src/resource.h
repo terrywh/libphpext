@@ -6,7 +6,7 @@ namespace php {
     class resource: public value {
     public:
         resource() {} // undefined
-        resource(std::nullptr x): value(nullptr) {}
+        resource(std::nullptr_t x): value(nullptr) {}
         resource(T* x): value(zend_register_resource(x, resource_entry<T>::type())) {
 
         }
