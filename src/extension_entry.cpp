@@ -29,7 +29,11 @@ namespace php {
 		entry_.info_func             = on_module_info_handler;
 		entry_.version               = version_.c_str();
 		entry_.globals_size          = 0;
+#ifdef ZTS
+		entry_.globals_id_ptr        = nullptr;
+#else
 		entry_.globals_ptr           = nullptr;
+#endif // ZTS
 		entry_.globals_ctor          = nullptr;
 		entry_.globals_dtor          = nullptr;
 		entry_.post_deactivate_func  = nullptr;

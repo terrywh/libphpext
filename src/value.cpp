@@ -1,6 +1,5 @@
 #include "vendor.h"
 #include "value.h"
-
 #include "class_base.h"
 #include "object.h"
 #include "buffer.h"
@@ -380,13 +379,13 @@ namespace php {
 	// ---------------------------------------------------------------------
 	std::uint32_t value::addref() const {
 		if(Z_REFCOUNTED_P(ptr_)) {
-			return ++GC_REFCOUNT(Z_COUNTED_P(ptr_));
+			return GC_ADDREF(Z_COUNTED_P(ptr_));
 		}
 		return 1;
 	}
 	std::uint32_t value::delref() {
 		if(Z_REFCOUNTED_P(ptr_)) {
-			return --GC_REFCOUNT(Z_COUNTED_P(ptr_));
+			return GC_DELREF(Z_COUNTED_P(ptr_));
 		}
 		return 1;
 	}

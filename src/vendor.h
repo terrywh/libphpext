@@ -52,6 +52,8 @@ extern "C" {
 #include <Zend/zend_builtin_functions.h>
 }
 
+#include "macro.h"
+
 #ifdef PHPEXT_NDEBUG
 #define NDEBUG
 #endif

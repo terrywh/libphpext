@@ -23,9 +23,8 @@ namespace php {
 	void constant_entry::declare(int module) {
 		zend_constant c;
 		ZVAL_COPY(&c.value, val_);
-		c.flags = CONST_PERSISTENT;
 		c.name = key_;
-		c.module_number = module;
+		ZEND_CONSTANT_SET_FLAGS(&c, CONST_PERSISTENT, module);
 		int r = zend_register_constant(&c);
 		assert(r == SUCCESS && "声明常量失败");
 	}
