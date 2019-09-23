@@ -1,8 +1,10 @@
 #pragma once
 
-#define PHPEXT_LIB_VERSION "2.3.0"
-#include "vendor.h"
+namespace php {
+    const char* version();
+} 
 
+#include "vendor.h"
 #include "type.h"
 #include "class.h"
 #include "error_info.h"

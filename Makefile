@@ -1,14 +1,14 @@
 .SUFFIXES:
 
 # 依赖
-VENDOR_PHP?=/data/server/php-7.2.21
+VENDOR_PHP?=/data/server/php-7.2.22
 
 # 项目
 SOURCES=$(shell find ./src -name "*.cpp")
 OBJECTS=$(SOURCES:%.cpp=%.o)
 DEPENDS=$(SOURCES:%.cpp=%.d)
 TARGETX=libphpext.a
-VERSION=3.0.0
+VERSION=3.0.1
 TARGETY=phpext.so
 
 # 编译
@@ -45,4 +45,4 @@ ${TARGETY}: ./test/extension.o ${TARGETX}
 	${CXX} -shared $< ${LDFLAGS} -L. -lphpext -static-libstdc++ -o $@
 %.o: %.cpp
 	echo ${CXXFLAGS}
-	${CXX} ${CXXFLAGS} -MMD -MP -c $< -o $@
+	${CXX} ${CXXFLAGS} -MMD -MP -DPHPEXT_LIB_VERSION=${VERSION} -c $< -o $@
