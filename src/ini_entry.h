@@ -1,14 +1,9 @@
-#pragma once
-
-#include "string.h"
+#ifndef LIBPHPEXT_INI_ENTRY_H
+#define LIBPHPEXT_INI_ENTRY_H
 
 namespace php {
-	class ini_entry {
-	public:
-		ini_entry(const string& name, const value& val);		
-		void fill(zend_ini_entry_def* entry);
-	private:
-		string key_;
-		string val_;
-	};
+    
+    class ini_entry {};
 }
+
+#endif // LIBPHPEXT_INI_ENTRY_H

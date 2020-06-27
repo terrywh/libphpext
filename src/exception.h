@@ -1,34 +1,41 @@
-#pragma once
+#ifndef LIBPHPEXT_EXCEPTION_H
+#define LIBPHPEXT_EXCEPTION_H
 
-#include "error_info.h"
+#include "forward.h"
 #include "value.h"
+#include "object.h"
 
 namespace php {
-	class CLASS;
-	class parameter;
-	class property;
-	class array_member;
-	// exception => zend_ce_throwable
-	class exception: public value, public std::exception {
+	// 抛出的异常对象，不进行释放
+	class throwable: public value_t<false> {
+    public:
+        // using value_t<false>::value_t;
+		const char* what() const noexcept;
+	protected:
+		throwable(zend_object* obj) {
+			ZVAL_OBJ(&value_, obj);
+		}
+    };
+	// 异常： 对应 zval -> zend_ce_exception
+	class exception: public throwable {
 	public:
-		// 将 PHP 中发生的异常重新抛出到 CPP 中
-		static void rethrow();
-		// 将 CPP 中捕获的异常重新抛出到 PHP 中
-		static void rethrow(const php::exception& ex);
-		exception();
-		exception(std::nullptr_t n);
-		exception(zval* v, bool ref = false);
-		exception(zend_object* v);
-		exception(const parameter& v);
-		exception(const property& v);
-		exception(const array_member& v);
-		exception(const CLASS& c, const std::string& message, int code = 0);
-		exception(const value& v);
-		exception(value&& v);
-		// ----------------------------------------------------------------
-		using value::operator =;
-		// ----------------------------------------------------------------
-		error_info info() const;
-		virtual const char* what() const noexcept;
+		exception(zend_object* obj)
+		: throwable(obj) {
+
+		}
+		// 构造异常
+		exception(std::string_view message, int code = 0)
+		: throwable(object::create(zend_ce_exception, {message, code})) {
+			
+		}
 	};
+
+	// 将 CPP 中捕获的异常重新抛出到 PHP 中
+	inline void rethrow(const throwable& ex) {
+		zend_throw_exception_object(ex);
+	}
+	// 将 PHP 中发生的异常重新抛出到 CPP 中
+	void rethrow();
 }
+
+#endif // LIBPHPEXT_EXCEPTION_H

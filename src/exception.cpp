@@ -1,71 +1,42 @@
-#include "vendor.h"
 #include "exception.h"
 
-#include "object.h"
-
 namespace php {
-	// 将 PHP 中发生的异常重新抛出到 CPP 中
-	void exception::rethrow() {
-		if(EG(exception) == nullptr) return;
-		exception ex;
-		ZVAL_OBJ(&ex.val_, EG(exception));
-		ex.addref();
-		zend_clear_exception();
-		throw ex;
-	}
-	// 将 CPP 中捕获的异常重新抛出到 PHP 中
-	void exception::rethrow(const php::exception& ex) {
-		zval c;
-		ZVAL_COPY(&c, ex);
-	 	zend_throw_exception_object(&c);
-	}
-	exception::exception() {}
-	exception::exception(std::nullptr_t n)
-	: value(n) {
 
-	}
-	exception::exception(zval* v, bool ref)
-	: value(v, ref) {
+    const char* throwable::what() const noexcept {
+        zval *prop, rv;
+        zend_string *name = zend_string_init("message", sizeof("message")-1, 0);
+        prop = zend_read_property_ex(
+            instanceof_function(Z_OBJCE(value_), zend_ce_exception) ? zend_ce_exception : zend_ce_error,
+            const_cast<zval*>(&value_), name, 1, &rv);
+        zend_string_release_ex(name, 0);
+        return Z_STRVAL_P(prop);
+    }
 
-	}
-	exception::exception(zend_object* v) {
-		assert(instanceof_function(v->ce, zend_ce_throwable));
-		ZVAL_OBJ(&val_, v);
-		addref();
-	}
-	exception::exception(const parameter& v)
-	: value(v) {
+    void rethrow() {
+        // TODO
+		if(EG(exception) == nullptr) {
+			
+		}
+		else if(EG(exception)->ce == zend_ce_exception) {
+			throw php::exception(EG(exception));
+		}
+		else if(EG(exception)->ce == zend_ce_error_exception) {
 
-	}
-	exception::exception(const property& v)
-	: value(v) {
+		}
+		else if(EG(exception)->ce == zend_ce_error) {
 
-	}
-	exception::exception(const array_member& v)
-	: value(v) {
+		}
+		else if(EG(exception)->ce == zend_ce_type_error) {
 
-	}
-	exception::exception(const CLASS& c, const std::string& message, int code)
-	: value(c, {message, code}) {
+		}
+		else if(EG(exception)->ce == zend_ce_argument_count_error) {
 
-	}
-	exception::exception(const value& v)
-	: value(v/* , CLASS(zend_ce_throwable) */) {
+		}
+		else if(EG(exception)->ce == zend_ce_arithmetic_error) {
 
-	}
-	exception::exception(value&& v)
-	: value(std::move(v)/* , CLASS(zend_ce_throwable) */) {
+		}
+		else if(EG(exception)->ce == zend_ce_division_by_zero_error) {
 
+		}
 	}
-	// ----------------------------------------------------------------
-	error_info exception::info() const {
-		return error_info(ptr_);
-	}
-	const char* exception::what() const noexcept {
-		static char buffer[4096];
-		error_info i = info();
-		sprintf(buffer, "%s on %s:%d", i.message.c_str(), i.file.c_str(), i.line);
-		return buffer;
-	}
-
 }

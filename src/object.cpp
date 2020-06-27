@@ -1,92 +1,73 @@
-#include "vendor.h"
 #include "object.h"
 
-#include "parameters.h"
-#include "array_member.h"
-
 namespace php {
-	value object::call(zval* obj, const string& name) {
-		value rv;
-		int r = call_user_function(EG(function_table), obj, name, rv, 0, nullptr);
-		// assert(r == SUCCESS && "调用方法失败");
-		exception::rethrow();
-		return rv;
-	}
-	value object::call(zval* obj, const string& name, const std::vector<value>& argv) {
-		zval params[argv.size()];
-		for(int i=0;i<argv.size();++i) {
-			ZVAL_COPY_VALUE(&params[i], static_cast<zval*>(argv[i]));
-		}
-		value rv;
-		int r = call_user_function(EG(function_table), obj, name, rv, argv.size(), params);
-		// assert(r == SUCCESS && "调用方法失败");
-		exception::rethrow();
-		return rv;
-	}
-	object::object() {
-		
-	}
-	object::object(std::nullptr_t n)
-	: value(n) {
 
-	}
-	object::object(class_base* v)
-	: value(v) {
+    // 对应类型 参见 value::as<object>()
+    value::types object::TYPE = value::TYPE_OBJECT;
+    // 调用成员函数（无参）
+    value object::call(object* obj, const value& name) {
+        value rv;
+        // zend_execute_API.c: _call_user_function_ex
+        zend_fcall_info fci;
+        fci.size = sizeof(fci);
+        fci.object = obj;
+        ZVAL_COPY_VALUE(&fci.function_name, name);
+        fci.retval = rv;
+        fci.param_count = 0;
+        fci.params = nullptr;
+        fci.no_separation = (zend_bool) 1;
+        zend_call_function(&fci, NULL);
 
-	}
-	object::object(zval* v, bool ref)
-	: value(v, ref) {
-		
-	}
-	object::object(zend_object* v)
-	: value(v) {
-		
-	}
-	object::object(const CLASS& c)
-	: value(c) {
+        rethrow();
+        return rv;
+    }
+    // 调用成员函数
+    value object::call(object* obj, const value& name, const std::vector<value>& argv) {
+        // 参数引用源数据变量，不进行相关的释放
+        std::vector<value_t<false>> params(argv.begin(), argv.end());
+        value rv;
+        // zend_execute_API.c: _call_user_function_ex
+        zend_fcall_info fci;
+        fci.size = sizeof(fci);
+        fci.object = obj;
+        ZVAL_COPY_VALUE(&fci.function_name, name);
+        fci.retval = rv;
+        fci.param_count = params.size();
+        fci.params = reinterpret_cast<zval*>(params.data());
+        fci.no_separation = (zend_bool) 1;
+        zend_call_function(&fci, NULL);
 
-	}
-	object::object(const CLASS& c, std::vector<value> argv)
-	: value(c, std::move(argv)) {
-
-	}
-	object::object(const value& v)
-	: value(v/* , TYPE::OBJECT */) {
-		
-	}
-	object::object(value&& v)
-	: value(std::move(v)/* , TYPE::OBJECT */) {
-
-	}
-	object::object(const parameter& v)
-	: value(v.raw()) {
-
-	}
-	object::object(const array_member& v)
-	: value(v.raw()) {
-
-	}
-	object::object(const property& v)
-	: value(v.raw()) {
-
-	}
-	// -----------------------------------------------------------------
-	value object::call(const string& name) const {
-		return call(ptr_, name);
-	}
-	value object::call(const string& name, const std::vector<value>& argv) const {
-		return call(ptr_, name, argv);
-	}
-	// -----------------------------------------------------------------
-	void object::set(const string& key, const value& val) {
-		property::set(ptr_, key, val);
-	}
-	value object::get(const string& key, bool ptr) const {
-		zval rv, *op = property::get(ptr_, key, &rv);
-		assert(!ptr || op != &rv);
-		return value(op, ptr);
-	}
-	property object::operator [](const char* name) const {
-		return property(*this, string(name));
-	}
+        rethrow();
+        return rv;
+    }
+    // 创建制定名称的对象实例，并调用其 PHP 构造函数 (无参)
+    object* object::create(std::string_view name) {
+        // ??? 类名是否应该使用内部持久型字符串
+        // zend_string* str = zend_string_init_interned(name.data(), name.size(), 1);
+        zend_string* str = zend_string_init(name.data(), name.size(), 1);
+        zend_class_entry* ce = zend_lookup_class(str);
+        return create(ce);
+    }
+    // 创建指定名称的对象实例，并调用其 PHP 构造函数
+    object* object::create(std::string_view name, std::vector<value> argv) {
+        // ??? 类名是否应该使用内部持久型字符串
+        // zend_string* str = zend_string_init_interned(name.data(), name.size(), 1);
+        zend_string* str = zend_string_init(name.data(), name.size(), 1);
+        zend_class_entry* ce = zend_lookup_class(str);
+        return create(ce);
+    }
+    // 创建指定类型的对象实例，并调用其 PHP 构造函数 (无参)
+    object* object::create(zend_class_entry* ce) {
+        value_t<false> obj;
+        object_init_ex(obj, ce);
+        object::call(obj.as<object>(), cstr(method_name::__CONSTRUCTOR));
+        return obj.as<object>();
+    }
+    // 创建指定类型的对象实例，并调用其 PHP 构造函数
+    object* object::create(zend_class_entry* ce, std::vector<value> argv) {
+        value_t<false> obj;
+        object_init_ex(obj, ce);
+        object::call(obj.as<object>(), cstr(method_name::__CONSTRUCTOR), std::move(argv));
+        return obj.as<object>();
+    }
 }

@@ -1,36 +1,22 @@
-#include "vendor.h"
 #include "constant_entry.h"
+#include "module_entry.h"
 
 namespace php {
-	constant_entry::constant_entry(const php::string& k, const php::value& v)
-	: key_(zend_string_init(k.c_str(), k.size(), 1)) {
-		switch(Z_TYPE_P(static_cast<zval*>(v))) {
-		case IS_NULL:
-		case IS_TRUE:
-		case IS_FALSE:
-		case IS_LONG:
-		case IS_DOUBLE:
-			ZVAL_COPY_VALUE(static_cast<zval*>(val_), static_cast<zval*>(v));
-			break;
-		case IS_STRING:
-			ZVAL_STR(static_cast<zval*>(val_), zend_string_dup(static_cast<zend_string*>(v), 1));
-			break;
-		default:
-			assert(0 && "常量类型受限");
-		}
-	}
-	//
-	void constant_entry::declare(int module) {
-		zend_constant c;
-		ZVAL_COPY(&c.value, val_);
-		c.name = key_;
-		ZEND_CONSTANT_SET_FLAGS(&c, CONST_PERSISTENT, module);
-		int r = zend_register_constant(&c);
-		assert(r == SUCCESS && "声明常量失败");
-	}
-	//
-	void constant_entry::declare(zend_class_entry* ce) {
-		int r = zend_declare_class_constant_ex(ce, key_, val_, ZEND_ACC_PUBLIC, nullptr);
-		assert(r == 0 && "声明常量失败");
-	}
+    // 常量定义，可选文档注释
+	constant_entry::constant_entry(std::string_view key, const ::php::value& val, std::string_view doc) {
+        name = zend_string_init_interned(key.data(), key.size(), true);
+        // 仅允许基础类型（布尔+数值+字符串）
+        assert(!Z_REFCOUNTED_P(static_cast<zval*>(val)) || val.is(value::TYPE_STRING));
+        // 字符串需要特殊处理
+        if(Z_REFCOUNTED_P(static_cast<zval*>(val))) {
+            std::string_view vs = val;
+            ZVAL_INTERNED_STR(&value, zend_string_init_interned(vs.data(), vs.size(), true));
+        }
+        else ZVAL_COPY_VALUE(&value, val);
+        // 注释说明
+        comment = doc.empty() ? nullptr
+            : zend_string_init_interned(doc.data(), doc.size(), true);
+        // 扩展尝试标志
+        ZEND_CONSTANT_SET_FLAGS(this, CONST_PERSISTENT, module_entry::self()->module);
+    }
 }
