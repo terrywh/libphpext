@@ -1,7 +1,7 @@
 #ifndef LIBPHPEXT_module_entry_H
 #define LIBPHPEXT_module_entry_H
 
-#include "forward.h"
+#include "vendor.h"
 #include "dependence.h"
 #include "constant_entry.h"
 #include "ini_entry.h"
@@ -42,14 +42,15 @@ namespace php {
 		// 模块版本
 		std::string version_;
 		// 模块信息
-		using info_type = std::pair<std::string, std::string>;
-		std::vector<info_type>  sinfo_;
+		using description_type = std::pair<std::string, std::string>;
+		std::vector<description_type>  description_;
 		// 模块依赖
-		dependences deps_;
+		dependences dependence_;
+		std::vector<constant_entry> constant_entry_;
 		// 模块
 		zend_module_entry module_;
 		// 函数表
-		function_entries functions_;
+		function_entries function_entry_;
 		// 模块启动回调
 		std::vector<module_startup>  module_startup_handler_;
 		// 请求启动回调
@@ -86,13 +87,13 @@ namespace php {
 		// 模块名称版本构造
 		module_entry(std::string_view name, std::string_view version);
 		// 描述模块（在 php_info() / 模块信息中展示)
-		module_entry& descibe(info_type&& info) {
-			sinfo_.emplace_back(std::move(info));
+		module_entry& descibe(description_type&& info) {
+			description_.emplace_back(std::move(info));
 			return *this;
 		}
 		// 为模块添加依赖
 		module_entry& depend(const dependence& depend) {
-			deps_ += depend;
+			dependence_ += depend;
 			return *this;
 		}
 		// 添加模块启动处理程序
@@ -117,6 +118,7 @@ namespace php {
 		}
 		// 定义扩展常量
 		module_entry& define(const constant_entry& c) {
+			constant_entry_.push_back(c);
 			return *this;
 		}
 		// 函数（注意，由于实际指针数据等由对应对象持有，需要原始指针地址）
@@ -124,7 +126,7 @@ namespace php {
 		module_entry& declare(std::string_view name, std::initializer_list<argument_info> pi,
 				return_info&& ri) {
 			
-			functions_ += function_entry(function_entry::callback<fn>, name, std::move(ri), std::move(pi));
+			function_entry_ += function_entry(function_entry::callback<fn>, name, std::move(ri), std::move(pi));
 			return *this;
 		}
 		// 函数

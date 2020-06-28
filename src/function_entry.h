@@ -1,7 +1,7 @@
 #ifndef LIBPHPEXT_FUNCTION_ENTRY_H
 #define LIBPHPEXT_FUNCTION_ENTRY_H
 
-#include "forward.h"
+#include "vendor.h"
 #include "value.h"
 #include "parameter.h"
 #include "argument_info.h"

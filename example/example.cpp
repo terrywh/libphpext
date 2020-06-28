@@ -1,4 +1,4 @@
-#include "../src/extension.h"
+#include "../src/phpext.h"
 #include <iostream>
 #include <map>
 #include <unordered_map>
@@ -34,6 +34,10 @@ php::value container(php::parameters& params) {
 
     return std::int64_t(c1.size() + c2.size());
 }
+// 调用回调
+php::value invoke(php::parameters& params) {
+    return params[0]({"world"});
+}
 
 extern "C" {
     // PHP 扩展模块入口
@@ -64,20 +68,26 @@ extern "C" {
             // 说明信息
             .descibe({"INFO_LIBPHPEXT_VERSION", LIBPHPEXT_VERSION_STRING})
             .descibe({"INFO_2", "Hello"})
+            // 定义常量
+            .define({"CPP_CONSTANT_1", "123456"}) // 字符串
+            .define({"CPP_CONSTANT_2", 123456}) // 数值
             // 声明函数
-            .declare<hello>("hello", {
-                {"s1", php::value::TYPE_STRING} // 接受一个字符串参数
-            }, {php::value::TYPE_STRING}) // 返回字符串
-            .declare<plus_5>("plus_5", { 
-                {"i1", php::value::TYPE_INTEGER, true} // 接受一个整数参数
-            }, {php::value::TYPE_INTEGER}) // 返回一个整数
-            .declare<call_method>("call_method", {
+            .declare<hello>("cpp_hello", {
+                {"s1", php::TYPE_STRING} // 接受一个字符串参数
+            }, {php::TYPE_STRING}) // 返回字符串
+            .declare<plus_5>("cpp_plus_5", { 
+                {"i1", php::TYPE_INTEGER, true} // 接受一个整数参数
+            }, {php::TYPE_INTEGER}) // 返回一个整数
+            .declare<call_method>("cpp_call_method", {
                 {"o1", "DateTime"}
-            }, {php::value::TYPE_STRING})
-            .declare<container>("container", {
-                {"k", php::value::TYPE_STRING},
-                {"v", php::value::TYPE_UNDEFINED}
-            });
+            }, {php::TYPE_STRING})
+            .declare<container>("cpp_container", {
+                {"k", php::TYPE_STRING},
+                {"v", php::TYPE_MIXED}
+            }, {php::TYPE_INTEGER})
+            .declare<invoke>("cpp_invoke", {
+                {"cb", php::FAKE_CALLABLE}
+            }, {php::TYPE_MIXED});
 
         return module;
     }

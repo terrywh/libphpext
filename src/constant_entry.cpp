@@ -6,7 +6,7 @@ namespace php {
 	constant_entry::constant_entry(std::string_view key, const ::php::value& val, std::string_view doc) {
         name = zend_string_init_interned(key.data(), key.size(), true);
         // 仅允许基础类型（布尔+数值+字符串）
-        assert(!Z_REFCOUNTED_P(static_cast<zval*>(val)) || val.is(value::TYPE_STRING));
+        assert(!Z_REFCOUNTED_P(static_cast<zval*>(val)) || val.is(TYPE_STRING));
         // 字符串需要特殊处理
         if(Z_REFCOUNTED_P(static_cast<zval*>(val))) {
             std::string_view vs = val;

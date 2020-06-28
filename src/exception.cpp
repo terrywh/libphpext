@@ -1,4 +1,5 @@
 #include "exception.h"
+#include "object.h"
 
 namespace php {
 
@@ -11,8 +12,13 @@ namespace php {
         zend_string_release_ex(name, 0);
         return Z_STRVAL_P(prop);
     }
-
-    void rethrow() {
+	// 构造异常
+	exception::exception(std::string_view message, int code)
+	: throwable(object::create(zend_ce_exception, {message, code})) {
+		
+	}
+	// 将 PHP 中发生的异常（若存在）重新抛出到 CPP 中
+    void try_rethrow() {
         // TODO
 		if(EG(exception) == nullptr) {
 			

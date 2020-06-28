@@ -1,9 +1,8 @@
 #ifndef LIBPHPEXT_EXCEPTION_H
 #define LIBPHPEXT_EXCEPTION_H
 
-#include "forward.h"
+#include "vendor.h"
 #include "value.h"
-#include "object.h"
 
 namespace php {
 	// 抛出的异常对象，不进行释放
@@ -24,18 +23,14 @@ namespace php {
 
 		}
 		// 构造异常
-		exception(std::string_view message, int code = 0)
-		: throwable(object::create(zend_ce_exception, {message, code})) {
-			
-		}
+		exception(std::string_view message, int code = 0);
 	};
-
 	// 将 CPP 中捕获的异常重新抛出到 PHP 中
 	inline void rethrow(const throwable& ex) {
 		zend_throw_exception_object(ex);
 	}
-	// 将 PHP 中发生的异常重新抛出到 CPP 中
-	void rethrow();
+	// 将 PHP 中发生的异常（若存在）重新抛出到 CPP 中
+	void try_rethrow();
 }
 
 #endif // LIBPHPEXT_EXCEPTION_H

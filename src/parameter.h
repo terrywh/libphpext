@@ -1,7 +1,7 @@
 #ifndef LIBPHPEXT_PARAMETER_H
 #define LIBPHPEXT_PARAMETER_H
 
-#include "forward.h"
+#include "vendor.h"
 #include "value.h"
 
 namespace php {

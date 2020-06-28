@@ -1,22 +1,22 @@
 #ifndef LIBPHPEXT_FUNCITON_ARGUMENT_INFO_H
 #define LIBPHPEXT_FUNCITON_ARGUMENT_INFO_H
 
-#include "forward.h"
+#include "vendor.h"
 #include "value.h"
 
 #undef ZEND_TYPE_INIT_MASK
 #define ZEND_TYPE_INIT_MASK(_type_mask) { NULL, static_cast<uint32_t>(_type_mask) }
 
 namespace php {
+	// TODO 实现对 zend_type_list 的封装，以提供
     // 单参数描述信息
 	class argument_info: public zend_internal_arg_info {
 	public:
-
 		// 无类型参数
 		argument_info(const char* name, bool byref = false, bool nullable = false)
-		: zend_internal_arg_info { name, ZEND_TYPE_INIT_CODE(value::TYPE_UNDEFINED, nullable, _ZEND_ARG_INFO_FLAGS(byref, false)), nullptr } {}
+		: zend_internal_arg_info { name, ZEND_TYPE_INIT_CODE(TYPE_UNDEFINED, nullable, _ZEND_ARG_INFO_FLAGS(byref, false)), nullptr } {}
 		// 基础类型参数
-		argument_info(const char*  name, value::types type_hint, bool byref = false, bool nullable = false)
+		argument_info(const char*  name, type_code_t type_hint, bool byref = false, bool nullable = false)
 		: zend_internal_arg_info { name, ZEND_TYPE_INIT_CODE(type_hint, nullable, _ZEND_ARG_INFO_FLAGS(byref, false)), nullptr } {}
 
 		// 类类型参数
@@ -32,9 +32,9 @@ namespace php {
 	public:
 		// 无返回类型描述
 		return_info(bool byref = false, bool nullable = false)
-		: zend_internal_arg_info { (const char*)(zend_uintptr_t)-1, ZEND_TYPE_INIT_CODE(value::TYPE_UNDEFINED, nullable, _ZEND_ARG_INFO_FLAGS(byref, 0)), nullptr } {}
+		: zend_internal_arg_info { (const char*)(zend_uintptr_t)-1, ZEND_TYPE_INIT_CODE(TYPE_UNDEFINED, nullable, _ZEND_ARG_INFO_FLAGS(byref, 0)), nullptr } {}
 		// 返回基础类型
-		return_info(value::types type_hint, bool byref = false, bool nullable = false)
+		return_info(type_code_t type_hint, bool byref = false, bool nullable = false)
 		: zend_internal_arg_info { (const char*)(zend_uintptr_t)-1, ZEND_TYPE_INIT_CODE(type_hint, nullable, _ZEND_ARG_INFO_FLAGS(byref, 0)), nullptr } {}
 		// 返回类类型
 		return_info(zend_string* class_name, bool nullable = false)

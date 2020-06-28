@@ -24,9 +24,9 @@ namespace php {
         assert(self() == nullptr);
         self(this);
         // 基础依赖 (内部使用了对应的部分功能)
-        deps_ += {"standard", "ge", "8.0.0", MODULE_DEP_REQUIRED};
-        deps_ += {"json", "ge", "8.0.0", MODULE_DEP_REQUIRED};
-        deps_ += {"date", "ge", "8.0.0", MODULE_DEP_REQUIRED};
+        dependence_ += {"standard", "ge", "8.0.0", MODULE_DEP_REQUIRED};
+        dependence_ += {"json",     "ge", "8.0.0", MODULE_DEP_REQUIRED};
+        dependence_ += {"date",     "ge", "8.0.0", MODULE_DEP_REQUIRED};
     }
     // 实际模块地址
     module_entry::operator zend_module_entry*() {
@@ -35,14 +35,17 @@ namespace php {
         assert(!repeat);
         repeat = true;
         // (1) 延迟设定依赖及函数表
-        module_.deps                  = deps_;
-        module_.functions             = functions_;
+        module_.deps                  = dependence_;
+        module_.functions             = function_entry_;
 
         return &module_;
     }
     // PHP 回调：模块启动
     int module_entry::on_module_startup  (int type, int module) {
         self()->module = module;
+        for(auto& c :self()->constant_entry_) {
+            zend_register_constant(&c);
+        }
         if(!self()->invoke_fwd(self()->module_startup_handler_)) 
             return FAILURE;
         return SUCCESS;
@@ -67,7 +70,7 @@ namespace php {
     void module_entry::on_module_info(zend_module_entry *zend_module) {
         php_info_print_table_start();
         php_info_print_table_row(2, "version", self()->version_.c_str());
-        for(auto i : self()->sinfo_) {
+        for(auto& i : self()->description_) {
             php_info_print_table_row(2, i.first.c_str(), i.second.c_str());
         }
         php_info_print_table_end();

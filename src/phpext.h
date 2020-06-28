@@ -3,12 +3,14 @@
 
 #define LIBPHPEXT_VERSION_STRING "4.0.0"
 
-#include "forward.h"
+#include "vendor.h"
 
+#include "type_code.h"
 #include "value.h"
 #include "string.h"
+#include "constant.h"
+#include "array.h"
 #include "object.h"
-#include "constants.h"
 #include "exception.h"
 
 #include "dependence.h"

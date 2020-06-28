@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 17)
 
 project(libphpext)
-set(POSITION_INDEPENDENT_CODE ON) # -fPIC
+set(CMAKE_POSITION_INDEPENDENT_CODE ON) # -fPIC
 
 if(DEFINED ENV{VENDOR_PHP})
     set(VENDOR_PHP $ENV{VENDOR_PHP})
@@ -24,42 +24,52 @@ include_directories(
 link_libraries(-static-libstdc++)
 
 add_library(phpext STATIC
+    src/array.cpp
+    src/callable.cpp
+    src/constant.cpp
     src/constant_entry.cpp
     src/conversion.cpp
     src/exception.cpp
     src/function_entry.cpp
     src/module_entry.cpp
     src/object.cpp
-    src/string.cpp)
+    src/string.cpp
+    src/string_buffer.cpp
+    src/value.cpp)
 set_property(TARGET phpext PROPERTY PUBLIC_HEADER
     src/extension.h)
 set_property(TARGET phpext PROPERTY PRIVATE_HEADER
     src/argument_info.h
+    src/array.h
+    src/callable.h
     src/class_entry.h
+    src/constant.h
     src/constant_entry.h
-    src/constants.h
     src/conversion.h
     src/dependence.h
     src/exception.h
-    src/extension.h
-    src/forward.h
     src/function_entry.h
     src/ini_entry.h
     src/module_entry.h
     src/object.h
     src/parameter.h
+    src/phpext.h
     src/string.h
-    src/value.h)
+    src/string_buffer.h
+    src/value.h
+    src/vendor.h)
+target_precompile_headers(phpext PUBLIC src/vendor.h)
 
 add_library(example SHARED
     example/example.cpp)
-add_dependencies(example phpext)
+target_link_libraries(example phpext)
 set_property(TARGET example PROPERTY PREFIX "")
+target_precompile_headers(example PUBLIC src/phpext.h)
 
 install(TARGETS phpext ARCHIVE PUBLIC_HEADER PRIVATE_HEADER)
 
 ## 安装示例扩展
 add_custom_target(test sudo cp $<TARGET_FILE:example> ${VENDOR_PHP_EXTENSION_DIR}
     BYPRODUCTS ${VENDOR_PHP_EXTENSION_DIR}/example.so
-    COMMENT "Install example extension")
+    COMMENT "Installing example.so extension")
 add_dependencies(test example)

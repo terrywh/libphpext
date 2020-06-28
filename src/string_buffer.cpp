@@ -4,7 +4,7 @@ namespace php {
     // PHP 数据序列化
     std::ostream& operator << (std::ostream& os, const value& data) {
         smart_str buffer {nullptr, 0};
-        if(!data.is(value::TYPE_STRING)) {
+        if(!data.is(TYPE_STRING)) {
             php_json_encode(&buffer, data, PHP_JSON_UNESCAPED_UNICODE);
             os.write(buffer.s->val, buffer.s->len);
         }
@@ -94,7 +94,7 @@ namespace php {
         gbump(n);
         return n;
     }
-    int string_buffer::overflow(int c = EOF) {
+    int string_buffer::overflow(int c) {
         char* p = prepare(16);
         *p = c;
         commit(1);

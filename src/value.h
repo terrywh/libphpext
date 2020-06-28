@@ -1,12 +1,16 @@
 #ifndef LIBPHPEXT_VALUE_H
 #define LIBPHPEXT_VALUE_H
 
-#include "forward.h"
+#include "vendor.h"
+#include "type_code.h"
+#include "string.h"
+#include "object.h"
+#include "array.h"
+#include "callable.h"
 
 namespace php {
 
     class object; // 对象
-    class array;  // 数组
 
     // PHP 变量，对应 zval 结构
     template <bool ReleaseAfterUse = true>
@@ -16,128 +20,88 @@ namespace php {
     protected:
         mutable zval value_;
     public:
-        // 变量类型
-        enum types {
-            // 标准类型
-            TYPE_UNDEFINED = IS_UNDEF,
-            // 标准类型
-            TYPE_NULL      = IS_NULL,
-            // 标准类型
-            TYPE_FALSE	   = IS_FALSE,
-            // 标准类型
-            TYPE_TRUE      = IS_TRUE,
-            // 标准类型
-            TYPE_LONG      = IS_LONG,
-            // 标准类型
-            TYPE_INTEGER   = IS_LONG,
-            // 标准类型
-            TYPE_FLOAT     = IS_DOUBLE,
-            // 标准类型
-            TYPE_DOUBLE    = IS_DOUBLE,
-            // 标准类型
-            TYPE_STRING    = IS_STRING,
-            // 标准类型
-            TYPE_ARRAY     = IS_ARRAY,
-            // 标准类型
-            TYPE_OBJECT    = IS_OBJECT,
-            // 标准类型
-            TYPE_RESOURCE  = IS_RESOURCE,
-            // 标准类型
-            TYPE_REFERENCE = IS_REFERENCE,
-            // 常量表达式
-            TYPE_CONSTANT_AST = IS_CONSTANT_AST,
-            // 内部类型
-            TYPE_INDIRECT  = IS_INDIRECT,
-            // 内部类型
-            TYPE_POINTER   = IS_PTR,
-            // 内部类型
-            TYPE_PTR       = IS_PTR,
-            // 内部类型
-            TYPE_ALIAS_PTR = IS_ALIAS_PTR,
-            // 内部类型
-            FAKE_ERROR     = _IS_ERROR,
-            // 实际不存在此类型，仅用于参数说明
-            FAKE_BOOLEAN   = _IS_BOOL, 
-            // 实际不存在此类型，仅用于参数说明
-            FAKE_CALLABLE  = IS_CALLABLE,
-            // 实际不存在次类型，仅用于参数说明
-            FAKE_ITERABLE  = IS_ITERABLE,
-            // 实际不存在次类型，仅用于参数说明
-            FAKE_VOID      = IS_VOID,
-            // 实际不存在次类型，仅用于参数说明
-            FAKE_NUMBER    = _IS_NUMBER,
-        };
+        // 构造：复制
         value_t(const value_t<true>& v) {
             if constexpr (ReleaseAfterUse)
                 ZVAL_COPY(&value_, Z_ISREF(v.value_) ? Z_REFVAL(v.value_) : &v.value_);
             else
                 ZVAL_COPY_VALUE(&value_, &v.value_);
         }
+        // 构造：复制
         value_t(const value_t<false>& v) {
             if constexpr (ReleaseAfterUse)
                 ZVAL_COPY(&value_, Z_ISREF(v.value_) ? Z_REFVAL(v.value_) : &v.value_);
             else
                 ZVAL_COPY_VALUE(&value_, &v.value_);
         }
+        // 构造：移动
         value_t(value_t<true>&& v) {
             // 不要在 PHP 引用类型中使用移动构造
             assert(zval_get_type(&value_) != TYPE_REFERENCE); 
             ZVAL_COPY_VALUE(&value_, &v.value_);
             ZVAL_UNDEF(&v.value_);
         }
+        // 构造：移动
         value_t(value_t<false>&& v) {
             // 不要在 PHP 引用类型中使用移动构造
             assert(zval_get_type(&value_) != TYPE_REFERENCE); 
             ZVAL_COPY_VALUE(&value_, &v.value_);
             ZVAL_UNDEF(&v.value_);
         }
-        // 未定义数据
+        // 构建：未定义
         value_t() {
             ZVAL_UNDEF(&value_);
         }
-        // NULL
+        // 构造：NULL
         value_t(std::nullptr_t) {
             ZVAL_NULL(&value_);
         }
+        // 构造：布尔
         value_t(bool b) {
             if(b) ZVAL_TRUE(&value_);
             else ZVAL_FALSE(&value_);
         }
+        // 构造：整数
         value_t(int i) {
             ZVAL_LONG(&value_, i);
         }
+        // 构造：整数
         value_t(std::int64_t i) {
             ZVAL_LONG(&value_, i);
         }
-        operator std::int64_t() {
-            return Z_LVAL(value_);
+        // 构造：字符串
+        value_t(const char* str) {
+            ZVAL_NEW_STR(&value_, zend_string_init(str, std::strlen(str), 0));
         }
-        // 字符串
+        // 构造：字符串
         value_t(std::string_view str) {
             ZVAL_NEW_STR(&value_, zend_string_init(str.data(), str.size(), 0));
         }
-        // 字符串
+        //构造：字符串
         value_t(std::string str) {
             ZVAL_NEW_STR(&value_, zend_string_init(str.data(), str.size(), 0));
         }
-        // 字符串
-        value_t(zend_string* str, bool rau = ReleaseAfterUse) {
-            if(rau) ZVAL_STR_COPY(&value_, str);
-            else ZVAL_STR(&value_, str);
+        // 构造：字符串
+        value_t(zend_string* str, bool add_ref = ReleaseAfterUse) {
+            ZVAL_STR(&value_, str);
+            if(add_ref) addref();
         }
-        // 数组
-        value_t(zend_array* arr, bool rau = ReleaseAfterUse) {
+        // 构造：数组
+        value_t(zend_array* arr, bool add_ref = ReleaseAfterUse) {
             ZVAL_ARR(&value_, arr);
-            if(rau) addref();
+            if(add_ref) addref();
         }
-        // 对象
-        value_t(zend_object* obj, bool rau = ReleaseAfterUse) {
+        // 构造：对象
+        value_t(zend_object* obj, bool add_ref = ReleaseAfterUse) {
             ZVAL_OBJ(&value_, obj);
-            if(rau) addref();
+            if(add_ref) addref();
         }
         // 类型判定
-        inline bool is(types code) const {
-            return zval_get_type(&value_) == code;
+        inline bool is(type_code_t code) const {
+            zend_uchar t = zval_get_type(&value_);
+            return t == code
+                || code == FAKE_CALLABLE && zend_is_callable(&value_, IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr)
+                || code == FAKE_BOOLEAN && (t == TYPE_TRUE || t == TYPE_FALSE);
         }
         // 引用计数
         int addref() {
@@ -149,25 +113,25 @@ namespace php {
             assert(Z_REFCOUNTED(value_));
             return Z_DELREF(value_);
         }
+        // 在需要时进行释放
         ~value_t() {
             if constexpr (ReleaseAfterUse) zval_ptr_dtor(&value_);
         }
-        
         // 类型数据
         inline operator zval*() const {
             return &value_;
         }
-        // 类型数据
+        // 类型数据：布尔
         operator bool() const {
             assert(zval_get_type(&value_) == TYPE_TRUE || zval_get_type(&value_) == TYPE_FALSE);
             return zval_get_type(&value_) == TYPE_TRUE;
         }
-        // 类型数据
+        // 类型数据：整数
         operator std::int64_t() const {
             assert(zval_get_type(&value_) == TYPE_INTEGER);
             return Z_LVAL(value_);
         }
-        // 类型数据
+        // 类型数据：浮点
         operator double() const {
             assert(zval_get_type(&value_) == TYPE_FLOAT);
             return Z_DVAL(value_);
@@ -192,10 +156,41 @@ namespace php {
             assert(zval_get_type(&value_) == TYPE_ARRAY);
             return Z_ARR(value_);
         }
+        // 类型数据：数组
+        operator array*() const {
+            assert(zval_get_type(&value_) == TYPE_ARRAY);
+            return reinterpret_cast<array*>(Z_ARR(value_));
+        }
+        // 类型数据：数组
+        value_t<true>& operator [](int idx) const {
+            return as<array>()->operator[](idx);
+        }
+        // 类型数据：（关联）数组
+        value_t<true>& operator [](const value_t<true>& idx) const {
+            return as<array>()->operator[](idx);
+        }
+        // 数据类型：可调用
+        value_t<true> operator ()() const {
+            return as<callable>()->operator()();
+        }
+        // 数据类型：可调用
+        value_t<true> operator ()(std::vector<value_t<true>> argv) const {
+            return as<callable>()->operator()(argv);
+        }
         // 数据类型：对象
         operator zend_object*() const {
             assert(zval_get_type(&value_) == TYPE_OBJECT);
             return Z_OBJ(value_);
+        }
+        // 数据类型：对象
+        operator object*() const {
+            assert(zval_get_type(&value_) == TYPE_OBJECT);
+            return reinterpret_cast<object*>(Z_OBJ(value_));
+        }
+        // 数据类型：对象
+        object* operator ->() const {
+            assert(zval_get_type(&value_) == TYPE_OBJECT);
+            return reinterpret_cast<object*>(Z_OBJ(value_));
         }
         // 运算符：赋值
         value_t& operator =(const value_t& v) {
@@ -274,14 +269,29 @@ namespace php {
             assert(zval_get_type(&value_) == TYPE_STRING);
             return zend_binary_strcmp(Z_STRVAL(value_), Z_STRLEN(value_), v.data(), v.size()) < 0;
         }
-        // 访问内部类型对象 (方法)
-        template <class T>
+        // 访问内部类型 (方法)
+        template <class T, typename ENABLE = decltype(T::TYPE_CODE)>
         T* as() const noexcept {
-            assert(zval_get_type(&value_) == T::TYPE);
-            return reinterpret_cast<T*>(Z_REFCOUNT_P(&value_));
+            assert(zval_get_type(&value_) == T::TYPE_CODE);
+            return reinterpret_cast<T*>(Z_PTR(value_));
         }
+        // 特化 callable 实现
+        template <>
+        callable* as() const noexcept;
     };
     using value = value_t<true>; // 
+}
+
+// 嵌入哈析函数，方便容器使用
+namespace std {
+    template<> struct hash<php::value> {
+        typedef php::value argument_type;
+        typedef std::size_t result_type;
+        result_type operator()(argument_type const& s) const noexcept {
+            assert(s.is(php::TYPE_STRING));
+            return s.as<php::string>()->hashcode();
+        }
+    };
 }
 
 #endif // LIBPHPEXT_VALUE_H

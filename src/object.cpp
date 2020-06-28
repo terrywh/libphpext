@@ -1,9 +1,10 @@
 #include "object.h"
+#include "constant.h"
+#include "exception.h"
 
 namespace php {
-
     // 对应类型 参见 value::as<object>()
-    value::types object::TYPE = value::TYPE_OBJECT;
+    type_code_t object::TYPE_CODE = TYPE_OBJECT;
     // 调用成员函数（无参）
     value object::call(object* obj, const value& name) {
         value rv;
@@ -18,7 +19,7 @@ namespace php {
         fci.no_separation = (zend_bool) 1;
         zend_call_function(&fci, NULL);
 
-        rethrow();
+        try_rethrow();
         return rv;
     }
     // 调用成员函数
@@ -37,11 +38,19 @@ namespace php {
         fci.no_separation = (zend_bool) 1;
         zend_call_function(&fci, NULL);
 
-        rethrow();
+        try_rethrow();
         return rv;
     }
+    // 调用成员函数
+    value object::call(const value& name) {
+        return call(this, name);
+    }
+    // 调用成员函数
+    value object::call(const value& name, const std::vector<value>& argv) {
+        return call(this, name, argv);
+    }
     // 创建制定名称的对象实例，并调用其 PHP 构造函数 (无参)
-    object* object::create(std::string_view name) {
+    value object::create(std::string_view name) {
         // ??? 类名是否应该使用内部持久型字符串
         // zend_string* str = zend_string_init_interned(name.data(), name.size(), 1);
         zend_string* str = zend_string_init(name.data(), name.size(), 1);
@@ -49,7 +58,7 @@ namespace php {
         return create(ce);
     }
     // 创建指定名称的对象实例，并调用其 PHP 构造函数
-    object* object::create(std::string_view name, std::vector<value> argv) {
+    value object::create(std::string_view name, std::vector<value> argv) {
         // ??? 类名是否应该使用内部持久型字符串
         // zend_string* str = zend_string_init_interned(name.data(), name.size(), 1);
         zend_string* str = zend_string_init(name.data(), name.size(), 1);
@@ -57,17 +66,17 @@ namespace php {
         return create(ce);
     }
     // 创建指定类型的对象实例，并调用其 PHP 构造函数 (无参)
-    object* object::create(zend_class_entry* ce) {
+    value object::create(zend_class_entry* ce) {
         value_t<false> obj;
         object_init_ex(obj, ce);
-        object::call(obj.as<object>(), cstr(method_name::__CONSTRUCTOR));
-        return obj.as<object>();
+        object::call(obj.as<object>(), constant::string(constant::method_name::__CONSTRUCTOR));
+        return obj;
     }
     // 创建指定类型的对象实例，并调用其 PHP 构造函数
-    object* object::create(zend_class_entry* ce, std::vector<value> argv) {
+    value object::create(zend_class_entry* ce, std::vector<value> argv) {
         value_t<false> obj;
         object_init_ex(obj, ce);
-        object::call(obj.as<object>(), cstr(method_name::__CONSTRUCTOR), std::move(argv));
-        return obj.as<object>();
+        object::call(obj.as<object>(), constant::string(constant::method_name::__CONSTRUCTOR), std::move(argv));
+        return obj;
     }
 }

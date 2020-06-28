@@ -1,10 +1,43 @@
 #ifndef LIBPHPEXT_STRING_H
 #define LIBPHPEXT_STRING_H
 
-#include "forward.h"
-#include "value.h"
+#include "vendor.h"
+#include "type_code.h"
 
 namespace php {
+    template <bool RAU>
+    class value_t;
+    using value = value_t<true>;
+
+    class string_builder;
+    // PHP 字符串
+    class string: public zend_string {
+    public:
+        // 字符串类型
+        static type_code_t TYPE_CODE;
+        // 创建指定长度的字符串
+        static value create(std::size_t size, bool persist = false);
+        // 创建字符串（复制）
+        static value create(std::string_view str, bool persist = false);
+
+        static string_builder build();
+        // 
+        inline std::size_t size() {
+            return ZSTR_LEN(this);
+        }
+        // 获取字符串（复制）
+        operator std::string() const {
+            return {ZSTR_VAL(this), ZSTR_LEN(this)};
+        }
+        // 获取字符串（查看）
+        operator std::string_view() const {
+            return {ZSTR_VAL(this), ZSTR_LEN(this)};
+        }
+        // 字符串哈析
+        inline std::uint64_t hashcode() {
+            return zend_string_hash_func(this);
+        }
+    };
     // 使用 smart_str 构建字符串（相较 string_buffer 更为轻量，效率更高）
     class string_builder {
     public:
@@ -59,48 +92,6 @@ namespace php {
     };
     // PHP 数据序列化（JSON）
     string_builder& operator << (string_builder& sb, const value& data);
-
-    class string: public zend_string {
-    public:
-        // 对应类型 参见 value::as<string>()
-        static value::types TYPE;
-        // 创建指定长度的字符串
-        static string* create(std::size_t size, bool persist = false);
-        // 创建字符串（复制）
-        static string* create(std::string_view str, bool persist = false);
-
-        static string_builder build() {
-            return string_builder();
-        }
-        // 
-        inline std::size_t size() {
-            return ZSTR_LEN(this);
-        }
-        // 获取字符串（复制）
-        operator std::string() const {
-            return {ZSTR_VAL(this), ZSTR_LEN(this)};
-        }
-        // 获取字符串（查看）
-        operator std::string_view() const {
-            return {ZSTR_VAL(this), ZSTR_LEN(this)};
-        }
-        // 字符串哈析
-        inline std::uint64_t hashcode() {
-            return zend_string_hash_func(this);
-        }
-    };
-
-}
-// 嵌入哈析函数，方便容器使用
-namespace std {
-    template<> struct hash<php::value> {
-        typedef php::value argument_type;
-        typedef std::size_t result_type;
-        result_type operator()(argument_type const& s) const noexcept {
-            assert(s.is(php::value::TYPE_STRING));
-            return s.as<php::string>()->hashcode();
-        }
-    };
 }
 
 #endif // LIBPHPEXT_STRING_H

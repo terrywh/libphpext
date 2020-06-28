@@ -1,7 +1,7 @@
 #ifndef LIBPHPEXT_MODULE_DEPS_H
 #define LIBPHPEXT_MODULE_DEPS_H
 
-#include "forward.h"
+#include "vendor.h"
 
 namespace php {
     using dependence = zend_module_dep;

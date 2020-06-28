@@ -2,4 +2,4 @@
 **/*.o
 **/*.d
 **/*.gch
-build/
+build
