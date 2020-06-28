@@ -53,6 +53,10 @@ php::value walk(php::parameters& params) {
     // }
     return array->size();
 }
+// 读取配置
+php::value conf_bytes(php::parameters& params) {
+    return php::env::ini(params[0]).bytes();
+}
 
 extern "C" {
     // PHP 扩展模块入口
@@ -81,8 +85,11 @@ extern "C" {
                 return true;
             }))
             // 说明信息
-            .descibe({"INFO_LIBPHPEXT_VERSION", LIBPHPEXT_VERSION_STRING})
-            .descibe({"INFO_2", "Hello"})
+            .describe({"INFO_LIBPHPEXT_VERSION", LIBPHPEXT_VERSION_STRING})
+            .describe({"INFO_2", "Hello"})
+            // 配置 ini 项
+            .setup({"example.hello", "value"}) // 文本
+            .setup({"example.size", "2M"}) // 带单位
             // 定义常量
             .define({"CPP_CONSTANT_1", "123456"}) // 字符串
             .define({"CPP_CONSTANT_2", 123456}) // 数值
@@ -105,6 +112,9 @@ extern "C" {
             }, {php::TYPE_MIXED})
             .declare<walk>("cpp_walk", {
                 {"a", php::TYPE_ARRAY}
+            }, {php::TYPE_INTEGER})
+            .declare<conf_bytes>("cpp_conf_bytes", {
+                {"name", php::TYPE_STRING}
             }, {php::TYPE_INTEGER});
 
         return module;

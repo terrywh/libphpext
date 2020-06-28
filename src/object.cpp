@@ -1,5 +1,5 @@
 #include "object.h"
-#include "constant.h"
+#include "env.h"
 #include "exception.h"
 
 namespace php {
@@ -69,14 +69,14 @@ namespace php {
     value object::create(zend_class_entry* ce) {
         value_t<false> obj;
         object_init_ex(obj, ce);
-        object::call(obj.as<object>(), constant::string(constant::method_name::__CONSTRUCTOR));
+        object::call(obj.as<object>(), env::str(method_name::__CONSTRUCTOR));
         return obj;
     }
     // 创建指定类型的对象实例，并调用其 PHP 构造函数
     value object::create(zend_class_entry* ce, std::vector<value> argv) {
         value_t<false> obj;
         object_init_ex(obj, ce);
-        object::call(obj.as<object>(), constant::string(constant::method_name::__CONSTRUCTOR), std::move(argv));
+        object::call(obj.as<object>(), env::str(method_name::__CONSTRUCTOR), std::move(argv));
         return obj;
     }
 }

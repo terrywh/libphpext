@@ -9,7 +9,7 @@
 #include "value.h"
 #include "string.h"
 #include "string_buffer.h"
-#include "constant.h"
+#include "env.h"
 #include "array.h"
 #include "array_iterator.h"
 #include "object.h"

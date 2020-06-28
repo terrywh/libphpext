@@ -27,11 +27,12 @@ add_library(phpext STATIC
     src/array.cpp
     src/array_iterator.cpp
     src/callable.cpp
-    src/constant.cpp
     src/constant_entry.cpp
     src/conversion.cpp
+    src/env.cpp
     src/exception.cpp
     src/function_entry.cpp
+    src/ini_entry.cpp
     src/module_entry.cpp
     src/object.cpp
     src/string.cpp
@@ -46,10 +47,10 @@ set_property(TARGET phpext PROPERTY PRIVATE_HEADER
     src/array_iterator.h
     src/callable.h
     src/class_entry.h
-    src/constant.h
     src/constant_entry.h
     src/conversion.h
     src/dependence.h
+    src/env.h
     src/exception.h
     src/function_entry.h
     src/ini_entry.h

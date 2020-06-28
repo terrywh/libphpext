@@ -1,11 +1,15 @@
 #include "module_entry.h"
+#include "env.h"
 
 namespace php {
+    // 当前实例
+    module_entry* module_entry::self_;
     // 模块名称版本构造
     module_entry::module_entry(std::string_view name, std::string_view version)
     : name_(name)
     , version_(version)
     , module(0) {
+        self_ = this;
         module_ = {
             STANDARD_MODULE_HEADER_EX,
             nullptr, // 配置 ini entry 此项数据由 zend engine 填充
@@ -21,8 +25,7 @@ namespace php {
             STANDARD_MODULE_PROPERTIES,
         };
         // 仅允许单例使用
-        assert(self() == nullptr);
-        self(this);
+        self_ = this;
         // 基础依赖 (内部使用了对应的部分功能)
         dependence_ += {"standard", nullptr, nullptr, MODULE_DEP_REQUIRED};
         dependence_ += {"json",     nullptr, nullptr, MODULE_DEP_REQUIRED};
@@ -43,9 +46,13 @@ namespace php {
     // PHP 回调：模块启动
     int module_entry::on_module_startup  (int type, int module) {
         self()->module = module;
-        for(auto& c :self()->constant_entry_) {
+        // 配置 ini 项
+        zend_register_ini_entries(self()->ini_entry_, module);
+        // 注册 常量
+        for(auto& c : self()->constant_entry_) {
             zend_register_constant(&c);
         }
+        
         if(!self()->invoke_fwd(self()->module_startup_handler_)) 
             return FAILURE;
         return SUCCESS;
