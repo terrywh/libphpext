@@ -8,8 +8,10 @@
 #include "type_code.h"
 #include "value.h"
 #include "string.h"
+#include "string_buffer.h"
 #include "constant.h"
 #include "array.h"
+#include "array_iterator.h"
 #include "object.h"
 #include "exception.h"
 

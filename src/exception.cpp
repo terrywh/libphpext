@@ -2,7 +2,7 @@
 #include "object.h"
 
 namespace php {
-
+	// 异常消息
     const char* throwable::what() const noexcept {
         zval *prop, rv;
         zend_string *name = zend_string_init("message", sizeof("message")-1, 0);
@@ -12,37 +12,32 @@ namespace php {
         zend_string_release_ex(name, 0);
         return Z_STRVAL_P(prop);
     }
-	// 构造异常
-	exception::exception(std::string_view message, int code)
-	: throwable(object::create(zend_ce_exception, {message, code})) {
-		
-	}
 	// 将 PHP 中发生的异常（若存在）重新抛出到 CPP 中
     void try_rethrow() {
-        // TODO
 		if(EG(exception) == nullptr) {
-			
+			// 无异常
 		}
-		else if(EG(exception)->ce == zend_ce_exception) {
+		else if(EG(exception)->ce == zend_ce_exception)
 			throw php::exception(EG(exception));
-		}
-		else if(EG(exception)->ce == zend_ce_error_exception) {
-
-		}
-		else if(EG(exception)->ce == zend_ce_error) {
-
-		}
-		else if(EG(exception)->ce == zend_ce_type_error) {
-
-		}
-		else if(EG(exception)->ce == zend_ce_argument_count_error) {
-
-		}
-		else if(EG(exception)->ce == zend_ce_arithmetic_error) {
-
-		}
-		else if(EG(exception)->ce == zend_ce_division_by_zero_error) {
-
-		}
+		else if(EG(exception)->ce == zend_ce_error_exception)
+			throw php::error_exception(EG(exception));
+		else if(EG(exception)->ce == zend_ce_error)
+			throw php::error(EG(exception));
+		else if(EG(exception)->ce == zend_ce_compile_error)
+			throw php::compile_error(EG(exception));
+		else if(EG(exception)->ce == zend_ce_parse_error)
+			throw php::parse_error(EG(exception));
+		else if(EG(exception)->ce == zend_ce_type_error)
+			throw php::type_error(EG(exception));
+		else if(EG(exception)->ce == zend_ce_argument_count_error)
+			throw php::argument_count_error(EG(exception));
+		else if(EG(exception)->ce == zend_ce_value_error)
+			throw php::value_error(EG(exception));
+		else if(EG(exception)->ce == zend_ce_arithmetic_error)
+			throw php::arithmetic_error(EG(exception));
+		else if(EG(exception)->ce == zend_ce_division_by_zero_error)
+			throw php::division_by_zero_error(EG(exception));
+		else
+			abort(); // 未知的异常类型
 	}
 }

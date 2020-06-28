@@ -38,6 +38,21 @@ php::value container(php::parameters& params) {
 php::value invoke(php::parameters& params) {
     return params[0]({"world"});
 }
+// 遍历数组
+php::value walk(php::parameters& params) {
+    auto* array = params[0].as<php::array>();
+    int count = array->size();
+    for(auto i = array->begin(); i!= array->end(); ++i) {
+        std::cout << i->first << " => " << i->second << std::endl;
+        ++count;
+    }
+    // C++11
+    // for(auto x : *params[0].as<php::array>()) {
+    //     std::cout << x.first << " => " << x.second << std::endl;
+    //     ++count;
+    // }
+    return array->size();
+}
 
 extern "C" {
     // PHP 扩展模块入口
@@ -87,7 +102,10 @@ extern "C" {
             }, {php::TYPE_INTEGER})
             .declare<invoke>("cpp_invoke", {
                 {"cb", php::FAKE_CALLABLE}
-            }, {php::TYPE_MIXED});
+            }, {php::TYPE_MIXED})
+            .declare<walk>("cpp_walk", {
+                {"a", php::TYPE_ARRAY}
+            }, {php::TYPE_INTEGER});
 
         return module;
     }

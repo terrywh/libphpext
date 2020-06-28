@@ -1,19 +1,6 @@
 #include "string_buffer.h"
 
 namespace php {
-    // PHP 数据序列化
-    std::ostream& operator << (std::ostream& os, const value& data) {
-        smart_str buffer {nullptr, 0};
-        if(!data.is(TYPE_STRING)) {
-            php_json_encode(&buffer, data, PHP_JSON_UNESCAPED_UNICODE);
-            os.write(buffer.s->val, buffer.s->len);
-        }
-        else {
-            std::string_view sv = data;
-            os.write(sv.data(), sv.size());
-        }
-		return os;
-	}
     // 消费读取缓冲区
     void string_buffer::consume(std::size_t n) {
         char* g = gptr(), *p = pptr();

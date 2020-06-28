@@ -5,8 +5,6 @@
 #include "value.h"
 
 namespace php {
-    // 自动序列化
-    std::ostream& operator << (std::ostream& os, const value& data);
     // 基于 smart_str 的流缓冲区
     class string_buffer: public std::streambuf {
 	public:
@@ -15,6 +13,7 @@ namespace php {
         : str_ {nullptr, 0} {
             realloc(128);
         }
+		// 
 		~string_buffer() {
             smart_str_free(&str_);
         }

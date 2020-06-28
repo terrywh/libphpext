@@ -4,6 +4,7 @@
 /** 系统头文件 **/
 #include <cstdint>
 #include <cstring>
+#include <exception>
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -17,6 +18,8 @@
 #include <zend_smart_str.h>
 #include <main/php.h>
 #include <ext/standard/info.h>
+extern "C" {
 #include <ext/json/php_json.h>
+}
 
 #endif // LIBPHPEXT_FORWARD_H

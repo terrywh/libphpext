@@ -22,7 +22,7 @@ namespace php {
         operator const zend_module_dep*() {
             // 依赖列表结束标志
             if(deps_.back().name != nullptr) {
-                deps_.push_back({nullptr, nullptr, nullptr, 0});
+                deps_.push_back(ZEND_MOD_END);
             }
             return deps_.data();
         }

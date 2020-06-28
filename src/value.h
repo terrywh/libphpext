@@ -66,9 +66,17 @@ namespace php {
             ZVAL_LONG(&value_, i);
         }
         // 构造：整数
+        value_t(uint u) {
+            ZVAL_LONG(&value_, u);
+        }
+        // 构造：整数
         value_t(std::int64_t i) {
             ZVAL_LONG(&value_, i);
         }
+        value_t(std::uint64_t u) {
+            ZVAL_LONG(&value_, u);
+        }
+        // 构造：整数
         // 构造：字符串
         value_t(const char* str) {
             ZVAL_NEW_STR(&value_, zend_string_init(str, std::strlen(str), 0));
@@ -280,6 +288,8 @@ namespace php {
         callable* as() const noexcept;
     };
     using value = value_t<true>; // 
+    // 自动序列化
+    std::ostream& operator << (std::ostream& os, const value& data);
 }
 
 // 嵌入哈析函数，方便容器使用
