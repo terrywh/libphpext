@@ -10,7 +10,7 @@ namespace php {
         ini_entry()
         : zend_ini_entry_def {nullptr} {}
         // 构建项
-        ini_entry(std::string_view key, std::string_view val);
+        ini_entry(zend_string* key, std::string_view val);
         // 移动
         ini_entry(ini_entry&& e);
         // 释放

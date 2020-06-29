@@ -2,7 +2,7 @@
 
 namespace php {
     // 构建函数项
-    function_entry::function_entry(zif_handler fn, std::string_view name, return_info&& ri,
+    function_entry::function_entry(zif_handler fn, zend_string* name, return_info&& ri,
         std::initializer_list<argument_info>&& pi)
     : fn_(fn)
     , nm_(name)
@@ -20,7 +20,7 @@ namespace php {
     // 构建 zend_function_entry 用于注册函数
     function_entry::operator zend_function_entry() const {
         return zend_function_entry {
-            nm_.c_str(), // fname
+            nm_->val, // fname
             fn_, // handler
             ai_.data(), // arg_info, 
             // 容器额外包含返回信息，故实际参数个数需要调整

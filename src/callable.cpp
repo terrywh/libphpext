@@ -3,8 +3,6 @@
 #include "exception.h"
 
 namespace php {
-    // 可调用类型（虚拟类型）
-    type_code_t callable::TYPE_CODE = FAKE_CALLABLE;
     // 构建：可调用对象
     callable::callable(const ::php::value& cb) {
         assert(zend_is_callable(this, IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr));

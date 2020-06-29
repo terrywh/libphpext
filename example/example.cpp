@@ -42,20 +42,35 @@ php::value invoke(php::parameters& params) {
 php::value walk(php::parameters& params) {
     auto* array = params[0].as<php::array>();
     int count = array->size();
+    // C++11
+    for(auto x : *params[0].as<php::array>()) {
+        std::cout << x.first << " => " << x.second << std::endl;
+        ++count;
+    }
     for(auto i = array->begin(); i!= array->end(); ++i) {
         std::cout << i->first << " => " << i->second << std::endl;
         ++count;
     }
-    // C++11
-    // for(auto x : *params[0].as<php::array>()) {
-    //     std::cout << x.first << " => " << x.second << std::endl;
-    //     ++count;
-    // }
-    return array->size();
+    for(auto i = array->rbegin(); i!= array->rend(); ++i) {
+        std::cout << i->first << " => " << i->second << std::endl;
+        ++count;
+    }
+    return count;
 }
 // 读取配置
 php::value conf_bytes(php::parameters& params) {
     return php::env::ini(params[0]).bytes();
+}
+// 访问属性
+php::value property(php::parameters& params) {
+    // 假设 d 原始值为 1
+    auto d = params[0].as<php::object>()->prop("d");
+    // 函数设置：不会出发上述 d 值刷新
+    params[0].as<php::object>()->prop("d", 3);
+    // 原地设置 -> 1 + 1 = 2
+    d += 1;
+    std::cout << d << " days\n";
+    return d;
 }
 
 extern "C" {
@@ -66,7 +81,8 @@ extern "C" {
         // 定义模块
         module
             // 模块依赖项
-            .depend({"pcre", "ge", "8.0.0", MODULE_DEP_REQUIRED})
+            .require("pcre", "8.0.0")
+            .require("date")
             // 模块启动回调
             .on(php::module_startup([] (php::module_entry& module) -> bool {
                 std::cout << "module started" << std::endl;
@@ -85,19 +101,19 @@ extern "C" {
                 return true;
             }))
             // 说明信息
-            .describe({"INFO_LIBPHPEXT_VERSION", LIBPHPEXT_VERSION_STRING})
-            .describe({"INFO_2", "Hello"})
+            .describe("INFO_LIBPHPEXT_VERSION", LIBPHPEXT_VERSION_STRING)
+            .describe("INFO_2", "Hello")
             // 配置 ini 项
-            .setup({"example.hello", "value"}) // 文本
-            .setup({"example.size", "2M"}) // 带单位
+            .setup("example.hello", "value") // 文本
+            .setup("example.size", "2M") // 带单位
             // 定义常量
-            .define({"CPP_CONSTANT_1", "123456"}) // 字符串
-            .define({"CPP_CONSTANT_2", 123456}) // 数值
+            .define("CPP_CONSTANT_1", "123456") // 字符串
+            .define("CPP_CONSTANT_2", 123456) // 数值
             // 声明函数
             .declare<hello>("cpp_hello", {
                 {"s1", php::TYPE_STRING} // 接受一个字符串参数
             }, {php::TYPE_STRING}) // 返回字符串
-            .declare<plus_5>("cpp_plus_5", { 
+            .declare<plus_5>("cpp_plus_5", {
                 {"i1", php::TYPE_INTEGER, true} // 接受一个整数参数
             }, {php::TYPE_INTEGER}) // 返回一个整数
             .declare<call_method>("cpp_call_method", {
@@ -115,7 +131,10 @@ extern "C" {
             }, {php::TYPE_INTEGER})
             .declare<conf_bytes>("cpp_conf_bytes", {
                 {"name", php::TYPE_STRING}
-            }, {php::TYPE_INTEGER});
+            }, {php::TYPE_INTEGER})
+            .declare<property>("cpp_property", {
+                {"interval", "DateInterval"}
+            }, {php::TYPE_MIXED});
 
         return module;
     }

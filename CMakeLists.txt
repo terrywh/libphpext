@@ -24,45 +24,46 @@ include_directories(
 link_libraries(-static-libstdc++)
 
 add_library(phpext STATIC
-    src/array.cpp
-    src/array_iterator.cpp
-    src/callable.cpp
-    src/constant_entry.cpp
-    src/conversion.cpp
-    src/env.cpp
-    src/exception.cpp
-    src/function_entry.cpp
-    src/ini_entry.cpp
-    src/module_entry.cpp
-    src/object.cpp
-    src/string.cpp
-    src/string_buffer.cpp
-    src/string_builder.cpp
-    src/value.cpp)
-set_property(TARGET phpext PROPERTY PUBLIC_HEADER
-    src/phpext.h)
+        src/array.cpp
+        src/array_iterator.cpp
+        src/callable.cpp
+        src/constant_entry.cpp
+        src/conversion.cpp
+        src/env.cpp
+        src/exception.cpp
+        src/function_entry.cpp
+        src/ini_entry.cpp
+        src/module_entry.cpp
+        src/object.cpp
+        src/property.cpp
+        src/string.cpp
+        src/string_buffer.cpp
+        src/string_builder.cpp
+        src/value.cpp)
+set_property(TARGET phpext PROPERTY PUBLIC_HEADER src/phpext.h)
 set_property(TARGET phpext PROPERTY PRIVATE_HEADER
-    src/argument_info.h
-    src/array.h
-    src/array_iterator.h
-    src/callable.h
-    src/class_entry.h
-    src/constant_entry.h
-    src/conversion.h
-    src/dependence.h
-    src/env.h
-    src/exception.h
-    src/function_entry.h
-    src/ini_entry.h
-    src/module_entry.h
-    src/object.h
-    src/parameter.h
-    src/string.h
-    src/string_buffer.h
-    src/string_builder.h
-    src/type_code.h
-    src/value.h
-    src/vendor.h)
+        src/argument_info.h
+        src/array.h
+        src/array_iterator.h
+        src/callable.h
+        src/class_entry.h
+        src/constant_entry.h
+        src/conversion.h
+        src/dependence.h
+        src/env.h
+        src/exception.h
+        src/function_entry.h
+        src/ini_entry.h
+        src/module_entry.h
+        src/object.h
+        src/parameter.h
+        src/property.h
+        src/string.h
+        src/string_buffer.h
+        src/string_builder.h
+        src/type_code.h
+        src/value.h
+        src/vendor.h)
 target_precompile_headers(phpext PUBLIC src/vendor.h)
 
 add_library(example SHARED

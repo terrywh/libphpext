@@ -13,6 +13,7 @@
 #include "array.h"
 #include "array_iterator.h"
 #include "object.h"
+#include "property.h"
 #include "exception.h"
 
 #include "dependence.h"

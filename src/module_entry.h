@@ -88,18 +88,25 @@ namespace php {
         // 模块名称版本构造
         module_entry(std::string_view name, std::string_view version);
         // 描述模块（在 php_info() / 模块信息中展示)
-        module_entry& describe(description_type&& info) {
-            description_.emplace_back(std::move(info));
+        module_entry& describe(std::string_view name, std::string_view info) {
+            description_.emplace_back(name, info);
             return *this;
         }
         // 设置 ini 项目
-        module_entry& setup(ini_entry&& ini) {
-            ini_entry_ += std::move(ini);
+        module_entry& setup(std::string_view name, std::string_view data, refer* name_ref = nullptr) {
+            zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
+            if(name_ref) *name_ref = zn;
+            ini_entry_ += ini_entry {zn, data};
             return *this;
         }
         // 为模块添加依赖
-        module_entry& depend(const dependence& depend) {
-            dependence_ += depend;
+        module_entry& require(const char* module_name, const char* version) {
+            dependence_ += dependence {module_name, "ge", version, MODULE_DEP_REQUIRED};
+            return *this;
+        }
+        // 为模块添加依赖
+        module_entry& require(const char* module_name) {
+            dependence_ += dependence {module_name, nullptr, nullptr, MODULE_DEP_REQUIRED};
             return *this;
         }
         // 添加模块启动处理程序
@@ -123,27 +130,28 @@ namespace php {
             return *this;
         }
         // 定义扩展常量
-        module_entry& define(const constant_entry& c) {
-            constant_entry_.push_back(c);
+        module_entry& define(std::string_view name, const php::value& data) {
+            constant_entry_.push_back({name, data});
             return *this;
         }
         // 函数（注意，由于实际指针数据等由对应对象持有，需要原始指针地址）
         template <value fn(parameters& params)>
         module_entry& declare(std::string_view name, std::initializer_list<argument_info> pi,
-                return_info&& ri) {
-            
-            function_entry_ += function_entry(function_entry::callback<fn>, name, std::move(ri), std::move(pi));
+                return_info&& ri, refer* name_ref = nullptr) {
+            zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
+            if(name_ref) *name_ref = zn; // 函数名称字符串的引用
+            function_entry_ += function_entry(function_entry::callback<fn>, zn, std::move(ri), std::move(pi));
             return *this;
         }
         // 函数
         template <value fn(parameters& params)>
-        module_entry& declare(std::string_view name, std::initializer_list<argument_info> pi) {
-            return declare<fn>(name, std::move(pi), return_info());
+        module_entry& declare(std::string_view name, std::initializer_list<argument_info> pi, refer* name_ref = nullptr) {
+            return declare<fn>(name, std::move(pi), return_info(), name_ref);
         }
         // 函数
         template <value fn(parameters& params)>
-        module_entry& declare(std::string_view name) {
-            return declare<fn>(name, {}, return_info());
+        module_entry& declare(std::string_view name, refer* name_ref = nullptr) {
+            return declare<fn>(name, {}, return_info(), name_ref);
         }
         template <class T>
         class_entry<T>& declare(std::string_view name) {

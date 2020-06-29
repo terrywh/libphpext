@@ -12,7 +12,7 @@ namespace php {
     class function_entry {
     public:
         // 构建函数项
-        function_entry(zif_handler fn, std::string_view name, return_info&& ri,
+        function_entry(zif_handler fn, zend_string* name, return_info&& ri,
             std::initializer_list<argument_info>&& pi);
         // 构建 zend_function_entry 用于注册函数
         operator zend_function_entry() const;
@@ -40,7 +40,7 @@ namespace php {
         // 目标函数
         zif_handler                         fn_;
         // 函数名
-        std::string                         nm_;
+        zend_string*                        nm_;
         // 描述信息（返回、参数等）
         std::vector<zend_internal_arg_info> ai_;
 

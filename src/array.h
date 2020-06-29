@@ -15,25 +15,45 @@ namespace php {
     // 数组
     class array: public zend_array {
     public:
-        static type_code_t TYPE_CODE;
+        static constexpr type_code_t TYPE_CODE = TYPE_ARRAY;
         // 元素个数
         inline std::size_t size() {
             return nNumOfElements;
         }
-        // 数组元素访问
-        value& operator [](int idx) const {
-            return operator[](static_cast<std::uint64_t>(idx));
+        // 数组元素访问（引用，可能返回 undefined 值）
+        value get(int idx) const;
+        // 数组元素访问（引用，可能返回 undefined 值）
+        value get(std::uint64_t idx) const;
+        // 数组元素访问（引用，可能返回 undefined 值）
+        value get(const char* key) const;
+        // 数组元素访问（引用，可能返回 undefined 值）
+        value get(std::string_view key) const;
+        // 数组元素访问（引用，可能返回 undefined 值）
+        value get(const value& key) const;
+        // 数组元素设置
+        void set(int idx, const value& val) { return set(static_cast<std::uint64_t>(idx), val); }
+        // 数组元素设置
+        void set(std::uint64_t idx, const value& val);
+        // 数组元素设置
+        void set(const char* key, const value& val) {
+            set(std::string_view(key), val);
         }
-        // 数组元素访问
-        value& operator [](std::uint64_t idx) const {
-            return *reinterpret_cast<value*>(zend_hash_index_find(this, idx));
+        // 数组元素设置
+        void set(std::string_view key, const value& val);
+        // 数组元素设置
+        void set(const value& key, const value& val);
+        // 数组元素访问（不存在时创建）
+        value& operator [](int idx) const { return operator[](static_cast<std::uint64_t>(idx)); }
+        // 数组元素访问（不存在时创建）
+        value& operator [](std::uint64_t idx);
+        // 数组元素访问（不存在时创建）
+        value& operator [](const char* key) {
+            return operator [](std::string_view(key));
         }
-        // 数组元素访问
-        value& operator [](std::string_view key) const {
-            return *reinterpret_cast<value*>(zend_hash_str_find(this, key.data(), key.size()));
-        }
-        // 数组元素访问
-        value& operator [](const value& key) const;
+        // 数组元素访问（不存在时创建）
+        value& operator [](std::string_view key);
+        // 数组元素访问（不存在时创建）
+        value& operator [](const value& key);
         // 检查指定 IDX 是否存在
         bool contains(int idx) const {
             return contains(static_cast<std::uint64_t>(idx));
@@ -41,6 +61,9 @@ namespace php {
         // 检查指定 IDX 是否存在
         bool contains(std::uint64_t idx) const {
             return zend_hash_index_exists(this, idx);
+        }
+        bool contains(const char* key) const {
+            return contains(std::string_view(key));
         }
         // 检查指定 KEY 是否存在
         bool contains(std::string_view key) const {

@@ -15,8 +15,14 @@ namespace php {
     };
     class env {
     public:
+        // 未定义引用
+        static value undefined_value;
+        // 空值引用
+        static value null_value;
         // 文本常量：方法名称
-        static value str(method_name mn);
+        static value key(method_name mn);
+        // 文本常量：内部名称（属性名、方法名、类名等，也可考虑在声明时设置引用获取）
+        static value key(std::string_view name);
         // 模拟一个函数形式进行 ini 读取
         class ini {
         public:
@@ -33,8 +39,11 @@ namespace php {
             }
         private:
             zend_ini_entry* entry_;
-            // TODO ini 数据读取功能 https://github.com/terrywh/libphpext/blob/master/src/ini.cpp
         };
+    private:
+        // 环境数据初始化
+        static void init();
+        friend class module_entry;
     };
 }
 

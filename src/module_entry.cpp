@@ -27,9 +27,9 @@ namespace php {
         // 仅允许单例使用
         self_ = this;
         // 基础依赖 (内部使用了对应的部分功能)
-        dependence_ += {"standard", nullptr, nullptr, MODULE_DEP_REQUIRED};
-        dependence_ += {"json",     nullptr, nullptr, MODULE_DEP_REQUIRED};
-        dependence_ += {"date",     nullptr, nullptr, MODULE_DEP_REQUIRED};
+        require("standard");
+        require("json");
+        require("date");
     }
     // 实际模块地址
     module_entry::operator zend_module_entry*() {

@@ -2,23 +2,26 @@
 #include "conversion.h"
 
 namespace php {
+
+    // 未定义引用
+    value env::undefined_value;
+    // 空值引用
+    value env::null_value;
     // 文本常量：方法名称
     static const char* method_name_cstr[] = {
         ZEND_CONSTRUCTOR_FUNC_NAME,
         ZEND_DESTRUCTOR_FUNC_NAME,
         ZEND_INVOKE_FUNC_NAME,
     };
+    // 文本数据：方法名称
+    static zend_string* method_name_zstr[static_cast<int>(method_name::METHOD_NAME_MAX)];
     // 文本常量：方法名称
-    value env::str(method_name mn) {
-        static value str[static_cast<int>(method_name::METHOD_NAME_MAX)];
-        int i = static_cast<int>(mn);
-        // 若常量还未创建
-        if(!str[i].is(TYPE_STRING)) {
-            const char* s = method_name_cstr[i];
-            // 创建内部字符串
-            str[i] = zend_string_init_interned(s, std::strlen(s), true);
-        }
-        return str[i];
+    value env::key(method_name mn) {
+        return method_name_zstr[ static_cast<int>(mn) ];
+    }
+    // 文本常量：类名（属性名、方法名、类名等，也可考虑在声明时设置引用获取）
+    value env::key(std::string_view name) {
+        return zend_string_init_interned(name.data(), name.size(), true);
     }
     // 待读取 ini 项
     env::ini::ini(std::string_view name)
@@ -39,6 +42,12 @@ namespace php {
         return entry_ ? std::string(ZSTR_VAL(entry_->value), ZSTR_LEN(entry_->value)) : std::string();
     }
     std::int64_t env::ini::bytes() const {
-        return to_bytes({ZSTR_VAL(entry_->value), ZSTR_LEN(entry_->value)});
+        return entry_? to_bytes({ZSTR_VAL(entry_->value), ZSTR_LEN(entry_->value)}) : 0;
+    }
+    // 环境初始化
+    void env::init() {
+        for(int i = 0; i < static_cast<int>(method_name::METHOD_NAME_MAX); ++i) {
+            method_name_zstr[i] = zend_string_init_interned(method_name_cstr[i], std::strlen(method_name_cstr[i]), true);
+        }
     }
 }

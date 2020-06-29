@@ -14,7 +14,7 @@ namespace php {
     class string: public zend_string {
     public:
         // 字符串类型
-        static type_code_t TYPE_CODE;
+        static constexpr type_code_t TYPE_CODE = TYPE_STRING;
         // 创建指定长度的字符串
         static value create(std::size_t size, bool persist = false);
         // 创建字符串（复制）

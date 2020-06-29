@@ -3,8 +3,6 @@
 #include "string_builder.h"
 
 namespace php {
-    // 字符串类型
-    type_code_t string::TYPE_CODE = TYPE_STRING;
     string_builder string::build() {
         return string_builder();
     }

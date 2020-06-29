@@ -11,8 +11,8 @@ namespace php {
     // 可调用（对象）
     class callable: public zval {
     public:
-        // 可调用类型
-        static type_code_t TYPE_CODE;
+        // 可调用类型（虚拟类型）
+        static constexpr type_code_t TYPE_CODE = FAKE_CALLABLE;
         // 构建
         callable(const ::php::value& cb);
         // 调用、执行（无参）
