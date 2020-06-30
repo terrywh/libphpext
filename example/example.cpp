@@ -73,6 +73,24 @@ php::value property(php::parameters& params) {
     return d;
 }
 
+class example {
+public:
+    php::value hello(php::parameters& params) {
+        // 字符串拼接
+        php::string_builder sb;
+        sb << "hello " << params[0];
+        return sb.str();
+    }
+
+    php::value count(php::parameters& params) {
+        return 123;
+    }
+    // 静态方法
+    static php::value number(php::parameters& params) {
+        return 123;
+    }
+};
+
 extern "C" {
     // PHP 扩展模块入口
     ZEND_DLEXPORT zend_module_entry* get_module() {
@@ -85,19 +103,19 @@ extern "C" {
             .require("date")
             // 模块启动回调
             .on(php::module_startup([] (php::module_entry& module) -> bool {
-                std::cout << "module started" << std::endl;
+                std::cout << "--> module started" << std::endl;
                 return true;
             }))
             .on(php::module_shutdown([] (php::module_entry& module) {
                 // 工作在 CLI 模式下时不被执行
-                std::cout << "module shutdown" << std::endl;
+                std::cout << "--> module shutdown" << std::endl;
             }))
             .on(php::request_startup([] (php::module_entry& module) -> bool {
-                std::cout << "request started" << std::endl;
+                std::cout << "--> request started" << std::endl;
                 return true;
             }))
             .on(php::request_shutdown([] (php::module_entry& module) {
-                std::cout << "request shutdown" << std::endl;
+                std::cout << "--> request shutdown" << std::endl;
                 return true;
             }))
             // 说明信息
@@ -135,7 +153,17 @@ extern "C" {
             .declare<property>("cpp_property", {
                 {"interval", "DateInterval"}
             }, {php::TYPE_MIXED});
-
+        // 声明一个类
+        module.declare<example>("cpp_example")
+            .define("CONST_1", "abc") // 类常量
+            .implements(&zend_ce_countable) // 实现接口
+            .declare<&example::count>("count", {}, {php::TYPE_INTEGER}) // 接口方法
+            .declare<&example::hello>("hello", { // 普通方法
+                {"name", php::TYPE_STRING}
+            }, {php::TYPE_STRING})
+            .declare<example::number>("number", {}, {php::TYPE_INTEGER}) // 静态方法
+            .declare("prop1", "property_value") // 属性
+            .declare("prop2", "static_value", true); // 静态属性
         return module;
     }
 };

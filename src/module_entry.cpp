@@ -39,7 +39,7 @@ namespace php {
         repeat = true;
         // (1) 延迟设定依赖及函数表
         module_.deps                  = dependence_;
-        module_.functions             = function_entry_;
+        module_.functions             = function_;
 
         return &module_;
     }
@@ -47,9 +47,9 @@ namespace php {
     int module_entry::on_module_startup  (int type, int module) {
         self()->module = module;
         // 配置 ini 项
-        zend_register_ini_entries(self()->ini_entry_, module);
+        zend_register_ini_entries(self()->ini_, module);
         // 注册 常量
-        for(auto& c : self()->constant_entry_)  zend_register_constant(&c);
+        for(auto& c : self()->constant_)  zend_register_constant(&c);
         // 注册 类
         for(auto& c : self()->class_) c->do_register();
 

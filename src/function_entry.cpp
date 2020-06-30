@@ -18,23 +18,20 @@ namespace php {
         ai_[0] = ri; // 参数信息缓冲
     }
     // 构建 zend_function_entry 用于注册函数
-    function_entry::operator zend_function_entry() const {
+    zend_function_entry function_entry::build (std::uint32_t flag) const {
         return zend_function_entry {
             nm_->val, // fname
             fn_, // handler
             ai_.data(), // arg_info, 
             // 容器额外包含返回信息，故实际参数个数需要调整
             static_cast<std::uint32_t>(ai_.size() - 1), // num_args // -Wnarrowing
-            0,
+            flag,
         };
     }
     // 构建 zend_function_entry 列表
     function_entries::operator zend_function_entry*() {
-        if(entries_.empty()) { 
-            for(auto& fn: refs_) entries_.push_back(fn);
-            // 补充函数表结束标志
-            entries_.push_back({nullptr, nullptr, nullptr, 0, 0});
-        }
-        return entries_.data();
+        if(entry_.empty() || entry_.back().fname) // 补充函数表结束标志
+            entry_.push_back({nullptr, nullptr, nullptr, 0, 0});
+        return entry_.data();
     }
 }

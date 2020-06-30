@@ -6,7 +6,7 @@
 #include "argument_info.h"
 #include "parameter.h"
 #include "exception.h"
-// #include "property_entry.h"
+#include "property_entry.h"
 #include "function_entry.h"
 
 namespace php {
@@ -28,24 +28,18 @@ namespace php {
 
         friend class module_entry;
     };
-    // 方法可见性定义
-    enum class method_visibility {
-        PUBLIC  = ZEND_ACC_PUBLIC,
-        PRIVATE = ZEND_ACC_PRIVATE,
-        PROTECTED = ZEND_ACC_PROTECTED,
-    };
+    // 类注册定义实现
     template <class T>
     class class_entry: public class_entry_basic {
     private:
         static zend_class_entry*         entry_;
         static zend_object_handlers    handler_;
 
-//        std::vector<property_entry>      property_;
-        function_entries method_;
-
-        zend_string*                     cname_;
-        std::vector<zend_class_entry**>  iface_;
-        std::vector<constant_entry>   constant_;
+        zend_string*                     cname_; // 名称
+        std::vector<zend_class_entry**>  iface_; // 接口
+        std::vector<constant_entry>   constant_; // 常量
+        std::vector<property_entry>   property_; // 属性
+        function_entries                method_; // 方法
         // 实际创建的对象形式
         struct class_memory_t {
             T           cpp;
@@ -102,7 +96,6 @@ namespace php {
             return &n->obj;
         }
     public:
-        using CLASS_TYPE = T;
         // 用于继承（扩展）实现
         static zend_class_entry* entry() {
             return entry_;
@@ -134,35 +127,75 @@ namespace php {
             return *this;
         }
         // 定义常量
-        class_entry& define(std::string_view name, const php::value& data) {
-            constant_.push_back({name, data});
+        class_entry& define(std::string_view name, const php::value& data, std::string_view comment) {
+            zend_string* n = zend_string_init_interned(name.data(), name.size(), true), *c = nullptr;
+            if(!comment.empty())
+                c = zend_string_init(comment.data(), comment.size(), true);
+            constant_.push_back({n, data, c});
             return *this;
         }
-//        class_entry& property(property_entry&& entry) {
-//            entry_properties.emplace_back(std::move(entry));
-//            return *this;
-//        }
-        // 声明方法
+        // 定义常量
+        class_entry& define(std::string_view name, const php::value& data) {
+            zend_string* n = zend_string_init_interned(name.data(), name.size(), true), *c = nullptr;
+            constant_.push_back({n, data, nullptr});
+            return *this;
+        }
+        // 定义属性
+        class_entry& declare(std::string_view name, const php::value& data, std::string_view comment,
+                bool is_static = false) {
+            zend_string* n = zend_string_init_interned(name.data(), name.size(), true), *c = nullptr;
+             if(!comment.empty())
+                c = zend_string_init(comment.data(), comment.size(), true);
+            property_.push_back({n, data,
+                 static_cast<std::uint32_t>(is_static ? (ZEND_ACC_STATIC | ZEND_ACC_PUBLIC) : ZEND_ACC_PUBLIC), c});
+            return *this;
+        }
+        // 定义属性
+        class_entry& declare(std::string_view name, const php::value& data, bool is_static = false) {
+            return declare(name, data, {}, is_static);
+        }
+        // 声明（普通成员）方法
         template <value (T::*METHOD)(parameters& params) >
         class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi,
                              return_info&& ri, refer* name_ref = nullptr) {
             zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
             if(name_ref) *name_ref = zn; // 函数名称字符串的引用
-            method_ += function_entry(class_entry_basic::method<T, METHOD>, zn, std::move(ri), std::move(pi));
+            method_.append({ class_entry_basic::method<T, METHOD>, zn, std::move(ri), std::move(pi)},
+                    ZEND_ACC_PUBLIC);
             return *this;
         }
-        // 声明方法
+        // 声明（普通成员）方法
         template <value (T::*METHOD)(parameters& params) >
         class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi, refer* name_ref = nullptr) {
             declare(name, std::move(pi), {}, name_ref);
         }
-        // 声明方法
+        // 声明（普通成员）方法
         template <value (T::*METHOD)(parameters& params) >
         class_entry& declare(std::string_view name, refer* name_ref = nullptr) {
             declare(name, {}, {}, name_ref);
         }
+        // 声明（静态成员）方法
+        template <value STATIC_METHOD(parameters& params) >
+        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi,
+                             return_info&& ri, refer* name_ref = nullptr) {
+            zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
+            if(name_ref) *name_ref = zn; // 函数名称字符串的引用
+            method_.append({function_entry::function<STATIC_METHOD>, zn, std::move(ri), std::move(pi)},
+                    ZEND_ACC_PUBLIC | ZEND_ACC_STATIC);
+            return *this;
+        }
+        // 声明（普通成员）方法
+        template <value STATIC_METHOD(parameters& params) >
+        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi, refer* name_ref = nullptr) {
+            declare(name, std::move(pi), {}, name_ref);
+        }
+        // 声明（普通成员）方法
+        template <value STATIC_METHOD(parameters& params) >
+        class_entry& declare(std::string_view name, refer* name_ref = nullptr) {
+            declare(name, {}, {}, name_ref);
+        }
+        // 执行注册
         void do_register() override {
-
             return class_entry_basic::register_class_entry<T>(this);
         }
         friend class class_entry_basic;
@@ -189,6 +222,9 @@ namespace php {
         for(auto& c : e->constant_) // 常量注册
             zend_declare_class_constant_ex(class_entry<T>::entry_, c.name, &c.value, ZEND_ACC_PUBLIC, c.comment);
         e->constant_.clear();
+        for(auto& p : e->property_) // 属性注册
+            zend_declare_property_ex(class_entry<T>::entry_, p.name, &p.value, p.v, p.comment);
+        e->property_.clear();
     }
     // 对象方法代理
     template <class T, value (T::*FUNCTION)(parameters& params)>

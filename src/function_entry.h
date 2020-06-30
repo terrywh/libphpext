@@ -15,12 +15,11 @@ namespace php {
         function_entry(zif_handler fn, zend_string* name, return_info&& ri,
             std::initializer_list<argument_info>&& pi);
         // 构建 zend_function_entry 用于注册函数
-        operator zend_function_entry() const;
+        zend_function_entry build(std::uint32_t flag = 0) const;
         // PHP 回调
         template <value fn(parameters& params)>
-        static void callback(zend_execute_data* execute_data, zval* return_value) {
+        static void function(zend_execute_data* execute_data, zval* return_value) {
             parameters params(execute_data);
-            // TODO class return_type
             value& rv = *reinterpret_cast<value*>(return_value);
             try {
                 if(execute_data->func->common.required_num_args > ZEND_NUM_ARGS())
@@ -51,13 +50,14 @@ namespace php {
     class function_entries {
     private:
         // 保持引用（以使对应内存地址有效）
-        std::vector<function_entry>         refs_;
-        std::vector<zend_function_entry> entries_;
+        std::vector<function_entry>        ref_;
+        std::vector<zend_function_entry> entry_;
         
     public:
         // 加入函数描述
-        function_entries& operator +=(function_entry&& desc) {
-            refs_.emplace_back(std::move(desc));
+        function_entries& append(function_entry&& desc, std::uint32_t flag = 0) {
+            function_entry& ref = ref_.emplace_back(std::move(desc));
+            entry_.push_back(ref.build(flag));
             return *this;
         }
         // 构建 zend_function_entry 列表

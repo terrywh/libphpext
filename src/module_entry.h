@@ -39,31 +39,22 @@ namespace php {
     private:
         // 当前实例
         static module_entry* self_;
-        // 模块名称
-        std::string name_;
-        // 模块版本
-        std::string version_;
-        // 模块信息
-        using description_type = std::pair<std::string, std::string>;
-        std::vector<description_type>  description_;
-        // 模块依赖
-        dependences dependence_;
-        std::vector<constant_entry> constant_entry_;
-        ini_entries ini_entry_;
         // 模块
         zend_module_entry module_;
-        // 函数表
-        function_entries function_entry_;
-        // 类表
-        std::vector< std::unique_ptr<class_entry_basic> > class_;
-        // 模块启动回调
-        std::vector<module_startup>  module_startup_handler_;
-        // 请求启动回调
-        std::vector<request_startup>  request_startup_handler_;
-        // 请求停止回调
-        std::vector<request_shutdown> request_shutdown_handler_;
-        // 模块停止回调
-        std::vector<module_shutdown> module_shutdown_handler_;
+        std::string                           name_; // 模块名称
+        std::string                        version_; // 模块版本
+        using description_type = std::pair<std::string, std::string>;
+        std::vector<description_type>  description_; // 模块信息
+        dependences                     dependence_; // 模块依赖
+        std::vector<constant_entry>       constant_; // 常量
+        ini_entries                            ini_; //
+        function_entries                  function_; // 函数表
+
+        std::vector< std::unique_ptr<class_entry_basic> > class_; // 类表
+        std::vector<module_startup>     module_startup_handler_; // 模块启动回调
+        std::vector<request_startup>   request_startup_handler_; // 请求启动回调
+        std::vector<request_shutdown> request_shutdown_handler_; // 请求停止回调
+        std::vector<module_shutdown>   module_shutdown_handler_; // 模块停止回调
         // 正向调用回调
         // 正向调用（调用失败时中断，并返回 false 否则返回 true）
         template <class Handlers>
@@ -98,7 +89,7 @@ namespace php {
         module_entry& setup(std::string_view name, std::string_view data, refer* name_ref = nullptr) {
             zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
             if(name_ref) *name_ref = zn;
-            ini_entry_ += ini_entry {zn, data};
+            ini_ += ini_entry {zn, data};
             return *this;
         }
         // 为模块添加依赖
@@ -133,7 +124,8 @@ namespace php {
         }
         // 定义扩展常量
         module_entry& define(std::string_view name, const php::value& data) {
-            constant_entry_.push_back({name, data});
+            zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
+            constant_.push_back({zn, data});
             return *this;
         }
         // 函数（注意，由于实际指针数据等由对应对象持有，需要原始指针地址）
@@ -142,7 +134,7 @@ namespace php {
                 return_info&& ri, refer* name_ref = nullptr) {
             zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
             if(name_ref) *name_ref = zn; // 函数名称字符串的引用
-            function_entry_ += function_entry(function_entry::callback<fn>, zn, std::move(ri), std::move(pi));
+            function_.append({ function_entry::function<fn>, zn, std::move(ri), std::move(pi) });
             return *this;
         }
         // 函数

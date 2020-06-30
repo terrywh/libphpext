@@ -27,6 +27,7 @@ add_library(phpext STATIC
         src/array.cpp
         src/array_iterator.cpp
         src/callable.cpp
+        src/callback.cpp
         src/constant_entry.cpp
         src/conversion.cpp
         src/env.cpp
@@ -36,10 +37,10 @@ add_library(phpext STATIC
         src/module_entry.cpp
         src/object.cpp
         src/property.cpp
+        src/property_entry.cpp
         src/string.cpp
         src/string_buffer.cpp
-        src/string_builder.cpp
-        src/value.cpp)
+        src/string_builder.cpp)
 set_property(TARGET phpext PROPERTY PUBLIC_HEADER src/phpext.h)
 set_property(TARGET phpext PROPERTY PRIVATE_HEADER
         src/argument_info.h
@@ -47,6 +48,7 @@ set_property(TARGET phpext PROPERTY PRIVATE_HEADER
         src/array_iterator.h
         src/callable.h
         src/class_entry.h
+        src/callback.h
         src/constant_entry.h
         src/conversion.h
         src/dependence.h
@@ -58,6 +60,7 @@ set_property(TARGET phpext PROPERTY PRIVATE_HEADER
         src/object.h
         src/parameter.h
         src/property.h
+        src/property_entry.h
         src/string.h
         src/string_buffer.h
         src/string_builder.h
