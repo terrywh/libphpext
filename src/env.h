@@ -7,9 +7,18 @@
 namespace php {
     // 常量标识：方法名称
     enum class method_name {
+        __CLONE,
         __CONSTRUCTOR,
         __DESTRUCTOR,
+        __GET,
+        __SET,
+        __UNSET,
+        __ISSET,
+        __CALL,
+        __CALLSTATIC,
+        __TOSTRING,
         __INVOKE,
+        __DEBUGINFO,
 
         METHOD_NAME_MAX,
     };

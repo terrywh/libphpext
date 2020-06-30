@@ -22,26 +22,27 @@ namespace php {
     }
     // 创建指定类型的对象实例，并调用其 PHP 构造函数 (无参)
     value object::create(zend_class_entry* ce) {
-        value_t<false> obj;
+        value obj;
         object_init_ex(obj, ce);
         object::call(obj.as<object>(), env::key(method_name::__CONSTRUCTOR));
         return obj;
     }
     // 创建指定类型的对象实例，并调用其 PHP 构造函数
-    value object::create(zend_class_entry* ce, std::vector<value> argv) {
-        value_t<false> obj;
+    value object::create(zend_class_entry* ce, std::uint32_t argc, zval* argv) {
+        value obj;
         object_init_ex(obj, ce);
-        object::call(obj.as<object>(), env::key(method_name::__CONSTRUCTOR), std::move(argv));
+        object::call(obj.as<object>(), env::key(method_name::__CONSTRUCTOR), argc, argv);
         return obj;
     }
     // 调用成员函数（无参）
-    value object::call(object* obj, const value& name) {
+    value object::call(zend_object* obj, const zend_string* name) {
         value rv;
         // zend_execute_API.c: _call_user_function_ex
         zend_fcall_info fci;
         fci.size = sizeof(fci);
         fci.object = obj;
-        ZVAL_COPY_VALUE(&fci.function_name, name);
+        ZVAL_STR(&fci.function_name, const_cast<zend_string*>(name));
+        // ZVAL_COPY_VALUE(&fci.function_name, name);
         fci.retval = rv;
         fci.param_count = 0;
         fci.params = nullptr;
@@ -52,18 +53,17 @@ namespace php {
         return rv;
     }
     // 调用成员函数
-    value object::call(object* obj, const value& name, const std::vector<value>& argv) {
-        // 参数引用源数据变量，不进行相关的释放
-        std::vector<value_t<false>> params(argv.begin(), argv.end());
+    value object::call(zend_object* obj, const zend_string* name, std::uint32_t argc, zval* argv) {
         value rv;
         // zend_execute_API.c: _call_user_function_ex
         zend_fcall_info fci;
         fci.size = sizeof(fci);
         fci.object = obj;
-        ZVAL_COPY_VALUE(&fci.function_name, name);
+        ZVAL_STR(&fci.function_name, const_cast<zend_string*>(name));
+        // ZVAL_COPY_VALUE(&fci.function_name, name);
         fci.retval = rv;
-        fci.param_count = params.size();
-        fci.params = reinterpret_cast<zval*>(params.data());
+        fci.param_count = argc;
+        fci.params = argv;
         fci.no_separation = (zend_bool) 1;
         zend_call_function(&fci, NULL);
 
@@ -74,9 +74,9 @@ namespace php {
     value object::call(const value& name) {
         return call(this, name);
     }
-    // 调用成员函数
-    value object::call(const value& name, const std::vector<value>& argv) {
-        return call(this, name, argv);
+    // 调用成员函数（注意调用参数要求独立构建的 value / zval 容器）
+    value object::call(const value& name, std::vector<value> argv) {
+        return call(this, name, argv.size(), reinterpret_cast<zval *>(argv.data()));
     }
     // 属性（可设置）
     property object::prop(const char* name) {

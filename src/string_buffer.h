@@ -5,7 +5,7 @@
 #include "value.h"
 
 namespace php {
-    // 基于 smart_str 的流缓冲区
+    // 基于 smart_str 的流缓冲区，可用于 iostream 或 asio 相关缓冲区
     class string_buffer: public std::streambuf {
 	public:
         // 

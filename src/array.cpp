@@ -92,6 +92,11 @@ namespace php {
             return zend_hash_index_exists(this, key);
         else throw type_error("Only Int or String can be used as Array indices", -1); // 不支持的类型
     }
+    // 追加元素
+    void array::append(const value& val) {
+        val.addref();
+        zend_hash_next_index_insert(this, val); // add_next_index_zval
+    }
     // 遍历：正序（起点）
     array_iterator array::begin() const noexcept {
         HashPosition pos;

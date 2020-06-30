@@ -21,15 +21,15 @@ namespace php {
         // 创建指定类型的对象实例，并调用其 PHP 构造函数 (无参)
         static value create(zend_class_entry* ce);
         // 创建指定类型的对象实例，并调用其 PHP 构造函数
-        static value create(zend_class_entry* ce, std::vector<value> argv);
+        static value create(zend_class_entry* ce, std::uint32_t argc, zval* argv);
         // 调用成员函数（无参）
-        static value call(object* obj, const value& name);
+        static value call(zend_object* obj, const zend_string* name);
         // 调用成员函数
-        static value call(object* obj, const value& name, const std::vector<value>& argv);
+        static value call(zend_object* obj, const zend_string*, std::uint32_t argc, zval* argv);
         // 调用成员函数
         value call(const value& name);
-        // 调用成员函数
-        value call(const value& name, const std::vector<value>& argv);
+        // 调用成员函数（注意调用参数要求独立构建的 value / zval 容器）
+        value call(const value& name, std::vector<value> argv);
         // 属性（可设置）
         property prop(const char* name);
         // 属性（可设置）
@@ -44,7 +44,6 @@ namespace php {
         void prop(std::string_view name, const value& data);
         // 属性设置
         void prop(const value& name, const value& data);
-
     };
 }
 

@@ -8,6 +8,7 @@
 #include "type_code.h"
 #include "value.h"
 #include "string.h"
+#include "string_builder.h"
 #include "string_buffer.h"
 #include "env.h"
 #include "array.h"

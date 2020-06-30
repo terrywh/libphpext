@@ -24,7 +24,7 @@ namespace php {
             value& rv = *reinterpret_cast<value*>(return_value);
             try {
                 if(execute_data->func->common.required_num_args > ZEND_NUM_ARGS())
-                    throw exception("Expects at least "
+                    throw argument_count_error("Expects at least "
                         + std::to_string(execute_data->func->common.required_num_args) + " parameter(s), "
                         + std::to_string(ZEND_NUM_ARGS()) + " given");
 

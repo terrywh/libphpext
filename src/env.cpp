@@ -9,9 +9,19 @@ namespace php {
     value env::null_value;
     // 文本常量：方法名称
     static const char* method_name_cstr[] = {
+        ZEND_CLONE_FUNC_NAME,
         ZEND_CONSTRUCTOR_FUNC_NAME,
         ZEND_DESTRUCTOR_FUNC_NAME,
         ZEND_INVOKE_FUNC_NAME,
+        ZEND_GET_FUNC_NAME,
+        ZEND_SET_FUNC_NAME,
+        ZEND_UNSET_FUNC_NAME,
+        ZEND_ISSET_FUNC_NAME,
+        ZEND_CALL_FUNC_NAME,
+        ZEND_CALLSTATIC_FUNC_NAME,
+        ZEND_TOSTRING_FUNC_NAME,
+        ZEND_INVOKE_FUNC_NAME,
+        ZEND_DEBUGINFO_FUNC_NAME,
     };
     // 文本数据：方法名称
     static zend_string* method_name_zstr[static_cast<int>(method_name::METHOD_NAME_MAX)];

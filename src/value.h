@@ -7,11 +7,9 @@
 #include "object.h"
 #include "array.h"
 #include "callable.h"
+#include "object.h"
 
 namespace php {
-
-    class object; // 对象
-
     // PHP 变量，对应 zval 结构
     template <bool ReleaseAfterUse = true>
     class value_t {
@@ -76,6 +74,8 @@ namespace php {
         value_t(std::uint64_t u) {
             ZVAL_LONG(&value_, u);
         }
+        value_t(const char* str)
+        : value_t(std::string_view(str)) {}
         // 构造：字符串
         value_t(std::string_view str) {
             ZVAL_NEW_STR(&value_, zend_string_init(str.data(), str.size(), 0));
@@ -109,6 +109,10 @@ namespace php {
             return t == code
                 || code == FAKE_CALLABLE && zend_is_callable(&value_, IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr)
                 || code == FAKE_BOOLEAN && (t == TYPE_TRUE || t == TYPE_FALSE);
+        }
+        // 实例判定
+        inline bool of(zend_class_entry* ce) const {
+            return zval_get_type(&value_) == TYPE_OBJECT && instanceof_function(Z_OBJCE(value_), ce);
         }
         // 引用计数
         int addref() const {
@@ -369,6 +373,10 @@ namespace php {
     // 自动释放类型
     using value = value_t<true>;
     using refer = value_t<false>;
+    // 确认包裹大小一致（可以进行引用）
+    static_assert(sizeof(value) == sizeof(zval));
+    // 确认包裹大小一致（可以进行引用）
+    static_assert(sizeof(refer) == sizeof(zval));
     // 自动序列化
     template <bool RAU>
     std::ostream& operator << (std::ostream& os, const value_t<RAU>& data) {

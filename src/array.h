@@ -54,6 +54,8 @@ namespace php {
         value& operator [](std::string_view key);
         // 数组元素访问（不存在时创建）
         value& operator [](const value& key);
+        // 追加元素
+        void append(const value& val);
         // 检查指定 IDX 是否存在
         bool contains(int idx) const {
             return contains(static_cast<std::uint64_t>(idx));

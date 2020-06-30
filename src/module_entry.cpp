@@ -49,10 +49,10 @@ namespace php {
         // 配置 ini 项
         zend_register_ini_entries(self()->ini_entry_, module);
         // 注册 常量
-        for(auto& c : self()->constant_entry_) {
-            zend_register_constant(&c);
-        }
-        
+        for(auto& c : self()->constant_entry_)  zend_register_constant(&c);
+        // 注册 类
+        for(auto& c : self()->class_) c->do_register();
+
         if(!self()->invoke_fwd(self()->module_startup_handler_)) 
             return FAILURE;
         return SUCCESS;

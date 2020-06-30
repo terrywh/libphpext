@@ -54,6 +54,8 @@ namespace php {
         zend_module_entry module_;
         // 函数表
         function_entries function_entry_;
+        // 类表
+        std::vector< std::unique_ptr<class_entry_basic> > class_;
         // 模块启动回调
         std::vector<module_startup>  module_startup_handler_;
         // 请求启动回调
@@ -153,9 +155,13 @@ namespace php {
         module_entry& declare(std::string_view name, refer* name_ref = nullptr) {
             return declare<fn>(name, {}, return_info(), name_ref);
         }
+        // 类
         template <class T>
         class_entry<T>& declare(std::string_view name) {
-
+            zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
+            class_entry<T>* x = new class_entry<T>(zn);
+            class_.emplace_back(x); // 多态形式，将父类指针放入容器
+            return *x;
         }
         // 实际模块地址
         operator zend_module_entry*();
