@@ -6,9 +6,7 @@
 #include "exception.h"
 
 namespace php {
-    template <bool RAU>
-    class value_t;
-    using value = value_t<true>;
+    class value;
     // 数组正序迭代器
     class array_iterator;
     class array_reverse_iterator;

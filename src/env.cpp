@@ -1,12 +1,10 @@
 #include "env.h"
+#include "value.h"
 #include "conversion.h"
 
 namespace php {
-
     // 未定义引用
     value env::undefined_value;
-    // 空值引用
-    value env::null_value;
     // 文本常量：方法名称
     static const char* method_name_cstr[] = {
         ZEND_CLONE_FUNC_NAME,

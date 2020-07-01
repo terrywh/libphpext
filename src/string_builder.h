@@ -5,9 +5,7 @@
 #include "type_code.h"
 
 namespace php {
-    template <bool RAU>
-    class value_t;
-    using value = value_t<true>;
+    class value;
     // 字符串构建工具
     // 使用 smart_str 构建字符串（相较 string_buffer 更为轻量，相对效率更高）
     class string_builder {

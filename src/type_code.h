@@ -1,5 +1,5 @@
-#ifndef LIBPHPEXT_TYPE_H
-#define LIBPHPEXT_TYPE_H
+#ifndef LIBPHPEXT_TYPE_CODE_H
+#define LIBPHPEXT_TYPE_CODE_H
 
 namespace php {
     // 变量类型
@@ -55,4 +55,4 @@ namespace php {
         FAKE_NUMBER    = _IS_NUMBER,
     };
 }
-#endif  // LIBPHPEXT_TYPE_H
+#endif  // LIBPHPEXT_TYPE_CODE_H

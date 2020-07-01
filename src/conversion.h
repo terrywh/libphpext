@@ -1,5 +1,5 @@
-#ifndef LIBPHPEXT_CONVERT_H
-#define LIBPHPEXT_CONVERT_H
+#ifndef LIBPHPEXT_CONVERSION_H
+#define LIBPHPEXT_CONVERSION_H
 
 #include "value.h"
 

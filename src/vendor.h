@@ -1,5 +1,5 @@
-#ifndef LIBPHPEXT_FORWARD_H
-#define LIBPHPEXT_FORWARD_H
+#ifndef LIBPHPEXT_VENDOR_H
+#define LIBPHPEXT_VENDOR_H
 
 /** 系统头文件 **/
 #include <cstdint>
@@ -25,4 +25,4 @@ extern "C" {
 #include <ext/json/php_json.h>
 }
 
-#endif // LIBPHPEXT_FORWARD_H
+#endif // LIBPHPEXT_VENDOR_H

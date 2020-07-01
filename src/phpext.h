@@ -2,6 +2,7 @@
 #define LIBPHPEXT_H
 
 #define LIBPHPEXT_VERSION_STRING "4.0.0"
+#define LIBPHPEXT_VERSION 40000
 
 #include "argument_info.h"
 #include "array.h"
@@ -16,6 +17,7 @@
 #include "exception.h"
 #include "function_entry.h"
 #include "ini_entry.h"
+#include "member.h"
 #include "module_entry.h"
 #include "object.h"
 #include "parameter.h"
@@ -27,6 +29,7 @@
 #include "string.h"
 #include "type_code.h"
 #include "value.h"
+#include "value_basic.h"
 #include "vendor.h"
 
 #endif // LIBPHPEXT_H

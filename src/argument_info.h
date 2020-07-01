@@ -1,5 +1,5 @@
-#ifndef LIBPHPEXT_FUNCITON_ARGUMENT_INFO_H
-#define LIBPHPEXT_FUNCITON_ARGUMENT_INFO_H
+#ifndef LIBPHPEXT_ARGUMENT_INFO_H
+#define LIBPHPEXT_ARGUMENT_INFO_H
 
 #include "vendor.h"
 #include "value.h"
@@ -52,4 +52,4 @@ namespace php {
 	};
 }
 
-#endif // LIBPHPEXT_FUNCITON_ARGUMENT_INFO_H
+#endif // LIBPHPEXT_ARGUMENT_INFO_H

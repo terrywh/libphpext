@@ -1,5 +1,5 @@
-#ifndef LIBPHPEXT_MODULE_DEPS_H
-#define LIBPHPEXT_MODULE_DEPS_H
+#ifndef LIBPHPEXT_DEPENDENCE_H
+#define LIBPHPEXT_DEPENDENCE_H
 
 #include "vendor.h"
 
@@ -30,4 +30,4 @@ namespace php {
 
 }
 
-#endif // LIBPHPEXT_MODULE_DEPS_H
+#endif // LIBPHPEXT_DEPENDENCE_H

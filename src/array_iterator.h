@@ -14,7 +14,7 @@ namespace php {
         array_iterator_basic(const zend_array* self, HashPosition pos)
         : self_(self)
         , pos_(pos) {
-            entry_ = new value_type(env::undefined_value, env::undefined_value);
+            entry_ = new value_type({}, env::undefined_value);
             do_entry();
         }
         // 访问数据项

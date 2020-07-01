@@ -45,6 +45,25 @@ namespace php {
             T           cpp;
             zend_object obj; // 注意 obj 会超量分配和访问（故须放置在末尾）
         };
+        // 同步 C++ 中的成员引用
+        static void sync_member(class_memory_t* m) {
+            void *i;
+            ZEND_HASH_FOREACH_PTR(&m->obj.ce->properties_info, i) {
+                zend_property_info* info = reinterpret_cast<zend_property_info*>(i);
+                // 注意 _:sync_ 作为特殊标记识别同步型属性，用户注释使用此内容可能出现异常
+                if(!info->doc_comment || std::strncmp(info->doc_comment->val, "_:sync_", 7) != 0) continue;
+                // 将 CPP 对象中的数据同步过来
+                std::size_t offset;
+                std::memcpy(&offset, &info->doc_comment->val[8], sizeof(std::size_t));
+
+                member* v = reinterpret_cast<member*>( (char*)&m->cpp + offset );
+                zval*   p = OBJ_PROP(&m->obj, info->offset);
+                // 参考 object_properties_init_ex 对属性的初始化过程
+                // 已声明的属性实际位于 obj.property_table 中，在 obj.properties 数组（哈系表）中存在 INDIRECT 引用
+                // 所以，其实际位置在对象生存周期内不会改变
+                member_traits::pointer(v, p);
+            } ZEND_HASH_FOREACH_END();
+        }
         // handler:
         static zend_object* create_object(zend_class_entry *entry) {
             assert(entry == entry_); // 构造函数访问错误
@@ -57,6 +76,7 @@ namespace php {
             m->obj.handlers = &handler_;
             // CPP 对象初始化
             (new (&m->cpp) T());
+            sync_member(m); // 同步 C++ 成员
             return &m->obj;
         }
         // obj -> cpp
@@ -92,7 +112,7 @@ namespace php {
             // 复制 C++ 对象（使用拷贝构造）
             class_memory_t* m = reinterpret_cast<class_memory_t*>( reinterpret_cast<char*>(obj) - handler_.offset );
             new (&m->cpp) T(m->cpp);
-
+            sync_member(m); // 同步 C++ 成员
             return &n->obj;
         }
     public:
@@ -112,15 +132,7 @@ namespace php {
                 handler_.clone_obj = class_entry::clone_object;
             else
                 handler_.clone_obj = nullptr;
-            // TODO
-            // handler_.read_property
-            // handler_.write_property
-
-            entry_ = nullptr;
         }
-        // 移动构造（用于放入容器的过程）
-        class_entry(class_entry&& entry) = default;
-
         // 实现接口（注意二级指针，在构建时实际获取 class_entry 的指针指向，否则可能还未初始化）
         class_entry& implements(zend_class_entry** pce) {
             iface_.push_back(pce);
@@ -144,7 +156,7 @@ namespace php {
         class_entry& declare(std::string_view name, const php::value& data, std::string_view comment,
                 bool is_static = false) {
             zend_string* n = zend_string_init_interned(name.data(), name.size(), true), *c = nullptr;
-             if(!comment.empty())
+            if(!comment.empty())
                 c = zend_string_init(comment.data(), comment.size(), true);
             property_.push_back({n, data,
                  static_cast<std::uint32_t>(is_static ? (ZEND_ACC_STATIC | ZEND_ACC_PUBLIC) : ZEND_ACC_PUBLIC), c});
@@ -152,47 +164,54 @@ namespace php {
         }
         // 定义属性
         class_entry& declare(std::string_view name, const php::value& data, bool is_static = false) {
-            return declare(name, data, {}, is_static);
+            return declare(name, data, std::string_view(), is_static); // 不能使用 {} 代替 string_view 显式初始化，可能导致重载调用错误
+        }
+        // 定义属性（同步属性, 请使用宏或 offsetof 进行定义）
+        // @see https://en.cppreference.com/w/cpp/types/offsetof
+        class_entry& declare(std::string_view name, const php::value& data, member T::*prop, std::size_t offset) {
+            zend_string* n = zend_string_init_interned(name.data(), name.size(), true), *c = nullptr;
+            // 注意 _:sync_ 作为特殊标记识别同步型属性，用户注释使用此内容可能出现异常
+            c = zend_string_init("_:sync_\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 8 + sizeof(std::size_t), true);
+            std::memcpy(&c->val[8], &offset, sizeof(std::size_t));
+            property_.push_back({n, data, ZEND_ACC_PUBLIC, c});
+            return *this;
         }
         // 声明（普通成员）方法
         template <value (T::*METHOD)(parameters& params) >
-        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi,
-                             return_info&& ri, refer* name_ref = nullptr) {
+        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi, return_info&& ri) {
             zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
-            if(name_ref) *name_ref = zn; // 函数名称字符串的引用
             method_.append({ class_entry_basic::method<T, METHOD>, zn, std::move(ri), std::move(pi)},
                     ZEND_ACC_PUBLIC);
             return *this;
         }
         // 声明（普通成员）方法
         template <value (T::*METHOD)(parameters& params) >
-        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi, refer* name_ref = nullptr) {
-            declare(name, std::move(pi), {}, name_ref);
+        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi) {
+            declare(name, std::move(pi), {});
         }
         // 声明（普通成员）方法
         template <value (T::*METHOD)(parameters& params) >
-        class_entry& declare(std::string_view name, refer* name_ref = nullptr) {
-            declare(name, {}, {}, name_ref);
+        class_entry& declare(std::string_view name) {
+            declare(name, {}, {});
         }
         // 声明（静态成员）方法
         template <value STATIC_METHOD(parameters& params) >
         class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi,
-                             return_info&& ri, refer* name_ref = nullptr) {
+                             return_info&& ri) {
             zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
-            if(name_ref) *name_ref = zn; // 函数名称字符串的引用
             method_.append({function_entry::function<STATIC_METHOD>, zn, std::move(ri), std::move(pi)},
                     ZEND_ACC_PUBLIC | ZEND_ACC_STATIC);
             return *this;
         }
         // 声明（普通成员）方法
         template <value STATIC_METHOD(parameters& params) >
-        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi, refer* name_ref = nullptr) {
-            declare(name, std::move(pi), {}, name_ref);
+        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi) {
+            declare(name, std::move(pi), {});
         }
         // 声明（普通成员）方法
         template <value STATIC_METHOD(parameters& params) >
-        class_entry& declare(std::string_view name, refer* name_ref = nullptr) {
-            declare(name, {}, {}, name_ref);
+        class_entry& declare(std::string_view name) {
+            declare(name, {}, {});
         }
         // 执行注册
         void do_register() override {
@@ -203,7 +222,7 @@ namespace php {
     template <class T>
     zend_object_handlers class_entry<T>::handler_;
     template <class T>
-    zend_class_entry*    class_entry<T>::entry_;
+    zend_class_entry*    class_entry<T>::entry_ = nullptr;
     template <class T>
     void class_entry_basic::register_class_entry(class_entry_basic *c) {
         class_entry<T>* e = static_cast<class_entry<T>*>(c);

@@ -65,14 +65,14 @@ namespace php {
     value& array::operator [](std::uint64_t idx) {
         zval* v = zend_hash_index_find(this, idx);
         if(v == nullptr) // 不存在 -> 创建
-            v = zend_hash_index_update(this, idx, env::null_value); // add_index_zval
+            v = zend_hash_index_update(this, idx, &EG(uninitialized_zval)); // add_index_zval
         return *reinterpret_cast<value*>(v);
     }
     // 数组元素访问（不存在时创建）
     value& array::operator [](std::string_view key) {
         zval* v = zend_hash_str_find(this, key.data(), key.size());
         if(v == nullptr) // 不存在 -> 创建
-            v = zend_symtable_str_update(this, key.data(), key.size(), env::null_value); // add_asoc_zval
+            v = zend_symtable_str_update(this, key.data(), key.size(), &EG(uninitialized_zval)); // add_asoc_zval
         return *reinterpret_cast<value*>(v);
     }
     // 数组元素访问（不存在时创建）
@@ -80,8 +80,8 @@ namespace php {
         zval* v = find(this, key);
         if(v == nullptr) // 不存在 -> 创建
             v = key.is(TYPE_STRING)
-                    ? zend_symtable_update(this, key, env::null_value)
-                    : zend_hash_index_update(this, key, env::null_value);
+                    ? zend_symtable_update(this, key, &EG(uninitialized_zval))
+                    : zend_hash_index_update(this, key, &EG(uninitialized_zval));
         return *reinterpret_cast<value*>(v);
     }
     // 检查指定 KEY 是否存在

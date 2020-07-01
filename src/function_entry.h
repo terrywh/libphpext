@@ -31,7 +31,6 @@ namespace php {
             }
             catch (const throwable& e) {
                 rethrow(e);
-                return;
             }
             // 非预期范围的异常继续在 C++ 侧抛出
         }

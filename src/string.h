@@ -5,9 +5,7 @@
 #include "type_code.h"
 
 namespace php {
-    template <bool RAU>
-    class value_t;
-    using value = value_t<true>;
+    class value;
 
     class string_builder;
     // PHP 字符串

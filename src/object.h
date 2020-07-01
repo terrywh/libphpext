@@ -5,9 +5,7 @@
 #include "type_code.h"
 
 namespace php {
-    template <bool RAU>
-    class value_t;
-    using value = value_t<true>;
+    class value;
     class property;
     // 对象，对应 zend_object
     class object: public zend_object {

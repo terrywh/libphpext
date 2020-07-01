@@ -1,10 +1,10 @@
-#ifndef LIBPHPEXT_CONSTANTS_H
-#define LIBPHPEXT_CONSTANTS_H
+#ifndef LIBPHPEXT_ENV_H
+#define LIBPHPEXT_ENV_H
 
 #include "vendor.h"
-#include "value.h"
 
 namespace php {
+    class value;
     // 常量标识：方法名称
     enum class method_name {
         __CLONE,
@@ -26,8 +26,6 @@ namespace php {
     public:
         // 未定义引用
         static value undefined_value;
-        // 空值引用
-        static value null_value;
         // 文本常量：方法名称
         static value key(method_name mn);
         // 文本常量：内部名称（属性名、方法名、类名等，也可考虑在声明时设置引用获取）
@@ -56,4 +54,4 @@ namespace php {
     };
 }
 
-#endif // LIBPHPEXT_CONSTANTS_H
+#endif // LIBPHPEXT_ENV_H

@@ -1,29 +1,32 @@
-#ifndef LIBPHPEXT_PROPERTY_H
-#define LIBPHPEXT_PROPERTY_H
+#ifndef LIBPHPEXT_MEMBER_H
+#define LIBPHPEXT_MEMBER_H
 
+#include "vendor.h"
 #include "value_basic.h"
+#include "env.h"
 
 namespace php {
-    class  value;
-    class  property;
-    struct property_traits {
-        static constexpr bool dispose() { return false; }
-        static zval* pointer(const property* v);
+    class member;
+    struct member_traits {
+        static constexpr bool dispose() { return true; }
+        static zval* pointer(const member* v);
+        static void  pointer(const member* v, zval* z); // 特化用于同步指向
     };
-    // 对象属性（不增加引用，存在动态计算故重定义赋值操作）
-    class property: public value_basic<property, property_traits> {
+    // C++ 属性（同步快速访问）
+    class member: public value_basic<member, member_traits> {
     private:
-        using value_traits = property_traits;
-        mutable zval value_;
+        using value_traits = member_traits;
+        mutable zval* refer_;
     public:
-        OVERRIDE_IMPLICIT_DECLARATION(property);
-        // 构建对象(读取赋值属性值）
-        property(zend_object* obj, zend_string* key);
+        member()
+        // 注意：基类默认构造需要检查
+        : refer_(nullptr) { }
+        OVERRIDE_IMPLICIT_DECLARATION(member);
         // 转换 value 通用类型
         operator value();
         // 赋值
-        property& operator =(const value& v);
-        // 不支持 移动赋值
+        member& operator =(const value& v); // 赋值
+        member& operator =(value&& v); // 赋值
         // 运算符（存在缓存）
 #define DECLARE_OPERATOR(TYPE, OPR) property& operator OPR(TYPE x)
         property& operator ++();
@@ -45,14 +48,8 @@ namespace php {
         DECLARE_OPERATOR(double,*=);
         DECLARE_OPERATOR(double,/=);
 #undef DECLARE_OPERATOR
-    private:
-        // 属主
-        zend_object* obj_;
-        // 键名
-        zend_string* key_;
-
-        friend struct property_traits;
+        friend struct member_traits;
     };
 }
 
-#endif //LIBPHPEXT_PROPERTY_H
+#endif //LIBPHPEXT_MEMBER_H

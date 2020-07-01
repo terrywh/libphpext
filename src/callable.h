@@ -5,9 +5,7 @@
 #include "type_code.h"
 
 namespace php {
-    template <bool RAU>
-    class value_t;
-    using value = value_t<true>;
+    class value;
     // 可调用（对象）
     class callable: public zval {
     public:

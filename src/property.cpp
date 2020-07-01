@@ -1,6 +1,10 @@
 #include "property.h"
+#include "value.h"
 
 namespace php {
+    zval* property_traits::pointer(const property* v) {
+        return &v->value_;
+    }
     // 构建对象 (读取赋值属性值）
     property::property(zend_object* obj, zend_string* key)
     : obj_(obj), key_(key) {
@@ -8,10 +12,14 @@ namespace php {
         // 参考 zend_read_property 相关代码
         zend_class_entry *ce = EG(fake_scope);
         EG(fake_scope) = obj_->ce;
-        p = obj_->handlers->read_property(obj_, key_, BP_VAR_IS, nullptr, &value_);
+        p = obj_->handlers->read_property(obj_, key_, BP_VAR_RW, nullptr, &value_);
         EG(fake_scope) = ce;
         // 在进行 __get() 调用时 p 会引用了传入的 rv = &value_ 指针
         if (p != &value_) ZVAL_COPY_VALUE(&value_, p);
+    }
+    // 转换 value 通用类型
+    property::operator value() {
+        return value{property_traits::pointer(this) };
     }
     // 属性更新的通用实现，内部已进行引用计数
 #define UPDATE_PROPERTY(v) do {                                                     \
@@ -23,11 +31,6 @@ namespace php {
     } while(false)
     // 赋值：复制
     property& property::operator =(const value& v) {
-        UPDATE_PROPERTY(v);
-        return *this;
-    }
-    // 赋值：移动
-    property& property::operator =(value&& v) {
         UPDATE_PROPERTY(v);
         return *this;
     }

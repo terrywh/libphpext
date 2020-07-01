@@ -1,5 +1,5 @@
-#ifndef LIBPHPEXT_module_entry_H
-#define LIBPHPEXT_module_entry_H
+#ifndef LIBPHPEXT_MODULE_ENTRY_H
+#define LIBPHPEXT_MODULE_ENTRY_H
 
 #include "vendor.h"
 #include "dependence.h"
@@ -86,9 +86,8 @@ namespace php {
             return *this;
         }
         // 设置 ini 项目
-        module_entry& setup(std::string_view name, std::string_view data, refer* name_ref = nullptr) {
+        module_entry& setup(std::string_view name, std::string_view data) {
             zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
-            if(name_ref) *name_ref = zn;
             ini_ += ini_entry {zn, data};
             return *this;
         }
@@ -131,21 +130,20 @@ namespace php {
         // 函数（注意，由于实际指针数据等由对应对象持有，需要原始指针地址）
         template <value fn(parameters& params)>
         module_entry& declare(std::string_view name, std::initializer_list<argument_info> pi,
-                return_info&& ri, refer* name_ref = nullptr) {
+                return_info&& ri) {
             zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
-            if(name_ref) *name_ref = zn; // 函数名称字符串的引用
             function_.append({ function_entry::function<fn>, zn, std::move(ri), std::move(pi) });
             return *this;
         }
         // 函数
         template <value fn(parameters& params)>
-        module_entry& declare(std::string_view name, std::initializer_list<argument_info> pi, refer* name_ref = nullptr) {
-            return declare<fn>(name, std::move(pi), return_info(), name_ref);
+        module_entry& declare(std::string_view name, std::initializer_list<argument_info> pi) {
+            return declare<fn>(name, std::move(pi), return_info());
         }
         // 函数
         template <value fn(parameters& params)>
-        module_entry& declare(std::string_view name, refer* name_ref = nullptr) {
-            return declare<fn>(name, {}, return_info(), name_ref);
+        module_entry& declare(std::string_view name) {
+            return declare<fn>(name, {}, return_info());
         }
         // 类
         template <class T>
@@ -172,4 +170,4 @@ namespace php {
 
 }
 
-#endif // LIBPHPEXT_module_entry_H
+#endif // LIBPHPEXT_MODULE_ENTRY_H

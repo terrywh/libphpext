@@ -21,6 +21,10 @@ namespace php {
 		parameters(int argc, zval* argv)
 		: argc_(argc)
 		, argv_(argv) {}
+        // 自行构建函数参数
+		parameters(std::vector<value>& v)
+		: argc_(v.size())
+		, argv_(reinterpret_cast<zval*>(v.data())) {}
 		// 获取参数
 		parameter& operator[](std::uint8_t index) const {
 			return get(index);
