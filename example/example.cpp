@@ -73,12 +73,28 @@ php::value property(php::parameters& params) {
     return d;
 }
 
+// attribute
+class attribute {
+public:
+    php::value __construct(php::parameters& params) {
+        std::cout << "http " << params[0] << " " << params[1] << std::endl;
+        return nullptr;
+    }
+};
+
 class example {
 public:
+    // 同步属性
+    php::member prop3;
+
     php::value hello(php::parameters& params) {
+        std::cout << zend_lookup_class(zend_string_init_interned("cpp_example", 11, true)) << std::endl;
+        std::cout << php::class_entry<example>::entry() << std::endl;
         // 字符串拼接
         php::string_builder sb;
         sb << "hello " << params[0];
+        // 同步属性设置
+        prop3 = "modified";
         return sb.str();
     }
 
@@ -107,7 +123,6 @@ extern "C" {
                 return true;
             }))
             .on(php::module_shutdown([] (php::module_entry& module) {
-                // 工作在 CLI 模式下时不被执行
                 std::cout << "--> module shutdown" << std::endl;
             }))
             .on(php::request_startup([] (php::module_entry& module) -> bool {
@@ -154,7 +169,15 @@ extern "C" {
                 {"interval", "DateInterval"}
             }, {php::TYPE_MIXED});
         // 声明一个类
-        module.declare<example>("cpp_example")
+        module.declare<attribute>("cpp_attribute")
+            .attribute() // 这是一个 attribute
+            .declare<&attribute::__construct>("__construct", {
+                {"method", php::TYPE_STRING},
+                {"path", php::TYPE_STRING},
+            });
+        // 声明一个类
+        module.declare<example>("cpp_example") // 标记 attribute 定义
+            .attribute("cpp_attribute", {"POST", "/hello"}) // 标记 attribute 定义
             .define("CONST_1", "abc") // 类常量
             .implements(&zend_ce_countable) // 实现接口
             .declare<&example::count>("count", {}, {php::TYPE_INTEGER}) // 接口方法
@@ -163,7 +186,9 @@ extern "C" {
             }, {php::TYPE_STRING})
             .declare<example::number>("number", {}, {php::TYPE_INTEGER}) // 静态方法
             .declare("prop1", "property_value") // 属性
-            .declare("prop2", "static_value", true); // 静态属性
+            .declare("prop2", "static_value", true) // 静态属性
+            // 同步属性：参数 #3 成员指针实际并未使用，仅用于类型检查，必须提供 #4 属性偏移
+            .declare("prop3","should_be_changed", &example::prop3, offsetof(example, prop3));
         return module;
     }
 };

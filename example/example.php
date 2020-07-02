@@ -1,6 +1,6 @@
 <?php
 // 常量
-// var_dump(CPP_CONSTANT_1, CPP_CONSTANT_2);
+var_dump(CPP_CONSTANT_1, CPP_CONSTANT_2);
 // 一般函数
 echo "--> hello:\n";
 $w = "world";
@@ -45,3 +45,23 @@ var_dump(cpp_example::number()); // 静态方法
 echo "--> property:\n";
 var_dump($x->prop1); // 普通属性
 var_dump(cpp_example::$prop2); // 静态属性
+var_dump($x->prop3); // 同步属性
+
+<<PhpAttribute>>
+class dummy {
+    function __construct($name, $data) {
+        echo $name, " ", $data, "\n";
+    }
+}
+<<dummy("POST", "/hello")>>
+class example {}
+echo "--> attribute:\n";
+<< cpp_attribute("GET", "/hello") >>
+<< dummy("hello") >>
+function hello() {
+    $r = new ReflectionFunction("hello");
+    $r->getAttributes("cpp_attribute")[0]->newInstance();
+}
+hello();
+$r = new ReflectionClass("cpp_example");
+$r->getAttributes("cpp_attribute")[0]->newInstance();

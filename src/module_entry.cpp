@@ -55,8 +55,8 @@ namespace php {
         // 注册 内部 类
         callback::do_register(*self());
         // 注册 类
-        for(auto& c : self()->class_) c->do_register();
-
+        for(auto& c : self()->class_) c->do_register(module);
+        //
         if(!self()->invoke_fwd(self()->module_startup_handler_))
             return FAILURE;
         return SUCCESS;

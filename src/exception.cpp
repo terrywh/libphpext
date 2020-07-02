@@ -1,7 +1,15 @@
 #include "exception.h"
 #include "object.h"
+#include "env.h"
+#include "value.h"
 
 namespace php {
+    // 构建 PHP 异常对象
+    void throwable::init(zval* self, zend_class_entry* ce, std::string_view message, int code ) {
+        ZVAL_OBJ(self, object::create(ce));
+        php::value argv[2] = { {message}, {code} };
+        object::call(Z_OBJ_P(self), env::key(method_name::__CONSTRUCTOR), 2, reinterpret_cast<zval*>(argv));
+    }
 	// 异常消息
     const char* throwable::what() const noexcept {
         zval *prop, rv;

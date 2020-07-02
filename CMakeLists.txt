@@ -84,5 +84,5 @@ install(TARGETS phpext ARCHIVE PUBLIC_HEADER PRIVATE_HEADER)
 ## 安装示例扩展
 add_custom_target(test sudo cp $<TARGET_FILE:example> ${VENDOR_PHP_EXTENSION_DIR}
     BYPRODUCTS ${VENDOR_PHP_EXTENSION_DIR}/example.so
-    COMMENT "Installing example.so extension")
+    COMMENT "Installing example.so extension (${VENDOR_PHP_EXTENSION_DIR})")
 add_dependencies(test example)

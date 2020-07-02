@@ -15,12 +15,12 @@ namespace php {
     class class_entry_basic {
     private:
         // 多态注册过程 -> register_class_entry()
-        virtual void do_register() = 0;
+        virtual void do_register(int module) = 0;
     public:
 
         // 通用注册函数
         template <class T>
-        static void register_class_entry(class_entry_basic* c);
+        static void register_class_entry(int module, class_entry_basic* c);
         // 对象方法代理
         template <class T, value (T::*METHOD)(parameters& params)>
         static void method(zend_execute_data* execute_data, zval* return_value);
@@ -146,22 +146,21 @@ namespace php {
         }
         // 类特征 (成为一个特征）
         class_entry& attribute() {
-            // TODO 正式版本可能存在名称调整 Attribute <= PhpAttribute
-            zend_string* name = zend_string_init("PhpAttribute", sizeof("PhpAttribute")-1, false);
+            zend_string* name = zend_string_init_interned("Attribute",sizeof("Attribute")-1, true);
             zend_add_attribute(&cattr_, true, 0, name, 0);
             return *this;
         }
         // 类特征
         class_entry& attribute(std::string_view name, std::vector<value> argv) {
-            zend_string* zn = zend_string_init(name.data(), name.size(), false);
+            zend_string* zn = zend_string_init(name.data(), name.size(), true);
             zend_attribute* attr = zend_add_attribute(&cattr_, true, 0, zn, argv.size());
-
+            // TODO 参考 attribute 可能的实例，重新调整下属逻辑
+            // 简单测试，似乎需要 INTERNED / CONSTANT 字符数据才可以进行 ATTRIBUTE 参数设置
             for(int i=0;i<argv.size();++i) {
-                zend_string* str = zend_string_init("abcaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 40, false);
-                std::cout << str << std::endl;
-                ZVAL_STR(&attr->argv[i], str);
-                // ZVAL_COPY(&attr->argv[i], argv[i]);
-//                Z_ADDREF(attr->argv[i]);
+                if(argv[i].is(TYPE_STRING))
+                    ZVAL_INTERNED_STR(&attr->argv[i], zend_new_interned_string(zend_string_dup(argv[i], true)));
+                else
+                    ZVAL_COPY_VALUE(&attr->argv[i], argv[i]);
             }
             return *this;
         }
@@ -249,8 +248,8 @@ namespace php {
             declare(name, {}, {});
         }
         // 执行注册
-        void do_register() override {
-            return class_entry_basic::register_class_entry<T>(this);
+        void do_register(int module) override {
+            return class_entry_basic::register_class_entry<T>(module, this);
         }
         friend class class_entry_basic;
     };
@@ -259,7 +258,7 @@ namespace php {
     template <class T>
     zend_class_entry*    class_entry<T>::entry_ = nullptr;
     template <class T>
-    void class_entry_basic::register_class_entry(class_entry_basic *c) {
+    void class_entry_basic::register_class_entry(int module, class_entry_basic *c) {
         class_entry<T>* e = static_cast<class_entry<T>*>(c);
         // 参考：INIT_CLASS_ENTRY_EX
         zend_class_entry ce, *pce;
@@ -270,7 +269,7 @@ namespace php {
         // 注册过程调用 zend_initialize_class_data() 会重置部分设置
         pce = class_entry<T>::entry_ = zend_register_internal_class(&ce);
         pce->ce_flags  |= e->cflag_; // 额外的标记
-        pce->attributes = e->cattr_; // 特征
+        pce->attributes = e->cattr_; // 特征描述
 
         for(auto& f : e->iface_) // 接口实现
             zend_do_implement_interface(pce, *f);
