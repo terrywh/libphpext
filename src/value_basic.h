@@ -13,8 +13,6 @@ namespace php {
 
     // PHP 变量（功能包裹）
     template <class R, typename T,
-            typename = typename std::is_standard_layout<T>::type,
-            typename = decltype(T::dispose()),
             typename = decltype(T::pointer( reinterpret_cast<R*>(0) ))>
     class value_basic {
     private:
@@ -58,9 +56,7 @@ namespace php {
             ZVAL_UNDEF(ptr(v));
         }
         // 构建：未定义
-        value_basic() {
-            if(ptr(this)) ZVAL_UNDEF(ptr(this));
-        }
+        value_basic() = default;
         // 构造：NULL
         value_basic(std::nullptr_t) {
             ZVAL_NULL(ptr(this));
@@ -113,11 +109,6 @@ namespace php {
         explicit value_basic(zval* val, bool add_reference = true) {
             if(add_reference) ZVAL_COPY(ptr(this), val);
             else ZVAL_COPY_VALUE(ptr(this), val);
-        }
-        // 在需要时进行释放
-        ~value_basic() {
-            if constexpr (T::dispose())
-                zval_ptr_dtor(ptr(this));
         }
         operator zval*() const {
              return ptr(this);

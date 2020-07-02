@@ -13,7 +13,7 @@ namespace php {
 		parameters(zend_execute_data* execute_data)
 		: argc_(ZEND_CALL_NUM_ARGS(execute_data))
 		, argv_(nullptr) {
-			if(argc_ > 0) {
+			if(argc_ > 0) { // _zend_get_parameters_array_ex
 				argv_ = ZEND_CALL_ARG(execute_data, 1);
 			}
 		}

@@ -13,14 +13,14 @@ namespace php {
 	class argument_info: public zend_internal_arg_info {
 	public:
 		// 无类型参数
-		argument_info(const char* name, bool byref = false, bool nullable = false)
-		: zend_internal_arg_info { name, ZEND_TYPE_INIT_CODE(TYPE_UNDEFINED, nullable, _ZEND_ARG_INFO_FLAGS(byref, false)), nullptr } {}
+		argument_info(const char* name, bool byref = false, bool nullable = false, bool variadic = false)
+		: zend_internal_arg_info { name, ZEND_TYPE_INIT_CODE(TYPE_MIXED, nullable, _ZEND_ARG_INFO_FLAGS(byref, variadic)), nullptr } {}
 		// 基础类型参数
-		argument_info(const char*  name, type_code_t type_hint, bool byref = false, bool nullable = false)
-		: zend_internal_arg_info { name, ZEND_TYPE_INIT_CODE(type_hint, nullable, _ZEND_ARG_INFO_FLAGS(byref, false)), nullptr } {}
+		argument_info(const char*  name, type_code_t type_hint, bool byref = false, bool nullable = false, bool variadic = false)
+		: zend_internal_arg_info { name, ZEND_TYPE_INIT_CODE(type_hint, nullable, _ZEND_ARG_INFO_FLAGS(byref, variadic)), nullptr } {}
 
 		// 类类型参数
-		argument_info(const char* name, zend_class_entry* ce, bool nullable = false) 
+		argument_info(const char* name, zend_class_entry* ce, bool nullable = false)
 		: zend_internal_arg_info { name, ZEND_TYPE_INIT_CE(ce, nullable, false), nullptr }  {}
 		// 类类型参数
 		argument_info(const char* name, const char* class_name, bool nullable = false)
@@ -31,8 +31,8 @@ namespace php {
 	class return_info: public zend_internal_arg_info {
 	public:
 		// 无返回类型描述
-		return_info(bool byref = false, bool nullable = false)
-		: zend_internal_arg_info { (const char*)(zend_uintptr_t)-1, ZEND_TYPE_INIT_CODE(TYPE_UNDEFINED, nullable, _ZEND_ARG_INFO_FLAGS(byref, 0)), nullptr } {}
+		return_info()
+		: zend_internal_arg_info { (const char*)(zend_uintptr_t)-1, ZEND_TYPE_INIT_NONE(0), nullptr } {}
 		// 返回基础类型
 		return_info(type_code_t type_hint, bool byref = false, bool nullable = false)
 		: zend_internal_arg_info { (const char*)(zend_uintptr_t)-1, ZEND_TYPE_INIT_CODE(type_hint, nullable, _ZEND_ARG_INFO_FLAGS(byref, 0)), nullptr } {}

@@ -19,6 +19,7 @@
 #include <zend_smart_str.h>
 #include <zend_inheritance.h>
 #include <zend_interfaces.h>
+#include <zend_attributes.h>
 #include <main/php.h>
 #include <ext/standard/info.h>
 extern "C" {

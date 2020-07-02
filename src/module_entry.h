@@ -147,9 +147,9 @@ namespace php {
         }
         // 类
         template <class T>
-        class_entry<T>& declare(std::string_view name) {
+        class_entry<T>& declare(std::string_view name, std::uint32_t flag = 0) {
             zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
-            class_entry<T>* x = new class_entry<T>(zn);
+            class_entry<T>* x = new class_entry<T>(zn, flag);
             class_.emplace_back(x); // 多态形式，将父类指针放入容器
             return *x;
         }

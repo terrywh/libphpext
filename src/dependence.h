@@ -21,7 +21,7 @@ namespace php {
         // 返回依赖配置
         operator const zend_module_dep*() {
             // 依赖列表结束标志
-            if(deps_.back().name != nullptr) {
+            if(deps_.empty() || deps_.back().name != nullptr) {
                 deps_.push_back(ZEND_MOD_END);
             }
             return deps_.data();

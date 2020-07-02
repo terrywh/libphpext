@@ -1,7 +1,8 @@
 #ifndef LIBPHPEXT_CLASS_ENTRY_H
 #define LIBPHPEXT_CLASS_ENTRY_H
 
-#include "string.h"
+#include "vendor.h"
+#include "object.h"
 #include "constant_entry.h"
 #include "argument_info.h"
 #include "parameter.h"
@@ -36,7 +37,9 @@ namespace php {
         static zend_object_handlers    handler_;
 
         zend_string*                     cname_; // 名称
+        std::uint32_t                    cflag_; // 标记
         std::vector<zend_class_entry**>  iface_; // 接口
+        zend_array*                      cattr_; // 特征
         std::vector<constant_entry>   constant_; // 常量
         std::vector<property_entry>   property_; // 属性
         function_entries                method_; // 方法
@@ -79,10 +82,6 @@ namespace php {
             sync_member(m); // 同步 C++ 成员
             return &m->obj;
         }
-        // obj -> cpp
-        static inline T* native(zend_object* obj) {
-            return &reinterpret_cast<class_memory_t*>( reinterpret_cast<char*>(obj) - handler_.offset )->cpp;
-        }
         // handler:
         static void free_object(zend_object* obj) {
             // std::printf("destory_object: %s %08x\n", obj->ce->name->val, obj);
@@ -120,13 +119,20 @@ namespace php {
         static zend_class_entry* entry() {
             return entry_;
         }
-        class_entry(zend_string* name)
-                : cname_(name) {
+        // obj -> cpp
+        static inline T* native(zend_object* obj) {
+            return &reinterpret_cast<class_memory_t*>( reinterpret_cast<char*>(obj) - handler_.offset )->cpp;
+        }
+        class_entry(zend_string* name, std::uint32_t flag)
+                : cname_(name)
+                , cflag_(flag)
+                , cattr_(nullptr) {
             // 标准的处理器
             std::memcpy(&handler_, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 
-            handler_.offset    = XtOffsetOf(class_memory_t, obj);
+            handler_.offset    = offsetof(class_memory_t, obj);
             handler_.free_obj  = class_entry::free_object;
+
             // 允许复制的对象
             if constexpr (std::is_copy_constructible<T>::value)
                 handler_.clone_obj = class_entry::clone_object;
@@ -136,6 +142,27 @@ namespace php {
         // 实现接口（注意二级指针，在构建时实际获取 class_entry 的指针指向，否则可能还未初始化）
         class_entry& implements(zend_class_entry** pce) {
             iface_.push_back(pce);
+            return *this;
+        }
+        // 类特征 (成为一个特征）
+        class_entry& attribute() {
+            // TODO 正式版本可能存在名称调整 Attribute <= PhpAttribute
+            zend_string* name = zend_string_init("PhpAttribute", sizeof("PhpAttribute")-1, false);
+            zend_add_attribute(&cattr_, true, 0, name, 0);
+            return *this;
+        }
+        // 类特征
+        class_entry& attribute(std::string_view name, std::vector<value> argv) {
+            zend_string* zn = zend_string_init(name.data(), name.size(), false);
+            zend_attribute* attr = zend_add_attribute(&cattr_, true, 0, zn, argv.size());
+
+            for(int i=0;i<argv.size();++i) {
+                zend_string* str = zend_string_init("abcaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 40, false);
+                std::cout << str << std::endl;
+                ZVAL_STR(&attr->argv[i], str);
+                // ZVAL_COPY(&attr->argv[i], argv[i]);
+//                Z_ADDREF(attr->argv[i]);
+            }
             return *this;
         }
         // 定义常量
@@ -176,23 +203,31 @@ namespace php {
             property_.push_back({n, data, ZEND_ACC_PUBLIC, c});
             return *this;
         }
+
         // 声明（普通成员）方法
         template <value (T::*METHOD)(parameters& params) >
-        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi, return_info&& ri) {
-            zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
-            method_.append({ class_entry_basic::method<T, METHOD>, zn, std::move(ri), std::move(pi)},
-                    ZEND_ACC_PUBLIC);
+        class_entry& declare(zend_string* name, std::initializer_list<argument_info> pi, return_info&& ri) {
+            std::uint32_t flag = ZEND_ACC_PUBLIC;
+            if(strncmp(name->val, ZEND_CONSTRUCTOR_FUNC_NAME, sizeof(ZEND_CONSTRUCTOR_FUNC_NAME)) == 0)
+                flag |= ZEND_ACC_CTOR;
+            method_.append({ class_entry_basic::method<T, METHOD>, name, std::move(ri), std::move(pi)},
+                    flag);
             return *this;
         }
         // 声明（普通成员）方法
         template <value (T::*METHOD)(parameters& params) >
+        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi, return_info&& ri) {
+            return declare<METHOD>(zend_string_init_interned(name.data(), name.size(), true), std::move(pi), std::move(ri));
+        }
+        // 声明（普通成员）方法
+        template <value (T::*METHOD)(parameters& params) >
         class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi) {
-            declare(name, std::move(pi), {});
+            declare<METHOD>(name, std::move(pi), {});
         }
         // 声明（普通成员）方法
         template <value (T::*METHOD)(parameters& params) >
         class_entry& declare(std::string_view name) {
-            declare(name, {}, {});
+            declare<METHOD>(name, {}, {});
         }
         // 声明（静态成员）方法
         template <value STATIC_METHOD(parameters& params) >
@@ -227,22 +262,24 @@ namespace php {
     void class_entry_basic::register_class_entry(class_entry_basic *c) {
         class_entry<T>* e = static_cast<class_entry<T>*>(c);
         // 参考：INIT_CLASS_ENTRY_EX
-        zend_class_entry ce;
+        zend_class_entry ce, *pce;
         memset(&ce, 0, sizeof(zend_class_entry));
 		ce.name = e->cname_;
 		ce.info.internal.builtin_functions = e->method_;
-        // 注册类
         ce.create_object = class_entry<T>::create_object;
-        class_entry<T>::entry_ = zend_register_internal_class_ex(&ce, nullptr);
+        // 注册过程调用 zend_initialize_class_data() 会重置部分设置
+        pce = class_entry<T>::entry_ = zend_register_internal_class(&ce);
+        pce->ce_flags  |= e->cflag_; // 额外的标记
+        pce->attributes = e->cattr_; // 特征
 
         for(auto& f : e->iface_) // 接口实现
-            zend_do_implement_interface(class_entry<T>::entry_, *f);
+            zend_do_implement_interface(pce, *f);
         e->iface_.clear();
         for(auto& c : e->constant_) // 常量注册
-            zend_declare_class_constant_ex(class_entry<T>::entry_, c.name, &c.value, ZEND_ACC_PUBLIC, c.comment);
+            zend_declare_class_constant_ex(pce, c.name, &c.value, ZEND_ACC_PUBLIC, c.comment);
         e->constant_.clear();
         for(auto& p : e->property_) // 属性注册
-            zend_declare_property_ex(class_entry<T>::entry_, p.name, &p.value, p.v, p.comment);
+            zend_declare_property_ex(pce, p.name, &p.value, p.v, p.comment);
         e->property_.clear();
     }
     // 对象方法代理

@@ -4,7 +4,16 @@
 #include "env.h"
 
 namespace php {
-    static zval* find(const zend_array* a, const zval* k) {
+    // 创建数组
+    zend_array* array::create(std::size_t size) {
+        // 空数组初始的引用计数标记为 2 故在进行任何更新型操作时会进行分离复制
+//        if(size == 0) return const_cast<zend_array*>(&zend_empty_array);
+        zend_array *a = (zend_array *) emalloc(sizeof(zend_array));
+		zend_hash_init(a, size, nullptr, ZVAL_PTR_DTOR, 0);
+		return a;
+    }
+    // 查找的内部实现
+    static zval* find_ex(const zend_array* a, const zval* k) {
         switch (zval_get_type(k)) {
         case TYPE_STRING: // 内部（可能）存在 hash 缓存
             return zend_hash_find(a, Z_STR_P(k));
@@ -14,6 +23,12 @@ namespace php {
             throw type_error("Only Int or String can be used as Array indices", -1); // 不支持的类型
         }
     }
+    // 数组项查找
+    value& array::find(const zend_array* a, const value& k) {
+        return *reinterpret_cast<value*>(find_ex(a, static_cast<zval*>(k)));
+    }
+    // 创建数组
+    static zend_array* create(std::size_t n = 0);
     // 数组元素访问（引用，可能返回 undefined 值）
     value array::get(int idx) const {
         zval* v = zend_hash_index_find(this, idx);
@@ -34,7 +49,7 @@ namespace php {
     }
     // 数组元素访问（引用，可能返回 undefined 值）
     value array::get(const value& key) const {
-        zval* v = find(this, key);
+        zval* v = find_ex(this, key);
         return v ? *reinterpret_cast<value*>(v) : value();
     }
     // 数组元素设置
@@ -77,7 +92,7 @@ namespace php {
     }
     // 数组元素访问（不存在时创建）
     value& array::operator [](const value& key) { // array_set_zval_key
-        zval* v = find(this, key);
+        zval* v = find_ex(this, key);
         if(v == nullptr) // 不存在 -> 创建
             v = key.is(TYPE_STRING)
                     ? zend_symtable_update(this, key, &EG(uninitialized_zval))

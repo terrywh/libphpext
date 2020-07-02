@@ -14,6 +14,10 @@ namespace php {
     class array: public zend_array {
     public:
         static constexpr type_code_t TYPE_CODE = TYPE_ARRAY;
+        // 创建数组
+        static zend_array* create(std::size_t size = 0);
+        // 数组项查找
+        static value& find(const zend_array* a, const value& k);
         // 元素个数
         inline std::size_t size() {
             return nNumOfElements;

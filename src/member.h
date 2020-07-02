@@ -8,7 +8,6 @@
 namespace php {
     class member;
     struct member_traits {
-        static constexpr bool dispose() { return true; }
         static zval* pointer(const member* v);
         static void  pointer(const member* v, zval* z); // 特化用于同步指向
     };
@@ -21,6 +20,9 @@ namespace php {
         member()
         // 注意：基类默认构造需要检查
         : refer_(nullptr) { }
+        ~member() {
+            // 不做释放操作
+        }
         OVERRIDE_IMPLICIT_DECLARATION(member);
         // 转换 value 通用类型
         operator value();

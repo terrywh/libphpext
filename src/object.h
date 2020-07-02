@@ -12,14 +12,10 @@ namespace php {
     public:
         // 对象类型
         static constexpr type_code_t TYPE_CODE = TYPE_OBJECT;
-        // 创建制定名称的对象实例，并调用其 PHP 构造函数 (无参)
-        static value create(std::string_view name);
-        // 创建指定名称的对象实例，并调用其 PHP 构造函数
-        static value create(std::string_view name, std::vector<value> argv);
-        // 创建指定类型的对象实例，并调用其 PHP 构造函数 (无参)
-        static value create(zend_class_entry* ce);
-        // 创建指定类型的对象实例，并调用其 PHP 构造函数
-        static value create(zend_class_entry* ce, std::uint32_t argc, zval* argv);
+        // 创建制定名称的对象实例
+        static zend_object* create(std::string_view name);
+        // 创建指定类型的对象实例
+        static zend_object* create(zend_class_entry* ce);
         // 调用成员函数（无参）
         static value call(zend_object* obj, const zend_string* name);
         // 调用成员函数

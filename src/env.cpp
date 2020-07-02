@@ -24,11 +24,11 @@ namespace php {
     // 文本数据：方法名称
     static zend_string* method_name_zstr[static_cast<int>(method_name::METHOD_NAME_MAX)];
     // 文本常量：方法名称
-    value env::key(method_name mn) {
+    zend_string* env::key(method_name mn) {
         return method_name_zstr[ static_cast<int>(mn) ];
     }
     // 文本常量：类名（属性名、方法名、类名等，也可考虑在声明时设置引用获取）
-    value env::key(std::string_view name) {
+    zend_string* env::key(std::string_view name) {
         return zend_string_init_interned(name.data(), name.size(), true);
     }
     // 待读取 ini 项

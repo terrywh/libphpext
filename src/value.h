@@ -15,10 +15,10 @@
 namespace php {
     class property;
     class member;
+    class parameters;
 
     class value;
     struct value_traits {
-        static constexpr bool dispose() { return true; }
         static zval* pointer(const value* v);
     };
     // PHP 变量（自动释放）
@@ -27,13 +27,27 @@ namespace php {
 //        using value_traits = value_traits;
         mutable zval value_;
     public:
+        // 构建：未定义
+        value() {
+            ZVAL_UNDEF(&value_);
+        }
+        ~value() {
+            zval_ptr_dtor(&value_);
+        }
         using value_basic::value_basic;
         OVERRIDE_IMPLICIT_DECLARATION(value);
+        // 构造回调
+        value(std::function<value (parameters& params)> fn);
         // 赋值
         template <class T, typename = typename T::value_traits>
         value& operator =(const T& v) {
             zval_ptr_dtor(value_traits::pointer(this));
             ZVAL_COPY(value_traits::pointer(this), T::value_traits::pointer(&v));
+            return *this;
+        }
+        // 数组分离 (用于支持 COW 写时复制)
+        value_basic& operator *() {
+            SEPARATE_ARRAY(&value_);
             return *this;
         }
         friend struct value_traits;

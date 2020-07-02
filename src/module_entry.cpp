@@ -1,5 +1,6 @@
 #include "module_entry.h"
 #include "env.h"
+#include "callback.h"
 
 namespace php {
     // 当前实例
@@ -46,14 +47,17 @@ namespace php {
     // PHP 回调：模块启动
     int module_entry::on_module_startup  (int type, int module) {
         self()->module = module;
+        env::init(); // 环境相关初始化
         // 配置 ini 项
         zend_register_ini_entries(self()->ini_, module);
         // 注册 常量
         for(auto& c : self()->constant_)  zend_register_constant(&c);
+        // 注册 内部 类
+        callback::do_register(*self());
         // 注册 类
         for(auto& c : self()->class_) c->do_register();
 
-        if(!self()->invoke_fwd(self()->module_startup_handler_)) 
+        if(!self()->invoke_fwd(self()->module_startup_handler_))
             return FAILURE;
         return SUCCESS;
     }

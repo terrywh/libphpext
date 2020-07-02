@@ -7,7 +7,6 @@ namespace php {
     class  value;
     class  property;
     struct property_traits {
-        static constexpr bool dispose() { return false; }
         static zval* pointer(const property* v);
     };
     // 对象属性（不增加引用，存在动态计算故重定义赋值操作）
@@ -16,6 +15,9 @@ namespace php {
         using value_traits = property_traits;
         mutable zval value_;
     public:
+        ~property() {
+            // 不做释放操作
+        }
         OVERRIDE_IMPLICIT_DECLARATION(property);
         // 构建对象(读取赋值属性值）
         property(zend_object* obj, zend_string* key);

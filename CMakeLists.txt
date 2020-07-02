@@ -34,13 +34,15 @@ add_library(phpext STATIC
         src/exception.cpp
         src/function_entry.cpp
         src/ini_entry.cpp
+        src/member.cpp
         src/module_entry.cpp
         src/object.cpp
         src/property.cpp
         src/property_entry.cpp
         src/string.cpp
         src/string_buffer.cpp
-        src/string_builder.cpp)
+        src/string_builder.cpp
+        src/value.cpp)
 set_property(TARGET phpext PROPERTY PUBLIC_HEADER src/phpext.h)
 set_property(TARGET phpext PROPERTY PRIVATE_HEADER
         src/argument_info.h
@@ -56,6 +58,7 @@ set_property(TARGET phpext PROPERTY PRIVATE_HEADER
         src/exception.h
         src/function_entry.h
         src/ini_entry.h
+        src/member.h
         src/module_entry.h
         src/object.h
         src/parameter.h
@@ -66,6 +69,7 @@ set_property(TARGET phpext PROPERTY PRIVATE_HEADER
         src/string_builder.h
         src/type_code.h
         src/value.h
+        src/value_basic.h
         src/vendor.h)
 target_precompile_headers(phpext PUBLIC src/vendor.h)
 
