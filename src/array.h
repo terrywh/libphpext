@@ -3,7 +3,6 @@
 
 #include "vendor.h"
 #include "type_code.h"
-#include "exception.h"
 
 namespace php {
     class value;

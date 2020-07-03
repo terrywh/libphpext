@@ -30,6 +30,8 @@ namespace php {
         static zend_string* key(method_name mn);
         // 文本常量：内部名称（属性名、方法名、类名等，也可考虑在声明时设置引用获取）
         static zend_string* key(std::string_view name);
+        // 常量获取
+        static value& c(std::string_view name);
         // 模拟一个函数形式进行 ini 读取
         class ini {
         public:

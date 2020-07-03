@@ -1,9 +1,10 @@
 #ifndef LIBPHPEXT_CONVERSION_H
 #define LIBPHPEXT_CONVERSION_H
 
-#include "value.h"
+#include "vendor.h"
 
 namespace php {
+    class value;
     // 转换（复制）一个布尔
     value to_boolean(const value& val);
     // 转换（复制）一个整数

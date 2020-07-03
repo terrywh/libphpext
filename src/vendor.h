@@ -21,9 +21,10 @@
 #include <zend_interfaces.h>
 #include <zend_attributes.h>
 #include <main/php.h>
-#include <ext/standard/info.h>
+#include <main/php_variables.h>
 extern "C" {
 #include <ext/json/php_json.h>
+#include <ext/standard/url.h>
 }
 
 #endif // LIBPHPEXT_VENDOR_H

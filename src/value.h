@@ -3,14 +3,6 @@
 
 #include "vendor.h"
 #include "value_basic.h"
-#include "type_code.h"
-#include "string.h"
-#include "object.h"
-#include "array.h"
-#include "callable.h"
-#include "object.h"
-#include "property.h"
-#include "member.h"
 
 namespace php {
     class property;

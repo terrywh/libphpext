@@ -2,9 +2,9 @@
 #define LIBPHPEXT_CONSTANT_ENTRY_H
 
 #include "vendor.h"
-#include "value.h"
 
 namespace php {
+    class value;
     // 常量定义
     class constant_entry: public zend_constant {
     public:

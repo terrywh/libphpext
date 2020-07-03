@@ -50,7 +50,7 @@ namespace php {
         ini_entries                            ini_; //
         function_entries                  function_; // 函数表
 
-        std::vector< std::unique_ptr<class_entry_basic> > class_; // 类表
+        std::vector<class_entry_basic*> class_; // 类表: 不销毁、不释放（内存由 PHP 管理）
         std::vector<module_startup>     module_startup_handler_; // 模块启动回调
         std::vector<request_startup>   request_startup_handler_; // 请求启动回调
         std::vector<request_shutdown> request_shutdown_handler_; // 请求停止回调
@@ -149,7 +149,9 @@ namespace php {
         template <class T>
         class_entry<T>& declare(std::string_view name, std::uint32_t flag = 0) {
             zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
-            class_entry<T>* x = new class_entry<T>(zn, flag);
+            // 统一使用 PHP 内存管理
+            class_entry<T>* x = reinterpret_cast<class_entry<T>>(pemalloc(sizeof(class_entry<T>), true));
+            new (x) class_entry<T>(zn, flag);
             class_.emplace_back(x); // 多态形式，将父类指针放入容器
             return *x;
         }

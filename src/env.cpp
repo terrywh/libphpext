@@ -1,6 +1,7 @@
 #include "env.h"
 #include "value.h"
 #include "conversion.h"
+#include "zend_string.h"
 
 namespace php {
     // 未定义引用
@@ -30,6 +31,11 @@ namespace php {
     // 文本常量：类名（属性名、方法名、类名等，也可考虑在声明时设置引用获取）
     zend_string* env::key(std::string_view name) {
         return zend_string_init_interned(name.data(), name.size(), true);
+    }
+    // 常量获取
+    value& env::c(std::string_view name) {
+        zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
+        return *reinterpret_cast<value*>(zend_get_constant(zn));
     }
     // 待读取 ini 项
     env::ini::ini(std::string_view name)

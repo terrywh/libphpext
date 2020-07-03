@@ -2,7 +2,6 @@
 #define LIBPHPEXT_STRING_BUFFER_H
 
 #include "vendor.h"
-#include "value.h"
 
 namespace php {
     // 基于 smart_str 的流缓冲区，可用于 iostream 或 asio 相关缓冲区
@@ -33,6 +32,10 @@ namespace php {
 		void commit(std::size_t n);
         // 获取构建的字符串
         zend_string* str();
+		// 
+        operator smart_str*() {
+            return &str_;
+        }
 	protected:
 		int underflow() override;
         // 加速读取

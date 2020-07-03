@@ -1,6 +1,7 @@
 #include "module_entry.h"
 #include "env.h"
 #include "callback.h"
+#include <ext/standard/info.h>
 
 namespace php {
     // 当前实例

@@ -1,7 +1,9 @@
 #include "callback.h"
+#include "env.h"
 #include "module_entry.h"
 #include "value.h"
 #include "parameter.h"
+#include "exception.h"
 
 namespace php {
     // 注册
@@ -14,7 +16,8 @@ namespace php {
     }
     // 设置回调
     void callback::fn(std::function<php::value (php::parameters& params)> cb) {
-        fn_ = new std::function<php::value (php::parameters& params)>( std::move(cb) );
+        fn_ = reinterpret_cast<callback_type*>(pemalloc(sizeof(cb), false));
+        new (fn_) callback_type( std::move(cb) );
     }
     // 构造（禁用）
     php::value callback::__construct(php::parameters &params) {
@@ -22,6 +25,7 @@ namespace php {
     }
     // 实际执行过程
     php::value callback::__invoke(php::parameters &params) {
+        assert(fn_ != nullptr);
         php::value rv = fn_->operator()(params);
         delete fn_;
         fn_ = nullptr;

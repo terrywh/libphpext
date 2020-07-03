@@ -292,8 +292,8 @@ namespace php {
             return zend_binary_strcmp(Z_STRVAL_P(ptr(this)), Z_STRLEN_P(ptr(this)), v.data(), v.size()) < 0;
         }
 #define DECLARE_CREASE_THIS(OPR) R& operator OPR() {   \
-    assert(zval_get_type(ptr(this)) == TYPE_INTEGER); \
-    OPR Z_LVAL_P(ptr(this));                          \
+    assert(zval_get_type(ptr(this)) == TYPE_INTEGER);  \
+    OPR Z_LVAL_P(ptr(this));                           \
     return *reinterpret_cast<R*>(this);                \
 }
         DECLARE_CREASE_THIS(++);
@@ -301,7 +301,7 @@ namespace php {
 #undef DECLARE_CREASE_THIS
 
 #define DECLARE_CREASE_THAT(OPR) R operator OPR(int) { \
-    assert(zval_get_type(ptr(this)) == TYPE_INTEGER); \
+    assert(zval_get_type(ptr(this)) == TYPE_INTEGER);  \
     R y {*this};                                       \
     OPR y;                                             \
     return *reinterpret_cast<R*>(this);                \
@@ -312,8 +312,8 @@ namespace php {
 
 #define DECLARE_OPERATOR_THIS(CODE, TYPE, OPR)     \
     R& operator OPR(TYPE x) {                      \
-        assert(zval_get_type(ptr(this)) == CODE); \
-        Z_LVAL_P(ptr(this)) OPR x;                \
+        assert(zval_get_type(ptr(this)) == CODE);  \
+        Z_LVAL_P(ptr(this)) OPR x;                 \
         return *reinterpret_cast<R*>(this);        \
     }
         DECLARE_OPERATOR_THIS(TYPE_INTEGER, int, +=);
@@ -336,7 +336,7 @@ namespace php {
 
 #define DECLARE_OPERATOR_THAT(CODE, TYPE, OPR, AOPR) \
     R operator OPR(TYPE x) {                         \
-        assert(zval_get_type(ptr(this)) == CODE);   \
+        assert(zval_get_type(ptr(this)) == CODE);    \
         R y {*this};                                 \
         return y AOPR x;                             \
     }
@@ -359,7 +359,7 @@ namespace php {
 #undef DECLARE_OPERATOR_THAT
     };
 
-#define OVERRIDE_IMPLICIT_DECLARATION(NAME)                   \
+#define OVERRIDE_IMPLICIT_DECLARATION(NAME)            \
         NAME(const NAME& v): value_basic(v) {}         \
         NAME(NAME&& v): value_basic(std::move(v)) {}   \
         NAME& operator =(const NAME& v) {              \
@@ -373,7 +373,7 @@ namespace php {
         if(!data.is(TYPE_STRING)) {
             smart_str buffer {nullptr, false};
             php_json_encode(&buffer, data, PHP_JSON_UNESCAPED_UNICODE);
-            os.write(buffer.s->val, buffer.s->len);
+            if(buffer.s) os.write(buffer.s->val, buffer.s->len);
             smart_str_free_ex(&buffer, false);
         }
         else {

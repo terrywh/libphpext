@@ -17,11 +17,17 @@ namespace php {
         static value create(std::size_t size, bool persist = false);
         // 创建字符串（复制）
         static value create(std::string_view str, bool persist = false);
-
+        // 开始构建字符串
         static string_builder build();
         // 
         inline std::size_t size() {
             return ZSTR_LEN(this);
+        }
+        // 长度缩减
+        void shrink(std::size_t len) {
+            assert(len < ZSTR_LEN(this));
+            ZSTR_LEN(this) = len;
+            ZSTR_VAL(this)[len] = '\0';
         }
         // 获取字符串（复制）
         operator std::string() const {

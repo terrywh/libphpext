@@ -1,4 +1,5 @@
 #include "constant_entry.h"
+#include "value.h"
 #include "module_entry.h"
 
 namespace php {

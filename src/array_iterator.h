@@ -2,27 +2,19 @@
 #define LIBPHPEXT_ARRAY_ITERATOR_H
 
 #include "vendor.h"
-#include "value.h"
-#include "env.h"
 
 namespace php {
+    class value;
     // 数组迭代器（核心）
     class array_iterator_basic {
     public:
-        using value_type = std::pair<value, value&>;
-        // 构建：引用空数据
-        array_iterator_basic(const zend_array* self, HashPosition pos)
-        : self_(self)
-        , pos_(pos) {
-            entry_ = new value_type({}, env::undefined_value);
-            do_entry();
-        }
+        using entry_type = std::pair<value, value&>;
         // 访问数据项
-        value_type& operator*() {
+        entry_type& operator*() {
             return *entry_;
         }
         // 访问数据项
-        value_type* operator->() {
+        entry_type* operator->() {
             return  entry_;
         }
         // 
@@ -31,16 +23,21 @@ namespace php {
             return pos_ != i.pos_;
         }
     protected:
+        // 保护构建：引用空数据（不允许父类实例）
+        array_iterator_basic(const zend_array* self, HashPosition pos);
+
         const zend_array* self_;
-        HashPosition pos_;
-        value_type* entry_;
+        HashPosition       pos_;
+        entry_type*      entry_; // 注意：残留的内存交由实现子类释放
+        // 不使用 virtual ~array_iterator_basic() 保持 standard_layout 形式
         // 重构当前项
         void do_entry();
     };
     // 数组正序迭代器
     class array_iterator: public array_iterator_basic {
     public:
-        using array_iterator_basic::array_iterator_basic;
+        array_iterator(const zend_array* self, HashPosition pos)
+        : array_iterator_basic(self, pos) {}
         // 下一项：正序迭代器
         array_iterator& operator ++() {
             // 移动失败或移动到了末尾时做特殊标记
@@ -69,11 +66,15 @@ namespace php {
             --i;
             return i;
         }
+        ~array_iterator() {
+            if(entry_) pefree((void*)entry_, false);
+        }
     };
     // 数组倒序迭代器
     class array_reverse_iterator: public array_iterator_basic {
     public:
-        using array_iterator_basic::array_iterator_basic;
+        array_reverse_iterator(const zend_array* self, HashPosition pos)
+        : array_iterator_basic(self, pos) {}
         // 下一项：倒序迭代器
         array_reverse_iterator& operator ++() {
             if(FAILURE == zend_hash_move_backwards_ex(const_cast<zend_array*>(self_), &pos_))
@@ -99,6 +100,9 @@ namespace php {
             array_reverse_iterator ri {self_, pos_};
             --ri;
             return ri;
+        }
+        ~array_reverse_iterator() {
+            if(entry_) pefree((void*)entry_, false);
         }
     };
 }

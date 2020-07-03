@@ -3,6 +3,7 @@
 
 #include "value.h"
 #include "class_entry.h"
+#include "property.h"
 
 namespace php {
     // PHP 类基类（可选，方便访问非同步属性等）
@@ -10,7 +11,7 @@ namespace php {
     class class_basic {
     protected:
         inline object* self() const {
-            return class_entry<T>::native(this);
+            return class_entry<T>::native( static_cast<const T*>(this) );
         }
         // 属性（可设置）
         inline property prop(const char* name) {

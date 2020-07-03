@@ -1,6 +1,8 @@
 #ifndef LIBPHPEXT_TYPE_CODE_H
 #define LIBPHPEXT_TYPE_CODE_H
 
+#include "vendor.h"
+
 namespace php {
     // 变量类型
     enum type_code_t {

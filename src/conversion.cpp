@@ -1,4 +1,5 @@
 #include "conversion.h"
+#include "value.h"
 
 namespace php {
     // 转换（复制）一个布尔

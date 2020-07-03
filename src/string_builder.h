@@ -2,7 +2,6 @@
 #define LIBPHPEXT_STRING_BUILDER_H
 
 #include "vendor.h"
-#include "type_code.h"
 
 namespace php {
     class value;
@@ -46,6 +45,10 @@ namespace php {
         string_builder& append(std::string_view s) {
             smart_str_appendl_ex(&str_, s.data(), s.size(), false);
             return *this;
+        }
+        // 
+        operator smart_str*() {
+            return &str_;
         }
         // 获取构建的字符串
         value str();

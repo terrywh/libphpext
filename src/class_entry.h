@@ -9,6 +9,7 @@
 #include "exception.h"
 #include "property_entry.h"
 #include "function_entry.h"
+#include "member.h"
 
 namespace php {
     // 类定义（父类，用于容器存储）
@@ -125,7 +126,7 @@ namespace php {
         }
         // cpp -> obj
         static inline object* native(const T* cpp) {
-            return &reinterpret_cast<class_memory_t*>(cpp)->obj;
+            return reinterpret_cast<object*>(&reinterpret_cast<class_memory_t*>( const_cast<T*>(cpp) )->obj);
         }
         class_entry(zend_string* name, std::uint32_t flag)
                 : cname_(name)
