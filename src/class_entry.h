@@ -123,6 +123,10 @@ namespace php {
         static inline T* native(zend_object* obj) {
             return &reinterpret_cast<class_memory_t*>( reinterpret_cast<char*>(obj) - handler_.offset )->cpp;
         }
+        // cpp -> obj
+        static inline object* native(const T* cpp) {
+            return &reinterpret_cast<class_memory_t*>(cpp)->obj;
+        }
         class_entry(zend_string* name, std::uint32_t flag)
                 : cname_(name)
                 , cflag_(flag)
@@ -221,12 +225,12 @@ namespace php {
         // 声明（普通成员）方法
         template <value (T::*METHOD)(parameters& params) >
         class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi) {
-            declare<METHOD>(name, std::move(pi), {});
+            return declare<METHOD>(name, std::move(pi), {});
         }
         // 声明（普通成员）方法
         template <value (T::*METHOD)(parameters& params) >
         class_entry& declare(std::string_view name) {
-            declare<METHOD>(name, {}, {});
+            return declare<METHOD>(name, {}, {});
         }
         // 声明（静态成员）方法
         template <value STATIC_METHOD(parameters& params) >
@@ -240,12 +244,12 @@ namespace php {
         // 声明（普通成员）方法
         template <value STATIC_METHOD(parameters& params) >
         class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi) {
-            declare(name, std::move(pi), {});
+            return declare(name, std::move(pi), {});
         }
         // 声明（普通成员）方法
         template <value STATIC_METHOD(parameters& params) >
         class_entry& declare(std::string_view name) {
-            declare(name, {}, {});
+            return declare(name, {}, {});
         }
         // 执行注册
         void do_register(int module) override {

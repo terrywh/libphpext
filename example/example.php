@@ -36,7 +36,8 @@ var_dump(cpp_example::CONST_1);
 // 对象
 echo "--> class object\n";
 $x = new cpp_example();
-var_dump($x);
+$y = new cpp_example2();
+var_dump($x, $y);
 // 方法
 echo "--> method:\n";
 echo $x->hello("world"), "\n"; // 普通成员方法

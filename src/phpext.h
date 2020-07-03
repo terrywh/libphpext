@@ -9,6 +9,7 @@
 #include "array_iterator.h"
 #include "callable.h"
 #include "callback.h"
+#include "class_basic.h"
 #include "class_entry.h"
 #include "constant_entry.h"
 #include "conversion.h"
