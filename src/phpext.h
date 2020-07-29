@@ -1,8 +1,7 @@
 #ifndef LIBPHPEXT_H
 #define LIBPHPEXT_H
 
-#define LIBPHPEXT_VERSION_STRING "4.0.0"
-#define LIBPHPEXT_VERSION 40000
+#define LIBPHPEXT_VERSION "4.0.0"
 
 #include "argument_info.h"
 #include "array.h"

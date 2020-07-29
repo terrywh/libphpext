@@ -11,7 +11,7 @@ namespace php {
     // 调用、执行（无参）
     ::php::value callable::operator ()() const {
         ::php::value rv;
-        _call_user_function_ex(nullptr, const_cast<callable*>(this), rv, 0, nullptr, true);
+        _call_user_function_ex(nullptr, const_cast<callable*>(this), rv, 0, nullptr);
         try_rethrow();
         return rv;
     }
@@ -19,7 +19,7 @@ namespace php {
     ::php::value callable::operator ()(std::vector<::php::value> argv) {
         ::php::value rv;
         _call_user_function_ex(nullptr, const_cast<callable*>(this), rv,
-            argv.size(), reinterpret_cast<zval*>(argv.data()), true);
+            argv.size(), reinterpret_cast<zval*>(argv.data()));
         try_rethrow();
         return rv;
     }

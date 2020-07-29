@@ -31,7 +31,6 @@ namespace php {
         fci.retval = rv;
         fci.param_count = 0;
         fci.params = nullptr;
-        fci.no_separation = (zend_bool) 1;
         zend_call_function(&fci, NULL);
 
         try_rethrow();
@@ -49,7 +48,6 @@ namespace php {
         fci.retval = rv;
         fci.param_count = argc;
         fci.params = argv;
-        fci.no_separation = (zend_bool) 1;
         zend_call_function(&fci, NULL);
 
         try_rethrow();

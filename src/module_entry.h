@@ -150,7 +150,7 @@ namespace php {
         class_entry<T>& declare(std::string_view name, std::uint32_t flag = 0) {
             zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
             // 统一使用 PHP 内存管理
-            class_entry<T>* x = reinterpret_cast<class_entry<T>>(pemalloc(sizeof(class_entry<T>), true));
+            class_entry<T>* x = reinterpret_cast<class_entry<T>*>(pemalloc(sizeof(class_entry<T>), true));
             new (x) class_entry<T>(zn, flag);
             class_.emplace_back(x); // 多态形式，将父类指针放入容器
             return *x;

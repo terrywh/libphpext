@@ -144,7 +144,7 @@ extern "C" {
                 return true;
             }))
             // 说明信息
-            .describe("INFO_LIBPHPEXT_VERSION", LIBPHPEXT_VERSION_STRING)
+            .describe("INFO_LIBPHPEXT_VERSION", LIBPHPEXT_VERSION)
             .describe("INFO_2", "Hello")
             // 配置 ini 项
             .setup("example.hello", "value") // 文本
