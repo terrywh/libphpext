@@ -4,6 +4,7 @@
 #include "vendor.h"
 
 namespace php {
+    class array;
     // 抛出的异常对象，不进行释放
     class throwable: public std::exception {
     public:
@@ -13,16 +14,22 @@ namespace php {
         throwable() {
             ZVAL_UNDEF(&value_);
         }
+        // 异常编号
+        const int   code() const noexcept;
         // 标准异常消息输出
         const char* what() const noexcept override;
         // 隐式转换
         operator zval*() const {
             return &value_;
         }
+        // 堆栈信息
+        array& trace() const;
     protected:
         throwable(zend_object* ex) {
             ZVAL_OBJ(&value_, ex);
         }
+        // 基类 (exception / error)
+        zend_class_entry* base_class_entry() const;
         // 对象容器
         mutable zval value_;
     };

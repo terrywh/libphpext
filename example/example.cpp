@@ -1,4 +1,5 @@
 #include "../src/phpext.h"
+#include <ext/flame/flame.h>
 #include <iostream>
 #include <map>
 #include <unordered_map>
@@ -7,6 +8,9 @@
 php::value hello(php::parameters& params) {
     php::process_title("hello world");
 
+    boost::asio::post(flame::primary_context(), [] () {
+        std::cout << "run in flame context\n";
+    });
     // 参数下标必须存在, 否则会抛出异常
     php::value v0 = params[0];
     return "hello " + static_cast<std::string>(v0); // 常用内部类型双向转换
@@ -127,6 +131,7 @@ extern "C" {
             // 模块依赖项
             .require("pcre", "8.0.0")
             .require("date")
+            .require("flame")
             // 模块启动回调
             .on(php::module_startup([] (php::module_entry& module) -> bool {
                 std::cout << "--> module started" << std::endl;
