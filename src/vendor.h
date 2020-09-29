@@ -24,8 +24,9 @@
 #include <main/php.h>
 #include <main/php_variables.h>
 extern "C" {
-#include <ext/json/php_json.h>
+#include <ext/standard/php_http.h>
 #include <ext/standard/url.h>
+#include <ext/json/php_json.h>
 }
 
 #endif // LIBPHPEXT_VENDOR_H

@@ -55,7 +55,7 @@ namespace std {
         typedef std::size_t result_type;
         result_type operator()(argument_type const& s) const noexcept {
             assert(s.is(php::TYPE_STRING));
-            return s.as<php::string>()->hashcode();
+            return s.as<php::string>().hashcode();
         }
     };
 }

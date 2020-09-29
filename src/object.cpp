@@ -6,7 +6,7 @@
 
 namespace php {
     // 创建制定名称的对象实例，并调用其 PHP 构造函数 (无参)
-    zend_object* object::create(std::string_view name) {
+    value object::create(std::string_view name) {
         // ??? 类名是否应该使用内部持久型字符串
         // zend_string* str = zend_string_init_interned(name.data(), name.size(), 1);
         zend_string* str = zend_string_init(name.data(), name.size(), 1);
@@ -14,7 +14,7 @@ namespace php {
         return create(ce);
     }
     // 创建指定类型的对象实例，并调用其 PHP 构造函数 (无参)
-    zend_object* object::create(zend_class_entry* ce) {
+    value object::create(zend_class_entry* ce) {
         value obj;
         object_init_ex(obj, ce);
         return obj;
@@ -33,7 +33,7 @@ namespace php {
         fci.params = nullptr;
         zend_call_function(&fci, NULL);
 
-        try_rethrow();
+        cpp_rethrow();
         return rv;
     }
     // 调用成员函数
@@ -50,7 +50,7 @@ namespace php {
         fci.params = argv;
         zend_call_function(&fci, NULL);
 
-        try_rethrow();
+        cpp_rethrow();
         return rv;
     }
     // 调用成员函数

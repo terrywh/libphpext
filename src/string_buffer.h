@@ -4,6 +4,7 @@
 #include "vendor.h"
 
 namespace php {
+	class value;
     // 基于 smart_str 的流缓冲区，可用于 iostream 或 asio 相关缓冲区
     class string_buffer: public std::streambuf {
 	public:
@@ -31,7 +32,7 @@ namespace php {
 		// 提交写入的数据
 		void commit(std::size_t n);
         // 获取构建的字符串
-        zend_string* str();
+        value str();
 		// 
         operator smart_str*() {
             return &str_;

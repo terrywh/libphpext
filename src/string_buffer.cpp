@@ -1,4 +1,5 @@
 #include "string_buffer.h"
+#include "value.h"
 
 namespace php {
     // 消费读取缓冲区
@@ -45,7 +46,7 @@ namespace php {
         setp(p + n, str_.s->val + str_.a);
     }
     // 获取构建的字符串
-    zend_string* string_buffer::str() {
+    value string_buffer::str() {
         assert(str_.s); // 保证字符串存在
 
         str_.s->len = size();
@@ -57,7 +58,7 @@ namespace php {
         setg(nullptr, nullptr, nullptr);
         setp(nullptr, nullptr);
 
-        return s;
+        return value(s, false);
     }
     int string_buffer::underflow() {
         char* g = gptr(), *p = pptr();

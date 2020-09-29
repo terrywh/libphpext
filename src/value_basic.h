@@ -112,8 +112,9 @@ namespace php {
         }
         operator zval*() const {
              return ptr(this);
-         }
-        // 注意 operator bool 用于条件判定，等价于 !empty()
+        }
+        // 转换为 bool 类型数据
+        // 注意: operator bool 用于条件判定，等价于 !empty()
         // 类型数据：布尔
         bool boolean() const {
             assert(zval_get_type(ptr(this)) == TYPE_TRUE || zval_get_type(ptr(this)) == TYPE_FALSE);
@@ -138,6 +139,10 @@ namespace php {
             assert(zval_get_type(ptr(this)) == TYPE_STRING);
             return Z_STR_P(ptr(this));
         }
+        operator string&() const {
+            assert(zval_get_type(ptr(this)) == TYPE_STRING);
+            return *reinterpret_cast<string*>(Z_STR_P(ptr(this)));
+        }
         // 类型数据：字符串
         operator std::string_view() const { // 返回 string_view 可直接访问内存
             assert(zval_get_type(ptr(this)) == TYPE_STRING);
@@ -154,9 +159,9 @@ namespace php {
             return Z_ARR_P(ptr(this));
         }
         // 类型数据：数组
-        operator array*() const {
+        operator array&() const {
             assert(zval_get_type(ptr(this)) == TYPE_ARRAY);
-            return reinterpret_cast<array*>(Z_ARR_P(ptr(this)));
+            return *reinterpret_cast<array*>(Z_ARR_P(ptr(this)));
         }
         // 类型数据：数组
         auto& operator [](int idx) const {
@@ -172,7 +177,7 @@ namespace php {
         }
         // 数据类型：可调用
         auto operator ()(std::vector<R> argv) const {
-            return as<callable>()->operator()(argv);
+            return as<callable>().operator()(argv);
         }
         // 数据类型：对象
         operator zend_object*() const {
@@ -180,9 +185,9 @@ namespace php {
             return Z_OBJ_P(ptr(this));
         }
         // 数据类型：对象
-        operator object*() const {
+        operator object&() const {
             assert(zval_get_type(ptr(this)) == TYPE_OBJECT);
-            return reinterpret_cast<object*>(Z_OBJ_P(ptr(this)));
+            return *reinterpret_cast<object*>(Z_OBJ_P(ptr(this)));
         }
         // 数据类型：对象
         object* operator ->() const {
@@ -191,15 +196,15 @@ namespace php {
         }
         // 访问内部类型 (方法)
         template <class S, typename = std::enable_if_t<S::TYPE_CODE != FAKE_CALLABLE>>
-        S* as() const noexcept {
+        S& as() const noexcept {
             assert(zval_get_type(ptr(this)) == S::TYPE_CODE);
-            return reinterpret_cast<S*>(Z_PTR_P(ptr(this)));
+            return *reinterpret_cast<S*>(Z_PTR_P(ptr(this)));
         }
         // 特化 callable 实现
         template <class S, typename = std::enable_if_t<S::TYPE_CODE == FAKE_CALLABLE>>
-        callable* as() const noexcept {
+        callable& as() const noexcept {
             assert(zend_is_callable(ptr(this), IS_CALLABLE_CHECK_SYNTAX_ONLY, nullptr));
-            return reinterpret_cast<callable*>(ptr(this));
+            return *reinterpret_cast<callable*>(ptr(this));
         }
         // 空判定
         bool empty() const {
@@ -218,7 +223,7 @@ namespace php {
             case TYPE_ARRAY:
                 return Z_ARRVAL_P(ptr(this))->nNumOfElements == 0;
             case TYPE_REFERENCE:
-                code = zval_get_type(Z_REFVAL_P(ptr(this)));
+                code = static_cast<type_code_t>(zval_get_type(Z_REFVAL_P(ptr(this))));
                 goto RECHECK_EMPTY;
             case TYPE_TRUE:
             case TYPE_RESOURCE:

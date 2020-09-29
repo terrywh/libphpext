@@ -30,7 +30,7 @@ namespace php {
     }
     // JSON 编码至指定容器（可使用 string_buffuer / string_builder 作为 buffer 使用）
     inline void json_encode_to(smart_str* buffer, const value& v, int opts = PHP_JSON_UNESCAPED_UNICODE) {
-        if(php_json_encode(buffer, v, opts) == FAILURE) try_rethrow();
+        if(php_json_encode(buffer, v, opts) == FAILURE) cpp_rethrow();
     }
     //
     value json_encode(const value& v, int opts = PHP_JSON_UNESCAPED_UNICODE);

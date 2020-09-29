@@ -48,17 +48,18 @@ var_dump($x->prop1); // 普通属性
 var_dump(cpp_example::$prop2); // 静态属性
 var_dump($x->prop3); // 同步属性
 
-<<PhpAttribute>>
+echo "--> attribute:\n";
+#[Attribute]
 class dummy {
     function __construct($name, $data) {
         echo $name, " ", $data, "\n";
     }
 }
-<<dummy("POST", "/hello")>>
+#[dummy("POST", "/hello")]
 class example {}
-echo "--> attribute:\n";
-<< cpp_attribute("GET", "/hello") >>
-<< dummy("hello") >>
+
+#[cpp_attribute("GET", "/hello")]
+#[dummy("hello")]
 function hello() {
     $r = new ReflectionFunction("hello");
     $r->getAttributes("cpp_attribute")[0]->newInstance();

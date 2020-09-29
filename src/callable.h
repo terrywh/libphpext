@@ -11,8 +11,10 @@ namespace php {
     public:
         // 可调用类型（虚拟类型）
         static constexpr type_code_t TYPE_CODE = FAKE_CALLABLE;
-        // 构建
+        // 构建：可调用对象
         callable(const ::php::value& cb);
+        // 销毁
+        ~callable();
         // 调用、执行（无参）
         ::php::value operator ()() const;
         // 调用、执行

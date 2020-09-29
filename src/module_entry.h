@@ -159,13 +159,13 @@ namespace php {
         operator zend_module_entry*();
     private:
         // PHP 回调：模块启动
-        static int on_module_startup  (int type, int module);
+        static zend_result on_module_startup  (int type, int module);
         // PHP 回调：请求启动
-        static int on_request_startup (int type, int module);
+        static zend_result on_request_startup (int type, int module);
         // PHP 回调：请求终止
-        static int on_request_shutdown(int type, int module);
+        static zend_result on_request_shutdown(int type, int module);
         // PHP 回调：模块终止
-        static int on_module_shutdown (int type, int module);
+        static zend_result on_module_shutdown (int type, int module);
         // PHP 回调：模块信息
         static void on_module_info(zend_module_entry *zend_module);
     };

@@ -46,6 +46,7 @@ add_library(phpext STATIC
     src/member.cpp
     src/module_entry.cpp
     src/object.cpp
+    src/parameter.cpp
     src/property.cpp
     src/property_entry.cpp
     src/string.cpp

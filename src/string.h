@@ -20,8 +20,14 @@ namespace php {
         // 开始构建字符串
         static string_builder build();
         // 
-        inline std::size_t size() {
+        inline std::size_t size() const {
             return ZSTR_LEN(this);
+        }
+        inline const char* c_str() const {
+            return val;
+        }
+        inline char* data() {
+            return val;
         }
         // 长度缩减
         void shrink(std::size_t len) {

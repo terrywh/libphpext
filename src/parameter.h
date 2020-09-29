@@ -6,6 +6,9 @@
 
 namespace php {
 	using parameter = value;
+
+	class parameter_iterator;
+	class parameter_reverse_iterator;
 	// 参数表
 	class parameters {
 	public:
@@ -48,6 +51,12 @@ namespace php {
 		std::uint8_t size() const {
 			return argc_;
 		}
+
+		parameter_iterator begin() const;
+		parameter_iterator end() const;
+		parameter_reverse_iterator rbegin() const;
+		parameter_reverse_iterator rend() const;
+
 		operator std::vector<value>() const {
 			return std::vector<value>(
 				reinterpret_cast<value*>(argv_), reinterpret_cast<value*>(argv_ + argc_));
@@ -56,6 +65,86 @@ namespace php {
 		zval*        argv_;
 		std::uint8_t argc_;
 	};
+	// 正序迭代器
+	class parameter_iterator {
+	public:
+		parameter_iterator(const parameters* params, int index)
+		: params_(params)
+		, index_(index) {
+
+		}
+		 // 访问数据项
+        value& operator*() const {
+            return params_->get(index_);
+        }
+        // 访问数据项
+        value* operator->() const {
+            return & params_->get(index_);
+        }
+
+		parameter_iterator& operator ++() {
+			++index_;
+			return *this;
+		}
+
+		parameter_iterator operator ++(int) const {
+			parameter_iterator i(*this);
+			++i;
+			return i;
+		}
+
+		bool operator ==(const parameter_iterator& i) const {
+			return params_ == i.params_ && index_ == i.index_;
+		}
+		bool operator !=(const parameter_iterator& i) const {
+			return params_ != i.params_ || index_ != i.index_;
+		}
+	private:
+		const parameters* params_;
+		int index_;
+	};
+	// 倒序迭代器
+	class parameter_reverse_iterator {
+	public:
+		parameter_reverse_iterator(const parameters* params, int index)
+		: params_(params)
+		, index_(index) { }
+
+		parameter_reverse_iterator(const parameter_reverse_iterator& ri)
+		: params_(ri.params_)
+		, index_(ri.index_) {}
+		 // 访问数据项
+        value& operator*() const {
+            return params_->get(index_);
+        }
+        // 访问数据项
+        value* operator->() const {
+            return & params_->get(index_);
+        }
+
+		parameter_reverse_iterator& operator ++() {
+			--index_;
+			return *this;
+		}
+		parameter_reverse_iterator operator ++(int) const {
+			parameter_reverse_iterator ri(*this);
+			--ri.index_;
+			return ri;
+		}
+		bool operator ==(const parameter_reverse_iterator& i) const {
+			return params_ == i.params_ && index_ == i.index_;
+		}
+		bool operator !=(const parameter_reverse_iterator& i) const {
+			return params_ != i.params_ || index_ != i.index_;
+		}
+	private:
+		const parameters* params_;
+		int index_;
+	};
+	
+
+
+	
 }
 
 #endif // LIBPHPEXT_PARAMETER_H

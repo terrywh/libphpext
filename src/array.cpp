@@ -6,12 +6,12 @@
 
 namespace php {
     // 创建数组
-    zend_array* array::create(std::size_t size) {
+    value array::create(std::size_t size) {
         // 空数组初始的引用计数标记为 2 故在进行任何更新型操作时会进行分离复制
 //        if(size == 0) return const_cast<zend_array*>(&zend_empty_array);
         zend_array *a = (zend_array *) emalloc(sizeof(zend_array));
 		zend_hash_init(a, size, nullptr, ZVAL_PTR_DTOR, 0);
-		return a;
+		return value(a, false);
     }
     // 查找的内部实现
     static zval* find_ex(const zend_array* a, const zval* k) {
@@ -28,8 +28,6 @@ namespace php {
     value& array::find(const zend_array* a, const value& k) {
         return *reinterpret_cast<value*>(find_ex(a, static_cast<zval*>(k)));
     }
-    // 创建数组
-    static zend_array* create(std::size_t n = 0);
     // 数组元素访问（引用，可能返回 undefined 值）
     value array::get(int idx) const {
         zval* v = zend_hash_index_find(this, idx);
@@ -121,8 +119,7 @@ namespace php {
     }
     // 遍历：正序（终点）
     array_iterator array::end() const noexcept {
-        static array_iterator e {this, this->nNumUsed};
-        return e;
+        return array_iterator {this, this->nNumUsed};
     }
     // 遍历：倒序（起点）
     array_reverse_iterator array::rbegin() const noexcept {
@@ -132,6 +129,6 @@ namespace php {
     }
     // 遍历：倒序（终点）
     array_reverse_iterator array::rend() const noexcept {
-        return array_reverse_iterator(this, this->nNumUsed);
+        return array_reverse_iterator {this, this->nNumUsed};
     }
 }

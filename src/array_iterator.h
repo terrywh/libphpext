@@ -22,28 +22,45 @@ namespace php {
             assert(self_ == i.self_); // 不能比较两个无关的迭代器
             return pos_ != i.pos_;
         }
+        //
+        array_iterator_basic& operator =(const array_iterator_basic& it);
+        array_iterator_basic& operator =(array_iterator_basic&& it);
+        void reset() {
+            pos_ = self_->nNumUsed;
+            reset_entry();
+        }
     protected:
         // 保护构建：引用空数据（不允许父类实例）
         array_iterator_basic(const zend_array* self, HashPosition pos);
+        // 复制
+        array_iterator_basic(const array_iterator_basic& it);
+        // 移动
+        array_iterator_basic(array_iterator_basic&& it);
+        // 不使用 virtual ~array_iterator_basic() 保持 standard_layout 形式
 
         const zend_array* self_;
         HashPosition       pos_;
         entry_type*      entry_; // 注意：残留的内存交由实现子类释放
-        // 不使用 virtual ~array_iterator_basic() 保持 standard_layout 形式
+        
+        void reset_entry();
         // 重构当前项
-        void do_entry();
+        void build_entry();
     };
     // 数组正序迭代器
     class array_iterator: public array_iterator_basic {
     public:
         array_iterator(const zend_array* self, HashPosition pos)
         : array_iterator_basic(self, pos) {}
+        array_iterator(const array_iterator& it)
+        : array_iterator_basic(it) {}
+        array_iterator(array_iterator&& it)
+        : array_iterator_basic(std::move(it)) {}
         // 下一项：正序迭代器
         array_iterator& operator ++() {
             // 移动失败或移动到了末尾时做特殊标记
             if(FAILURE == zend_hash_move_forward_ex(const_cast<zend_array*>(self_), &pos_))
                 pos_ = self_->nNumUsed;
-            do_entry();
+            build_entry();
             return *this;
         }
         // 下一项：正序迭代器
@@ -57,7 +74,7 @@ namespace php {
             if(pos_ == HT_INVALID_IDX) pos_ = self_->nNumUsed;
             if(FAILURE == zend_hash_move_backwards_ex(const_cast<zend_array*>(self_), &pos_))
                 pos_ = self_->nNumUsed;
-            do_entry();
+            build_entry();
             return *this;
         }
         // 上一项：正序迭代器
@@ -66,20 +83,30 @@ namespace php {
             --i;
             return i;
         }
-        ~array_iterator() {
-            if(entry_) pefree((void*)entry_, false);
+        array_iterator& operator=(const array_iterator& it) {
+            array_iterator_basic::operator=(it);
+            return *this;
         }
+        array_iterator& operator=(array_iterator&& it) {
+            array_iterator_basic::operator=(std::move(it));
+            return *this;
+        }
+        ~array_iterator();
     };
     // 数组倒序迭代器
     class array_reverse_iterator: public array_iterator_basic {
     public:
         array_reverse_iterator(const zend_array* self, HashPosition pos)
         : array_iterator_basic(self, pos) {}
+        array_reverse_iterator(const array_reverse_iterator& it)
+        : array_iterator_basic(it) {}
+        array_reverse_iterator(array_reverse_iterator&& it)
+        : array_iterator_basic(std::move(it)) {}
         // 下一项：倒序迭代器
         array_reverse_iterator& operator ++() {
             if(FAILURE == zend_hash_move_backwards_ex(const_cast<zend_array*>(self_), &pos_))
                 pos_ = self_->nNumUsed;
-            do_entry();
+            build_entry();
             return *this;
         }
         // 下一项：倒序迭代器
@@ -92,7 +119,7 @@ namespace php {
         array_reverse_iterator& operator --() {
             if(FAILURE == zend_hash_move_forward_ex(const_cast<zend_array*>(self_), &pos_))
                 pos_ = self_->nNumUsed;
-            do_entry();
+            build_entry();
             return *this;
         }
         // 上一项：倒序迭代器
@@ -101,9 +128,7 @@ namespace php {
             --ri;
             return ri;
         }
-        ~array_reverse_iterator() {
-            if(entry_) pefree((void*)entry_, false);
-        }
+        ~array_reverse_iterator();
     };
 }
 

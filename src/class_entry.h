@@ -163,9 +163,9 @@ namespace php {
             // 简单测试，似乎需要 INTERNED / CONSTANT 字符数据才可以进行 ATTRIBUTE 参数设置
             for(int i=0;i<argv.size();++i) {
                 if(argv[i].is(TYPE_STRING))
-                    ZVAL_INTERNED_STR(&attr->argv[i], zend_new_interned_string(zend_string_dup(argv[i], true)));
+                    ZVAL_INTERNED_STR(&attr->args[i].value, zend_new_interned_string(zend_string_dup(argv[i], true)));
                 else
-                    ZVAL_COPY_VALUE(&attr->argv[i], argv[i]);
+                    ZVAL_COPY_VALUE(&attr->args[i].value, argv[i]);
             }
             return *this;
         }
@@ -300,7 +300,7 @@ namespace php {
             rv = ( static_cast<T*>(class_entry<T>::native( Z_OBJ_P(getThis()) ))->*FUNCTION )(params);
         }
         catch (const throwable& e) {
-            rethrow(e);
+            php_rethrow(e);
             return;
         }
         // 非预期范围的异常继续在 C++ 侧抛出

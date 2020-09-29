@@ -1,5 +1,4 @@
 #include "../src/phpext.h"
-#include <ext/flame/flame.h>
 #include <iostream>
 #include <map>
 #include <unordered_map>
@@ -7,10 +6,6 @@
 // 所有导出到 PHP 的函数必须符合下面形式：
 php::value hello(php::parameters& params) {
     php::process_title("hello world");
-
-    boost::asio::post(flame::primary_context(), [] () {
-        std::cout << "run in flame context\n";
-    });
     // 参数下标必须存在, 否则会抛出异常
     php::value v0 = params[0];
     return "hello " + static_cast<std::string>(v0); // 常用内部类型双向转换
@@ -28,7 +23,7 @@ php::value plus_5(php::parameters& params) {
 }
 // 调用对象函数
 php::value call_method(php::parameters& params) {
-    return params[0].as<php::object>()->call("format", {"Y-m-d H:i:s"});
+    return params[0].as<php::object>().call("format", {"Y-m-d H:i:s"});
 }
 // 放入 C++ 容器
 php::value container(php::parameters& params) {
@@ -46,21 +41,21 @@ php::value invoke(php::parameters& params) {
 }
 // 遍历数组
 php::value walk(php::parameters& params) {
-    auto* array = params[0].as<php::array>();
-    int count = array->size();
-    // C++11
-    for(auto x : *params[0].as<php::array>()) {
-        std::cout << x.first << " => " << x.second << std::endl;
-        ++count;
-    }
-    for(auto i = array->begin(); i!= array->end(); ++i) {
+    auto& array = params[0].as<php::array>();
+    int count = array.size();
+    // >= C++11
+    // for(auto x : array) {
+    //     std::cout << x.first << " => " << x.second << std::endl;
+    //     ++count;
+    // }
+    for(auto i = array.begin(); i!= array.end(); ++i) {
         std::cout << i->first << " => " << i->second << std::endl;
         ++count;
     }
-    for(auto i = array->rbegin(); i!= array->rend(); ++i) {
-        std::cout << i->first << " => " << i->second << std::endl;
-        ++count;
-    }
+    // for(auto i = array.rbegin(); i!= array.rend(); ++i) {
+    //     std::cout << i->first << " => " << i->second << std::endl;
+    //     ++count;
+    // }
     return count;
 }
 // 读取配置
@@ -70,9 +65,9 @@ php::value conf_bytes(php::parameters& params) {
 // 访问属性
 php::value property(php::parameters& params) {
     // 假设 d 原始值为 1
-    auto d = params[0].as<php::object>()->prop("d");
+    auto d = params[0].as<php::object>().prop("d");
     // 函数设置：不会出发上述 d 值刷新
-    params[0].as<php::object>()->prop("d", 3);
+    params[0].as<php::object>().prop("d", 3);
     // 原地设置 -> 1 + 1 = 2
     d += 1;
     std::cout << d << " days\n";
@@ -131,7 +126,6 @@ extern "C" {
             // 模块依赖项
             .require("pcre", "8.0.0")
             .require("date")
-            .require("flame")
             // 模块启动回调
             .on(php::module_startup([] (php::module_entry& module) -> bool {
                 std::cout << "--> module started" << std::endl;

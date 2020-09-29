@@ -20,15 +20,15 @@ namespace php {
     }
     // URL (inplace)
     value& url_decode(value& str) {
-        string* s = str.as<string>();
-        std::size_t l = php_url_decode(s->val, s->len);
-        s->shrink(l);
+        string s = str.as<string>();
+        std::size_t l = php_url_decode(s.val, s.len);
+        s.shrink(l);
         return str;
     }
     //
     value bin2hex(std::string_view data) {
         php::value s = string::create(data.size() * 2);
-        make_digest_ex(s.as<string>()->val,
+        make_digest_ex(s.as<string>().data(),
             reinterpret_cast<const unsigned char*>(data.data()), data.size());
         return s;
     }
@@ -42,7 +42,7 @@ namespace php {
     value json_decode(std::string_view data) {
         value v;
         if(php_json_decode_ex(v, data.data(), data.size(),
-            PHP_JSON_OBJECT_AS_ARRAY, PHP_JSON_PARSER_DEFAULT_DEPTH) == FAILURE) try_rethrow();
+            PHP_JSON_OBJECT_AS_ARRAY, PHP_JSON_PARSER_DEFAULT_DEPTH) == FAILURE) cpp_rethrow();
         return v;
     }
 }

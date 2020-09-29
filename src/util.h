@@ -5,10 +5,14 @@
 
 namespace php {
     class value;
+    class array;
+    class string;
     // 解析 form-data 数据
-    value& parse_str_to(std::string_view str, value& array);
+    value& parse_form_data(std::string_view str, value& array);
     // 解析 form-data 数据
-    value parse_str(std::string_view str);
+    value parse_form_data(std::string_view str);
+    // 生成 form-data 数据
+    value build_form_data(const value& hash);
     // URL 解析
     std::shared_ptr<php_url> parse_url(std::string_view url);
     // 进程标题
