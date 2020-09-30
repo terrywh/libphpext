@@ -24,6 +24,11 @@ namespace php {
             throw type_error("Only Int or String can be used as Array indices", -1); // 不支持的类型
         }
     }
+    // 归并
+    void array::merge(zend_array* target, zend_array* source, bool recursive) {
+        if(recursive) php_array_merge_recursive(target, source);
+        else php_array_merge(target, source);
+    }
     // 数组项查找
     value& array::find(const zend_array* a, const value& k) {
         return *reinterpret_cast<value*>(find_ex(a, static_cast<zval*>(k)));

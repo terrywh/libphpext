@@ -24,7 +24,9 @@
 #include <main/php.h>
 #include <main/php_variables.h>
 extern "C" {
+#include <ext/standard/php_array.h>
 #include <ext/standard/php_http.h>
+#include <ext/standard/info.h>
 #include <ext/standard/url.h>
 #include <ext/json/php_json.h>
 }

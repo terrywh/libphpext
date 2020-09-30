@@ -49,8 +49,8 @@ namespace php {
         std::vector<constant_entry>       constant_; // 常量
         ini_entries                            ini_; //
         function_entries                  function_; // 函数表
+        std::vector<class_entry_basic*>      class_; // 类表: 不销毁、不释放（内存由 PHP 管理）
 
-        std::vector<class_entry_basic*> class_; // 类表: 不销毁、不释放（内存由 PHP 管理）
         std::vector<module_startup>     module_startup_handler_; // 模块启动回调
         std::vector<request_startup>   request_startup_handler_; // 请求启动回调
         std::vector<request_shutdown> request_shutdown_handler_; // 请求停止回调

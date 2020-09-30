@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.16)
-project(libphpext)
+
 # ---------------------------------------------------------------------------------------
 # 环境
 # ---------------------------------------------------------------------------------------
@@ -9,6 +9,8 @@ set(CMAKE_INSTALL_PREFIX /data/vendor/phpext-4.0)
 set(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT TRUE)
 ## 编译器
 set(GCC_TOOLCHAIN /data/server/gcc CACHE PATH "Compiler: gcc compiler prefix")
+
+project(libphpext)
 ## CLANG 编译器（指定 GCC 工具链）
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_compile_options("--gcc-toolchain=${GCC_TOOLCHAIN}")
@@ -25,8 +27,9 @@ execute_process(COMMAND ${VENDOR_PHP}/bin/php-config --extension-dir
     OUTPUT_VARIABLE VENDOR_PHP_EXT_DIR
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 include_directories(SYSTEM ${VENDOR_PHP_INC_DIR})
+## 静态链接时似乎会发生一些奇怪的问题，多个扩展之间会产生某种未定义行为的影响
 ## 静态链接 C++ 库，方便部署
-link_libraries(-static-libstdc++)
+# link_libraries(-static-libgcc -static-libstdc++)
 # ---------------------------------------------------------------------------------------
 # 核心库
 # ---------------------------------------------------------------------------------------
@@ -41,6 +44,7 @@ add_library(phpext STATIC
     src/env.cpp
     src/exception.cpp
     src/function_entry.cpp
+    src/global.cpp
     src/hash.cpp
     src/ini_entry.cpp
     src/member.cpp
@@ -71,6 +75,7 @@ set_property(TARGET phpext PROPERTY PRIVATE_HEADER
     src/env.h
     src/exception.h
     src/function_entry.h
+    src/global.h
     src/hash.h
     src/ini_entry.h
     src/member.h
@@ -90,26 +95,41 @@ set_property(TARGET phpext PROPERTY PRIVATE_HEADER
 # 库（安装）
 install(TARGETS phpext ARCHIVE PUBLIC_HEADER DESTINATION include/phpext PRIVATE_HEADER DESTINATION include/phpext)
 # ---------------------------------------------------------------------------------------
-# 示例
+# 示例1
 # ---------------------------------------------------------------------------------------
-add_library(example SHARED
-    example/example.cpp)
-target_include_directories(example SYSTEM
-    PUBLIC /data/vendor/boost-1.73/include)
-target_link_libraries(example phpext)
-set_property(TARGET example PROPERTY PREFIX "")
+add_library(example1 SHARED example/example1.cpp)
+target_include_directories(example1 SYSTEM PUBLIC /data/vendor/boost-1.73/include)
+# target_link_libraries(example1 phpext)
+set_property(TARGET example1 PROPERTY PREFIX "")
+# ---------------------------------------------------------------------------------------
+# 示例2
+# ---------------------------------------------------------------------------------------
+add_library(example2 SHARED example/example2.cpp)
+target_include_directories(example2 SYSTEM PUBLIC /data/vendor/boost-1.73/include)
+# target_link_libraries(example2 phpext)
+set_property(TARGET example2 PROPERTY PREFIX "")
+# ---------------------------------------------------------------------------------------
+# 示例3
+# ---------------------------------------------------------------------------------------
+add_library(example3 SHARED example/example3.cpp)
+target_include_directories(example3 SYSTEM PUBLIC /data/vendor/boost-1.73/include)
+# target_link_libraries(example3 phpext)
+set_property(TARGET example3 PROPERTY PREFIX "")
+
 ## 示例（安装）
-add_custom_target(test sudo cp $<TARGET_FILE:example> ${VENDOR_PHP_EXT_DIR}
-    BYPRODUCTS ${VENDOR_PHP_EXT_DIR}/example.so
-    COMMENT "Installing example.so extension (${VENDOR_PHP_EXT_DIR})")
-add_dependencies(test example)
+add_custom_target(test sudo cp $<TARGET_FILE:example1> ${VENDOR_PHP_EXT_DIR}
+    COMMAND sudo cp $<TARGET_FILE:example2> ${VENDOR_PHP_EXT_DIR}
+    COMMAND sudo cp $<TARGET_FILE:example3> ${VENDOR_PHP_EXT_DIR}
+    BYPRODUCTS ${VENDOR_PHP_EXT_DIR}/example1.so ${VENDOR_PHP_EXT_DIR}/example2.so ${VENDOR_PHP_EXT_DIR}/example3.so
+    COMMENT "Installing exampleX.so extension (${VENDOR_PHP_EXT_DIR})")
+add_dependencies(test example1 example2)
 
 # ---------------------------------------------------------------------------------------
 # 预编译
 # ---------------------------------------------------------------------------------------
-if (CMAKE_BUILD_TYPE MATCHES Release) # 似乎 clangd 无法在存在 pch 的情况下正常工作
-    target_precompile_headers(phpext PUBLIC src/vendor.h)
-    target_precompile_headers(example PUBLIC src/phpext.h)
-endif()
+target_precompile_headers(phpext PUBLIC src/vendor.h)
+target_precompile_headers(example1 PUBLIC src/phpext.h)
+target_precompile_headers(example2 PUBLIC src/phpext.h)
+
 
 

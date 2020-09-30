@@ -3,6 +3,8 @@
 #include "conversion.h"
 #include "zend_string.h"
 
+PHPAPI extern char *php_ini_opened_path;
+
 namespace php {
     // 未定义引用
     value env::undefined_value;
@@ -32,6 +34,21 @@ namespace php {
     zend_string* env::key(std::string_view name) {
         return zend_string_init_interned(name.data(), name.size(), true);
     }
+    // 文本常量：路径
+    std::string_view env::path(php::path pn) {
+        static char* current_working_directory = getcwd(nullptr, 0);
+        switch(pn) {
+        case php::path::CURRENT_WORKING_DIRECTORY:
+            return current_working_directory;
+        case php::path::PHP_BINARY_FILE:
+            return PG(php_binary);
+        case php::path::PHP_LOADED_INI_FILE:
+            return php_ini_opened_path;
+        default:
+            return {};
+        }
+    }
+
     // 常量获取
     value& env::c(std::string_view name) {
         zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);

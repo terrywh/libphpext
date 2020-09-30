@@ -1,7 +1,6 @@
 #include "module_entry.h"
 #include "env.h"
 #include "callback.h"
-#include <ext/standard/info.h>
 
 namespace php {
     // 当前实例
@@ -25,11 +24,10 @@ namespace php {
     , name_(name)
     , version_(version)
     , module(0) {
+        // 仅允许单例使用
         self_ = this;
         module_.name = name_.c_str();
         module_.version = version_.c_str();
-        // 仅允许单例使用
-        self_ = this;
         // 基础依赖 (内部使用了对应的部分功能)
         require("standard");
         require("json");
@@ -37,10 +35,10 @@ namespace php {
     }
     // 实际模块地址
     module_entry::operator zend_module_entry*() {
-        static bool repeat = false;
+        static bool repeat_guard = false;
         // 禁止重复使用
-        assert(!repeat);
-        repeat = true;
+        assert(!repeat_guard);
+        repeat_guard = true;
         // (1) 延迟设定依赖及函数表
         module_.deps                  = dependence_;
         module_.functions             = function_;

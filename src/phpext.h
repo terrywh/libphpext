@@ -17,6 +17,7 @@
 #include "env.h"
 #include "exception.h"
 #include "function_entry.h"
+#include "global.h"
 #include "hash.h"
 #include "ini_entry.h"
 #include "member.h"

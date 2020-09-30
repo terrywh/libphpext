@@ -141,10 +141,6 @@ namespace php {
 		const parameters* params_;
 		int index_;
 	};
-	
-
-
-	
 }
 
 #endif // LIBPHPEXT_PARAMETER_H

@@ -15,6 +15,8 @@ namespace php {
         static constexpr type_code_t TYPE_CODE = TYPE_ARRAY;
         // 创建数组
         static value create(std::size_t size = 0);
+        // 归并
+        static void merge(zend_array* target, zend_array* source, bool recursive = false);
         // 数组项查找
         static value& find(const zend_array* a, const value& k);
         // 元素个数

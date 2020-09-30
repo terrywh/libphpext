@@ -8,7 +8,7 @@
 namespace php {
     // 注册
     void callback::do_register(module_entry& module) {
-        module.declare<callback>("_ext_callback_", ZEND_ACC_FINAL) // 禁止继承
+        module.declare<callback>("__callback__", ZEND_ACC_FINAL) // 禁止继承
             .declare<&callback::__construct>(env::key(method_name::__CONSTRUCTOR), {}, {})
             .declare<&callback::__invoke>(env::key(method_name::__INVOKE), {
                     {"argv", false, true, true}
@@ -21,7 +21,7 @@ namespace php {
     }
     // 构造（禁用）
     php::value callback::__construct(php::parameters &params) {
-        throw php::error("Instantiation of 'Closure' is not allowed", -1);
+        throw php::type_error("Instantiation of '__callback__' is not allowed");
     }
     // 实际执行过程
     php::value callback::__invoke(php::parameters &params) {

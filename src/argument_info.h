@@ -26,7 +26,6 @@ namespace php {
 		argument_info(const char* name, const char* class_name, bool nullable = false)
 		: zend_internal_arg_info { name, ZEND_TYPE_INIT_CLASS_CONST(class_name, nullable, false), nullptr } {}
 	};
-
 	// 返回信息
 	class return_info: public zend_internal_arg_info {
 	public:
