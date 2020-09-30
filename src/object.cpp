@@ -1,6 +1,5 @@
 #include "object.h"
 #include "value.h"
-#include "env.h"
 #include "exception.h"
 #include "property.h"
 

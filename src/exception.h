@@ -10,22 +10,8 @@ namespace php {
     class throwable: public std::exception {
     public:
         throwable(zend_object* ex);
-        // 构建 PHP 异常对象
-        // static void init(zval* self, zend_class_entry* ce, std::string_view message, int code = 0);
-        // 空构建
-        // throwable() {
-        //     ZVAL_UNDEF(&value_);
-        // }
-        // 异常编号
-        // const int   code() const noexcept;
         // 标准异常消息输出
         const char* what() const noexcept override;
-        // 隐式转换
-        // operator zval*() const {
-        //     return &value_;
-        // }
-        // 堆栈信息
-        // array& trace() const;
     protected:
         throwable(zend_class_entry* ce, std::string_view message, int code = 0)
         : ce_(ce), message_(message), code_(code) {

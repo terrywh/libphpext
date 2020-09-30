@@ -10,28 +10,25 @@
 
 namespace php {
     class module_entry;
-    // 回调函数
-    using startup_handler = std::function<bool (module_entry&)>;
-    using shutdown_handler = std::function<void (module_entry&)>;
     // 模块启动处理程序
     struct module_startup {
-        module_startup(const startup_handler& h): handler(h) {}
-        startup_handler handler;
+        module_startup(const std::function<bool (module_entry&)>& h): handler(h) {}
+        std::function<bool (module_entry&)> handler;
     };
     // 请求启动处理程序（对应不同模块生命周期阶段）
     struct request_startup {
-        request_startup(const startup_handler& h): handler(h) {}
-        startup_handler handler;
+        request_startup(const std::function<void (module_entry&)>& h): handler(h) {}
+        std::function<void (module_entry&)> handler;
     };
     // 请求终止处理程序（对应不同模块生命周期阶段）
     struct request_shutdown {
-        request_shutdown(const shutdown_handler& h): handler(h) {}
-        shutdown_handler handler;
+        request_shutdown(const std::function<void (module_entry&)>& h): handler(h) {}
+        std::function<void (module_entry&)> handler;
     };
     // 模块终止处理程序（对应不同模块生命周期阶段）
     struct module_shutdown {
-        module_shutdown(const shutdown_handler& h): handler(h) {}
-        shutdown_handler handler;
+        module_shutdown(const std::function<void (module_entry&)>& h): handler(h) {}
+        std::function<void (module_entry&)> handler;
     };
     
     // 模块描述
@@ -58,7 +55,12 @@ namespace php {
         // 正向调用回调
         // 正向调用（调用失败时中断，并返回 false 否则返回 true）
         template <class Handlers>
-        bool invoke_fwd(Handlers& handlers_) {
+        void invoke_fwd(Handlers& handlers_) {
+            for(auto i=handlers_.begin(); i!= handlers_.end(); ++i) {
+                i->handler(*module_entry::self());
+            }
+        }
+        bool invoke_fwd(std::vector<module_startup>& handlers_) {
             for(auto i=handlers_.begin(); i!= handlers_.end(); ++i) {
                 if(! i->handler(*module_entry::self()) ) return false;
             }

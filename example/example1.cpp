@@ -6,7 +6,7 @@ php::value hello(php::parameters& params) {
     php::process_title("hello world");
     // 参数下标必须存在, 否则会抛出异常
     php::value v0 = params[0];
-    return "hello " + static_cast<std::string>(v0); // 常用内部类型双向转换
+    return "hello: " + static_cast<std::string>(v0) + ", from: " + php::runtime::cmd().data(); // 常用内部类型双向转换
 }
 // 引用型参数可改变其值
 php::value plus_5(php::parameters& params) {
@@ -58,7 +58,7 @@ php::value walk(php::parameters& params) {
 }
 // 读取配置
 php::value conf_bytes(php::parameters& params) {
-    return php::env::ini(params[0]).bytes();
+    return php::environ::ini(params[0]).bytes();
 }
 // 访问属性
 php::value property(php::parameters& params) {
@@ -84,18 +84,18 @@ extern "C" {
             .require("date")
             // 模块启动回调
             .on(php::module_startup([] (php::module_entry& module) -> bool {
-                std::cout << "example --> module started" << std::endl;
+                std::cout << "example1 --> module started" << std::endl;
                 return true;
             }))
             .on(php::module_shutdown([] (php::module_entry& module) {
-                std::cout << "example --> module shutdown" << std::endl;
+                std::cout << "example1 --> module shutdown" << std::endl;
             }))
             .on(php::request_startup([] (php::module_entry& module) -> bool {
-                std::cout << "example --> request started" << std::endl;
+                std::cout << "example1 --> request started" << std::endl;
                 return true;
             }))
             .on(php::request_shutdown([] (php::module_entry& module) {
-                std::cout << "example --> request shutdown" << std::endl;
+                std::cout << "example1 --> request shutdown" << std::endl;
             }))
             // 说明信息
             .describe("INFO_LIBPHPEXT_VERSION", LIBPHPEXT_VERSION)

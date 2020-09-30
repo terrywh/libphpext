@@ -3,7 +3,6 @@
 
 #include "vendor.h"
 #include "value_basic.h"
-#include "env.h"
 
 namespace php {
     class member;

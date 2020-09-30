@@ -41,10 +41,9 @@ add_library(phpext STATIC
     src/constant_entry.cpp
     src/conversion.cpp
     src/encoding.cpp
-    src/env.cpp
+    src/environ.cpp
     src/exception.cpp
     src/function_entry.cpp
-    src/global.cpp
     src/hash.cpp
     src/ini_entry.cpp
     src/member.cpp
@@ -53,6 +52,7 @@ add_library(phpext STATIC
     src/parameter.cpp
     src/property.cpp
     src/property_entry.cpp
+    src/runtime.cpp
     src/string.cpp
     src/string_buffer.cpp
     src/string_builder.cpp
@@ -72,10 +72,9 @@ set_property(TARGET phpext PROPERTY PRIVATE_HEADER
     src/conversion.h
     src/dependence.h
     src/encoding.h
-    src/env.h
+    src/environ.h
     src/exception.h
     src/function_entry.h
-    src/global.h
     src/hash.h
     src/ini_entry.h
     src/member.h
@@ -84,6 +83,7 @@ set_property(TARGET phpext PROPERTY PRIVATE_HEADER
     src/parameter.h
     src/property.h
     src/property_entry.h
+    src/runtime.h
     src/string.h
     src/string_buffer.h
     src/string_builder.h
@@ -99,21 +99,20 @@ install(TARGETS phpext ARCHIVE PUBLIC_HEADER DESTINATION include/phpext PRIVATE_
 # ---------------------------------------------------------------------------------------
 add_library(example1 SHARED example/example1.cpp)
 target_include_directories(example1 SYSTEM PUBLIC /data/vendor/boost-1.73/include)
-# target_link_libraries(example1 phpext)
+target_link_libraries(example1 phpext)
 set_property(TARGET example1 PROPERTY PREFIX "")
 # ---------------------------------------------------------------------------------------
 # 示例2
 # ---------------------------------------------------------------------------------------
 add_library(example2 SHARED example/example2.cpp)
 target_include_directories(example2 SYSTEM PUBLIC /data/vendor/boost-1.73/include)
-# target_link_libraries(example2 phpext)
+target_link_libraries(example2 phpext)
 set_property(TARGET example2 PROPERTY PREFIX "")
 # ---------------------------------------------------------------------------------------
 # 示例3
 # ---------------------------------------------------------------------------------------
 add_library(example3 SHARED example/example3.cpp)
 target_include_directories(example3 SYSTEM PUBLIC /data/vendor/boost-1.73/include)
-# target_link_libraries(example3 phpext)
 set_property(TARGET example3 PROPERTY PREFIX "")
 
 ## 示例（安装）

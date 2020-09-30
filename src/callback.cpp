@@ -1,5 +1,5 @@
 #include "callback.h"
-#include "env.h"
+#include "environ.h"
 #include "module_entry.h"
 #include "value.h"
 #include "parameter.h"
@@ -9,8 +9,8 @@ namespace php {
     // 注册
     void callback::do_register(module_entry& module) {
         module.declare<callback>("__callback__", ZEND_ACC_FINAL) // 禁止继承
-            .declare<&callback::__construct>(env::key(method_name::__CONSTRUCTOR), {}, {})
-            .declare<&callback::__invoke>(env::key(method_name::__INVOKE), {
+            .declare<&callback::__construct>(environ::key(method_name::__CONSTRUCTOR), {}, {})
+            .declare<&callback::__invoke>(environ::key(method_name::__INVOKE), {
                     {"argv", false, true, true}
             }, {TYPE_MIXED});
     }

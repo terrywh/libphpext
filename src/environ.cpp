@@ -1,13 +1,13 @@
-#include "env.h"
+#include "environ.h"
 #include "value.h"
 #include "conversion.h"
-#include "zend_string.h"
+#include "array.h"
+#include "array_iterator.h"
+#include <sstream>
 
 PHPAPI extern char *php_ini_opened_path;
 
 namespace php {
-    // 未定义引用
-    value env::undefined_value;
     // 文本常量：方法名称
     static const char* method_name_cstr[] = {
         ZEND_CLONE_FUNC_NAME,
@@ -27,56 +27,36 @@ namespace php {
     // 文本数据：方法名称
     static zend_string* method_name_zstr[static_cast<int>(method_name::METHOD_NAME_MAX)];
     // 文本常量：方法名称
-    zend_string* env::key(method_name mn) {
+    zend_string* environ::key(method_name mn) {
         return method_name_zstr[ static_cast<int>(mn) ];
     }
     // 文本常量：类名（属性名、方法名、类名等，也可考虑在声明时设置引用获取）
-    zend_string* env::key(std::string_view name) {
+    zend_string* environ::key(std::string_view name) {
         return zend_string_init_interned(name.data(), name.size(), true);
     }
-    // 文本常量：路径
-    std::string_view env::path(php::path pn) {
-        static char* current_working_directory = getcwd(nullptr, 0);
-        switch(pn) {
-        case php::path::CURRENT_WORKING_DIRECTORY:
-            return current_working_directory;
-        case php::path::PHP_BINARY_FILE:
-            return PG(php_binary);
-        case php::path::PHP_LOADED_INI_FILE:
-            return php_ini_opened_path;
-        default:
-            return {};
-        }
-    }
-
-    // 常量获取
-    value& env::c(std::string_view name) {
-        zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
-        return *reinterpret_cast<value*>(zend_get_constant(zn));
-    }
     // 待读取 ini 项
-    env::ini::ini(std::string_view name)
+    environ::ini::ini(std::string_view name)
     : entry_(reinterpret_cast<zend_ini_entry*>(
         zend_hash_str_find_ptr(EG(ini_directives), name.data(), name.size())
     )) {}
 
-    env::ini::operator std::int64_t() const {
+    environ::ini::operator std::int64_t() const {
         return entry_ ? zend_strtod(ZSTR_VAL(entry_->value), nullptr) : 0;
     }
-    env::ini::operator std::size_t() const {
+    environ::ini::operator std::size_t() const {
         return entry_ ? std::strtoul(ZSTR_VAL(entry_->value), nullptr, 10) : 0;
     }
-    env::ini::operator value() const {
+    environ::ini::operator value() const {
         return entry_ ? value(entry_->value) : value(nullptr);
     }
-    env::ini::operator std::string() const {
+    environ::ini::operator std::string() const {
         return entry_ ? std::string(ZSTR_VAL(entry_->value), ZSTR_LEN(entry_->value)) : std::string();
     }
-    std::int64_t env::ini::bytes() const {
+    int64_t environ::ini::bytes() const {
         return entry_? to_bytes({ZSTR_VAL(entry_->value), ZSTR_LEN(entry_->value)}) : 0;
     }
     // 环境初始化
-    void env::init() {
+    void environ::init() {
         for(int i = 0; i < static_cast<int>(method_name::METHOD_NAME_MAX); ++i) {
             method_name_zstr[i] = zend_string_init_interned(method_name_cstr[i], std::strlen(method_name_cstr[i]), true);
         }

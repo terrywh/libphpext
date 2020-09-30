@@ -1,6 +1,6 @@
 #include "array_iterator.h"
 #include "value.h"
-#include "env.h"
+#include "runtime.h"
 
 namespace php {
     // 构建：引用空数据
@@ -66,7 +66,7 @@ namespace php {
         }
         else {
             entry_ = reinterpret_cast<entry_type*>pemalloc(sizeof(entry_type), false);
-            entry_ = new (entry_) entry_type(nullptr, env::undefined_value);
+            entry_ = new (entry_) entry_type(nullptr, runtime::undefined_value);
             pos_ = self_->nNumUsed; // 结束标记
         }
     }

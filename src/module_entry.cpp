@@ -1,5 +1,6 @@
 #include "module_entry.h"
-#include "env.h"
+#include "environ.h"
+#include "runtime.h"
 #include "callback.h"
 
 namespace php {
@@ -48,7 +49,8 @@ namespace php {
     // PHP 回调：模块启动
     zend_result module_entry::on_module_startup  (int type, int module) {
         self()->module = module;
-        env::init(); // 环境相关初始化
+        // 环境相关初始化
+        environ::init();
         // 配置 ini 项
         zend_register_ini_entries(self()->ini_, module);
         // 注册 常量
@@ -64,8 +66,10 @@ namespace php {
     }
     // PHP 回调：请求启动
     zend_result module_entry::on_request_startup (int type, int module) {
-        if(!self()->invoke_fwd(self()->request_startup_handler_)) 
-            return FAILURE;
+        // 运行时相关初始化
+        runtime::init();
+        // 
+        self()->invoke_fwd(self()->request_startup_handler_);
         return SUCCESS;
     }
     // PHP 回调：请求终止

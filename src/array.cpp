@@ -1,6 +1,5 @@
 #include "array.h"
 #include "array_iterator.h"
-#include "env.h"
 #include "exception.h"
 #include "value.h"
 
