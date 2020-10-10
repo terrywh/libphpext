@@ -25,14 +25,15 @@ namespace php {
             return {};
         }
     }
-    static std::string cmd_;
+    static std::vector<const char*> argv_;
     // 文本常量：命令行
-    std::string_view runtime::cmd() {
-        return cmd_;
+    std::vector<const char*>& runtime::argv() {
+        return argv_;
     }
     // 变量获取
     value& runtime::g(std::string_view name) {
-        return php::array::find(&EG(symbol_table), php::string::create(name, false));
+        zval* v = zend_hash_str_find(&EG(symbol_table), name.data(), name.size());
+        return v ? *reinterpret_cast<value*>(v) : runtime::undefined_value;
     }
     // 常量获取
     value& runtime::c(std::string_view name) {
@@ -42,14 +43,18 @@ namespace php {
     // 环境初始化
     void runtime::init() {
         current_working_directory = getcwd(nullptr, 0);
-
-        std::ostringstream ss;
-        ss << runtime::path(path::PHP_BINARY_FILE);
-        for(int i=1;i<SG(request_info).argc;++i)
-        // auto& args = reinterpret_cast<value*>(&PG(http_globals)[TRACK_VARS_SERVER])->as<php::array>();
-        // ss << " -c " << php::env::path(php::path::PHP_LOADED_INI_FILE);
-        // for (auto arg : args)
-            ss << " " << SG(request_info).argv[i];
-        cmd_ = ss.str();
+        // 方法1：(不含 PHP 内置参数)
+        // php::value& argv = *reinterpret_cast<php::value*>(
+        //     zend_hash_find_ex_ind(&EG(symbol_table), ZSTR_KNOWN(ZEND_STR_ARGV), 1));
+        // ss << argv;
+        // 方法2：(不含 PHP 内置参数)
+        // for(int i=1;i<SG(request_info).argc;++i)
+        //     ss << " " << SG(request_info).argv[i];
+        // 方法3：(可获得所有参数)
+        // 参见：php_cli.c 文件 912 / 1286 行
+        int first = 0;
+        while(std::strcmp(sapi_module.executable_location, SG(request_info).argv[first]) != 0) --first;
+        argv_.resize(SG(request_info).argc - first);
+        memcpy(argv_.data(), &SG(request_info).argv[first], argv_.size() * sizeof(char*));
     }
 }

@@ -2,6 +2,7 @@
 #include "array_iterator.h"
 #include "exception.h"
 #include "value.h"
+#include "runtime.h"
 
 namespace php {
     // 创建数组
@@ -12,26 +13,26 @@ namespace php {
 		zend_hash_init(a, size, nullptr, ZVAL_PTR_DTOR, 0);
 		return value(a, false);
     }
-    // 查找的内部实现
-    static zval* find_ex(const zend_array* a, const zval* k) {
-        switch (zval_get_type(k)) {
-        case TYPE_STRING: // 内部（可能）存在 hash 缓存
-            return zend_hash_find(a, Z_STR_P(k));
-        case TYPE_INTEGER:
-            return zend_hash_index_find(a, Z_LVAL_P(k));
-        default:
-            throw type_error("Only Int or String can be used as Array indices", -1); // 不支持的类型
-        }
-    }
+    
     // 归并
     void array::merge(zend_array* target, zend_array* source, bool recursive) {
         if(recursive) php_array_merge_recursive(target, source);
         else php_array_merge(target, source);
     }
     // 数组项查找
-    value& array::find(const zend_array* a, const value& k) {
-        return *reinterpret_cast<value*>(find_ex(a, static_cast<zval*>(k)));
+    zval* array::find(const zend_array* a, const zval* k) {
+        zval* v;
+        switch (zval_get_type(k)) {
+        case TYPE_STRING: // 内部（可能）存在 hash 缓存
+            v = zend_hash_find(a, Z_STR_P(k));
+        case TYPE_INTEGER:
+            v = zend_hash_index_find(a, Z_LVAL_P(k));
+        default:
+            throw type_error("Only Int or String can be used as Array indices", -1); // 不支持的类型
+        }
+        return v;
     }
+    
     // 数组元素访问（引用，可能返回 undefined 值）
     value array::get(int idx) const {
         zval* v = zend_hash_index_find(this, idx);
@@ -52,8 +53,8 @@ namespace php {
     }
     // 数组元素访问（引用，可能返回 undefined 值）
     value array::get(const value& key) const {
-        zval* v = find_ex(this, key);
-        return v ? *reinterpret_cast<value*>(v) : value();
+        zval* v = find(this, key);
+        return v ? *reinterpret_cast<value*>(v): value();
     }
     // 数组元素设置
     void array::set(std::uint64_t idx, const value& val) {
@@ -95,7 +96,7 @@ namespace php {
     }
     // 数组元素访问（不存在时创建）
     value& array::operator [](const value& key) { // array_set_zval_key
-        zval* v = find_ex(this, key);
+        zval* v = find(this, key);
         if(v == nullptr) // 不存在 -> 创建
             v = key.is(TYPE_STRING)
                     ? zend_symtable_update(this, key, &EG(uninitialized_zval))
@@ -104,11 +105,7 @@ namespace php {
     }
     // 检查指定 KEY 是否存在
     bool array::contains(const value& key) const {
-        if(key.is(TYPE_STRING)) // 内部（可能）存在 hash 缓存
-            return zend_hash_exists(this, key);
-        else if(key.is(TYPE_INTEGER))
-            return zend_hash_index_exists(this, key);
-        else throw type_error("Only Int or String can be used as Array indices", -1); // 不支持的类型
+        return find(this, key) != nullptr;
     }
     // 追加元素
     void array::append(const value& val) {

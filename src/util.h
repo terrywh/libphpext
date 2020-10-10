@@ -21,6 +21,10 @@ namespace php {
     inline std::size_t memory_usage(bool r = false) {
         return zend_memory_usage(r); // r == true 时包含已分配但还未使用的部分
     }
+    // 当前用户
+    inline std::string_view current_user() {
+        return {php_get_current_user(), SG(request_info).current_user_length};
+    }
 }
 
 #endif // LIBPHPEXT_UTIL_H

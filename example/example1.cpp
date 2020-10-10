@@ -4,9 +4,8 @@
 // 所有导出到 PHP 的函数必须符合下面形式：
 php::value hello(php::parameters& params) {
     php::process_title("hello world");
-    // 参数下标必须存在, 否则会抛出异常
-    php::value v0 = params[0];
-    return "hello: " + static_cast<std::string>(v0) + ", from: " + php::runtime::cmd().data(); // 常用内部类型双向转换
+    std::string user { php::current_user() };
+    return "hello: " + user + ", from: " + php::runtime::argv()[0]; // 常用内部类型双向转换
 }
 // 引用型参数可改变其值
 php::value plus_5(php::parameters& params) {
@@ -107,9 +106,7 @@ extern "C" {
             .define("CPP_CONSTANT_1", "123456") // 字符串
             .define("CPP_CONSTANT_2", 123456) // 数值
             // 声明函数
-            .declare<hello>("cpp_hello", {
-                {"s1", php::TYPE_STRING} // 接受一个字符串参数
-            }, {php::TYPE_STRING}) // 返回字符串
+            .declare<hello>("cpp_hello", {php::TYPE_STRING}) // 返回字符串
             .declare<plus_5>("cpp_plus_5", {
                 {"i1", php::TYPE_INTEGER, true} // 接受一个整数参数
             }, {php::TYPE_INTEGER}) // 返回一个整数

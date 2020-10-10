@@ -3,9 +3,7 @@
 var_dump(CPP_CONSTANT_1, CPP_CONSTANT_2);
 // 一般函数
 echo "--> hello:\n";
-$w = "world";
-echo cpp_hello("world"), "\n";
-echo cpp_hello($w), "\n";
+echo cpp_hello(), "\n";
 // 引用参数
 echo "--> reference:\n";
 $x = 5;
@@ -20,7 +18,7 @@ echo cpp_invoke(function($who) {
 }), "\n";
 // 数组（遍历）
 echo "--> array walk:\n";
-echo cpp_walk(["a"=>1, "b" => $w, "c" => 3.0, "d" => new DateTime()]), "\n";
+echo cpp_walk(["a"=>1, "b" => "world", "c" => 3.0, "d" => new DateTime()]), "\n";
 // 配置
 echo "--> ini entry:\n";
 var_dump(ini_get("example.hello"), ini_get("example.size"));

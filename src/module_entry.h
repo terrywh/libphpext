@@ -131,8 +131,7 @@ namespace php {
         }
         // 函数（注意，由于实际指针数据等由对应对象持有，需要原始指针地址）
         template <value fn(parameters& params)>
-        module_entry& declare(std::string_view name, std::initializer_list<argument_info> pi,
-                return_info&& ri) {
+        module_entry& declare(std::string_view name, std::initializer_list<argument_info> pi, return_info&& ri) {
             zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
             function_.append({ function_entry::function<fn>, zn, std::move(ri), std::move(pi) });
             return *this;
@@ -141,6 +140,11 @@ namespace php {
         template <value fn(parameters& params)>
         module_entry& declare(std::string_view name, std::initializer_list<argument_info> pi) {
             return declare<fn>(name, std::move(pi), return_info());
+        }
+        // 函数
+        template <value fn(parameters& params)>
+        module_entry& declare(std::string_view name, return_info&& ri) {
+            return declare<fn>(name, {}, std::move(ri));
         }
         // 函数
         template <value fn(parameters& params)>

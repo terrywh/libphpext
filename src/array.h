@@ -18,7 +18,7 @@ namespace php {
         // 归并
         static void merge(zend_array* target, zend_array* source, bool recursive = false);
         // 数组项查找
-        static value& find(const zend_array* a, const value& k);
+        static zval* find(const zend_array* a, const zval* k);
         // 元素个数
         inline std::size_t size() {
             return nNumOfElements;

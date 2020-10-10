@@ -19,6 +19,7 @@ endif()
 
 ## PHP
 set(VENDOR_PHP /data/server/php-8.0 CACHE PATH "[dep] https://www.php.net/")
+# set(VENDOR_PHP /data/server/php-7.4 CACHE PATH "[dep] https://www.php.net/")
 execute_process(COMMAND ${VENDOR_PHP}/bin/php-config --includes
     COMMAND sed "s/ *-I/;/g"
     OUTPUT_VARIABLE VENDOR_PHP_INC_DIR
@@ -98,23 +99,19 @@ install(TARGETS phpext ARCHIVE PUBLIC_HEADER DESTINATION include/phpext PRIVATE_
 # 示例1
 # ---------------------------------------------------------------------------------------
 add_library(example1 SHARED example/example1.cpp)
-target_include_directories(example1 SYSTEM PUBLIC /data/vendor/boost-1.73/include)
 target_link_libraries(example1 phpext)
 set_property(TARGET example1 PROPERTY PREFIX "")
 # ---------------------------------------------------------------------------------------
 # 示例2
 # ---------------------------------------------------------------------------------------
 add_library(example2 SHARED example/example2.cpp)
-target_include_directories(example2 SYSTEM PUBLIC /data/vendor/boost-1.73/include)
 target_link_libraries(example2 phpext)
 set_property(TARGET example2 PROPERTY PREFIX "")
 # ---------------------------------------------------------------------------------------
 # 示例3
 # ---------------------------------------------------------------------------------------
-add_library(example3 SHARED example/example3.cpp)
-target_include_directories(example3 SYSTEM PUBLIC /data/vendor/boost-1.73/include)
+add_library(example3 SHARED example/example3.c)
 set_property(TARGET example3 PROPERTY PREFIX "")
-
 ## 示例（安装）
 add_custom_target(test sudo cp $<TARGET_FILE:example1> ${VENDOR_PHP_EXT_DIR}
     COMMAND sudo cp $<TARGET_FILE:example2> ${VENDOR_PHP_EXT_DIR}

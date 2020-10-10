@@ -152,13 +152,13 @@ namespace php {
         // 类特征 (成为一个特征）
         class_entry& attribute() {
             zend_string* name = zend_string_init_interned("Attribute",sizeof("Attribute")-1, true);
-            zend_add_attribute(&cattr_, true, 0, name, 0);
+            zend_add_attribute(&cattr_, name, 0, 0, 0, 0);
             return *this;
         }
         // 类特征
         class_entry& attribute(std::string_view name, std::vector<value> argv) {
             zend_string* zn = zend_string_init(name.data(), name.size(), true);
-            zend_attribute* attr = zend_add_attribute(&cattr_, true, 0, zn, argv.size());
+            zend_attribute* attr = zend_add_attribute(&cattr_, zn, argv.size(), 0, 0, 0);
             // TODO 参考 attribute 可能的实例，重新调整下属逻辑
             // 简单测试，似乎需要 INTERNED / CONSTANT 字符数据才可以进行 ATTRIBUTE 参数设置
             for(int i=0;i<argv.size();++i) {
@@ -230,13 +230,17 @@ namespace php {
         }
         // 声明（普通成员）方法
         template <value (T::*METHOD)(parameters& params) >
+        class_entry& declare(std::string_view name, return_info&& ri) {
+            return declare<METHOD>(name, {}, std::move(ri));
+        }
+        // 声明（普通成员）方法
+        template <value (T::*METHOD)(parameters& params) >
         class_entry& declare(std::string_view name) {
             return declare<METHOD>(name, {}, {});
         }
         // 声明（静态成员）方法
         template <value STATIC_METHOD(parameters& params) >
-        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi,
-                             return_info&& ri) {
+        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi, return_info&& ri) {
             zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
             method_.append({function_entry::function<STATIC_METHOD>, zn, std::move(ri), std::move(pi)},
                     ZEND_ACC_PUBLIC | ZEND_ACC_STATIC);
@@ -246,6 +250,11 @@ namespace php {
         template <value STATIC_METHOD(parameters& params) >
         class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi) {
             return declare(name, std::move(pi), {});
+        }
+        // 声明（普通成员）方法
+        template <value STATIC_METHOD(parameters& params) >
+        class_entry& declare(std::string_view name, return_info&& ri) {
+            return declare(name, {}, std::move(ri));
         }
         // 声明（普通成员）方法
         template <value STATIC_METHOD(parameters& params) >

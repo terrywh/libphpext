@@ -18,7 +18,7 @@ namespace php {
         // 文本常量：路径
         static std::string_view path(path pn);
         // 文本常量：命令行
-        static std::string_view cmd();
+        static std::vector<const char*>& argv();
         // 常量获取
         static value& c(std::string_view name);
         // 变量获取
