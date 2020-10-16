@@ -2,21 +2,31 @@
 #define LIBPHPEXT_CLASS_ENTRY_H
 
 #include "vendor.h"
+#include "attribute_entry.h"
 #include "object.h"
 #include "constant_entry.h"
-#include "argument_info.h"
 #include "parameter.h"
 #include "exception.h"
 #include "property_entry.h"
 #include "function_entry.h"
-#include "member.h"
 
 namespace php {
+    template <typename T1, typename T2>
+    constexpr int offset_of(T1 T2::* m) {
+        T2 x {};
+        return size_t(&(x.*m)) - size_t(&x);
+    }
+
+    using constant = constant_entry;
+    using attribute = attribute_entry;
+    using interface_entry = zend_class_entry**;
+    using implement = interface_entry;
     // 类定义（父类，用于容器存储）
     class class_entry_basic {
     private:
         // 多态注册过程 -> register_class_entry()
         virtual void do_register(int module) = 0;
+        static void do_register(std::vector<class_entry_basic*> entry, int module);
     public:
 
         // 通用注册函数
@@ -27,30 +37,29 @@ namespace php {
         static void method(zend_execute_data* execute_data, zval* return_value);
         // 虚基类析构
         virtual ~class_entry_basic() {}
-
         friend class module_entry;
     };
     // 类注册定义实现
     template <class T>
     class class_entry: public class_entry_basic {
     private:
-        static zend_class_entry*         entry_;
-        static zend_object_handlers    handler_;
+        static zend_class_entry*          entry_;
+        static zend_object_handlers     handler_;
 
-        zend_string*                     cname_; // 名称
-        std::uint32_t                    cflag_; // 标记
-        std::vector<zend_class_entry**>  iface_; // 接口
-        zend_array*                      cattr_; // 特征
-        std::vector<constant_entry>   constant_; // 常量
-        std::vector<property_entry>   property_; // 属性
-        function_entries                method_; // 方法
+        zend_string*                      cname_; // 名称
+        std::uint32_t                     cflag_; // 标记
+        std::vector<zend_class_entry**>   iface_; // 接口
+        zend_array*                       cattr_; // 特征
+        std::vector<constant_entry>    constant_; // 常量
+        std::vector<property_entry>    property_; // 属性
+        std::vector<zend_function_entry> method_; // 方法
         // 实际创建的对象形式
         struct class_memory_t {
             T           cpp;
             zend_object obj; // 注意 obj 会超量分配和访问（故须放置在末尾）
         };
         // 同步 C++ 中的成员引用
-        static void sync_member(class_memory_t* m) {
+        static void sync_property_refer(class_memory_t* m) {
             void *i;
             ZEND_HASH_FOREACH_PTR(&m->obj.ce->properties_info, i) {
                 zend_property_info* info = reinterpret_cast<zend_property_info*>(i);
@@ -60,12 +69,12 @@ namespace php {
                 std::size_t offset;
                 std::memcpy(&offset, &info->doc_comment->val[8], sizeof(std::size_t));
 
-                member* v = reinterpret_cast<member*>( (char*)&m->cpp + offset );
+                property_refer* v = reinterpret_cast<property_refer*>( (char*)&m->cpp + offset );
                 zval*   p = OBJ_PROP(&m->obj, info->offset);
                 // 参考 object_properties_init_ex 对属性的初始化过程
                 // 已声明的属性实际位于 obj.property_table 中，在 obj.properties 数组（哈系表）中存在 INDIRECT 引用
                 // 所以，其实际位置在对象生存周期内不会改变
-                member_traits::pointer(v, p);
+                property_refer_traits::pointer(v, p);
             } ZEND_HASH_FOREACH_END();
         }
         // handler:
@@ -80,7 +89,7 @@ namespace php {
             m->obj.handlers = &handler_;
             // CPP 对象初始化
             (new (&m->cpp) T());
-            sync_member(m); // 同步 C++ 成员
+            sync_property_refer(m); // 同步 C++ 成员
             return &m->obj;
         }
         // handler:
@@ -112,13 +121,13 @@ namespace php {
             // 复制 C++ 对象（使用拷贝构造）
             class_memory_t* m = reinterpret_cast<class_memory_t*>( reinterpret_cast<char*>(obj) - handler_.offset );
             new (&m->cpp) T(m->cpp);
-            sync_member(m); // 同步 C++ 成员
+            sync_property_refer(m); // 同步 C++ 成员
             return &n->obj;
         }
     public:
         // 用于继承（扩展）实现
-        static zend_class_entry* entry() {
-            return entry_;
+        static zend_class_entry** entry() {
+            return &entry_;
         }
         // obj -> cpp
         static inline T* native(zend_object* obj) {
@@ -144,123 +153,37 @@ namespace php {
             else
                 handler_.clone_obj = nullptr;
         }
+        // 元数据
+        // 可使用 attribute(...) 构建
+        class_entry& operator -(attribute_entry a) {
+            a.finalize(&cattr_);
+            return *this;
+        }
+        
         // 实现接口（注意二级指针，在构建时实际获取 class_entry 的指针指向，否则可能还未初始化）
-        class_entry& implements(zend_class_entry** pce) {
+        // 可使用 implement(...) 构建
+        class_entry& operator -(interface_entry pce) {
             iface_.push_back(pce);
             return *this;
         }
-        // 类特征 (成为一个特征）
-        class_entry& attribute() {
-            zend_string* name = zend_string_init_interned("Attribute",sizeof("Attribute")-1, true);
-            zend_add_attribute(&cattr_, name, 0, 0, 0, 0);
+        // 类常量
+        class_entry& operator-(constant c) {
+            constant_.push_back(std::move(c));
             return *this;
         }
-        // 类特征
-        class_entry& attribute(std::string_view name, std::vector<value> argv) {
-            zend_string* zn = zend_string_init(name.data(), name.size(), true);
-            zend_attribute* attr = zend_add_attribute(&cattr_, zn, argv.size(), 0, 0, 0);
-            // TODO 参考 attribute 可能的实例，重新调整下属逻辑
-            // 简单测试，似乎需要 INTERNED / CONSTANT 字符数据才可以进行 ATTRIBUTE 参数设置
-            for(int i=0;i<argv.size();++i) {
-                if(argv[i].is(TYPE_STRING))
-                    ZVAL_INTERNED_STR(&attr->args[i].value, zend_new_interned_string(zend_string_dup(argv[i], true)));
-                else
-                    ZVAL_COPY_VALUE(&attr->args[i].value, argv[i]);
-            }
+        // 类属性
+        // 可使用 prop(...) 或 static_prop(...) 构建
+        class_entry& operator-(property_entry p) {
+            property_.push_back(std::move(p));
             return *this;
         }
-        // 定义常量
-        class_entry& define(std::string_view name, const php::value& data, std::string_view comment) {
-            zend_string* n = zend_string_init_interned(name.data(), name.size(), true), *c = nullptr;
-            if(!comment.empty())
-                c = zend_string_init(comment.data(), comment.size(), true);
-            constant_.push_back({n, data, c});
-            return *this;
-        }
-        // 定义常量
-        class_entry& define(std::string_view name, const php::value& data) {
-            zend_string* n = zend_string_init_interned(name.data(), name.size(), true), *c = nullptr;
-            constant_.push_back({n, data, nullptr});
-            return *this;
-        }
-        // 定义属性
-        class_entry& declare(std::string_view name, const php::value& data, std::string_view comment,
-                bool is_static = false) {
-            zend_string* n = zend_string_init_interned(name.data(), name.size(), true), *c = nullptr;
-            if(!comment.empty())
-                c = zend_string_init(comment.data(), comment.size(), true);
-            property_.push_back({n, data,
-                 static_cast<std::uint32_t>(is_static ? (ZEND_ACC_STATIC | ZEND_ACC_PUBLIC) : ZEND_ACC_PUBLIC), c});
-            return *this;
-        }
-        // 定义属性
-        class_entry& declare(std::string_view name, const php::value& data, bool is_static = false) {
-            return declare(name, data, std::string_view(), is_static); // 不能使用 {} 代替 string_view 显式初始化，可能导致重载调用错误
-        }
-        // 定义属性（同步属性, 请使用宏或 offsetof 进行定义）
-        // @see https://en.cppreference.com/w/cpp/types/offsetof
-        class_entry& declare(std::string_view name, const php::value& data, member T::*prop, std::size_t offset) {
-            zend_string* n = zend_string_init_interned(name.data(), name.size(), true), *c = nullptr;
-            // 注意 _:sync_ 作为特殊标记识别同步型属性，用户注释使用此内容可能出现异常
-            c = zend_string_init("_:sync_\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 8 + sizeof(std::size_t), true);
-            std::memcpy(&c->val[8], &offset, sizeof(std::size_t));
-            property_.push_back({n, data, ZEND_ACC_PUBLIC, c});
+        // 声明方法
+        // 使用 static_method<...>(...) 或 method<...>(...) 生成
+        class_entry& operator -(zend_function_entry f) {
+            method_.push_back(f);
             return *this;
         }
 
-        // 声明（普通成员）方法
-        template <value (T::*METHOD)(parameters& params) >
-        class_entry& declare(zend_string* name, std::initializer_list<argument_info> pi, return_info&& ri) {
-            std::uint32_t flag = ZEND_ACC_PUBLIC;
-            if(strncmp(name->val, ZEND_CONSTRUCTOR_FUNC_NAME, sizeof(ZEND_CONSTRUCTOR_FUNC_NAME)) == 0)
-                flag |= ZEND_ACC_CTOR;
-            method_.append({ class_entry_basic::method<T, METHOD>, name, std::move(ri), std::move(pi)},
-                    flag);
-            return *this;
-        }
-        // 声明（普通成员）方法
-        template <value (T::*METHOD)(parameters& params) >
-        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi, return_info&& ri) {
-            return declare<METHOD>(zend_string_init_interned(name.data(), name.size(), true), std::move(pi), std::move(ri));
-        }
-        // 声明（普通成员）方法
-        template <value (T::*METHOD)(parameters& params) >
-        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi) {
-            return declare<METHOD>(name, std::move(pi), {});
-        }
-        // 声明（普通成员）方法
-        template <value (T::*METHOD)(parameters& params) >
-        class_entry& declare(std::string_view name, return_info&& ri) {
-            return declare<METHOD>(name, {}, std::move(ri));
-        }
-        // 声明（普通成员）方法
-        template <value (T::*METHOD)(parameters& params) >
-        class_entry& declare(std::string_view name) {
-            return declare<METHOD>(name, {}, {});
-        }
-        // 声明（静态成员）方法
-        template <value STATIC_METHOD(parameters& params) >
-        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi, return_info&& ri) {
-            zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
-            method_.append({function_entry::function<STATIC_METHOD>, zn, std::move(ri), std::move(pi)},
-                    ZEND_ACC_PUBLIC | ZEND_ACC_STATIC);
-            return *this;
-        }
-        // 声明（普通成员）方法
-        template <value STATIC_METHOD(parameters& params) >
-        class_entry& declare(std::string_view name, std::initializer_list<argument_info> pi) {
-            return declare(name, std::move(pi), {});
-        }
-        // 声明（普通成员）方法
-        template <value STATIC_METHOD(parameters& params) >
-        class_entry& declare(std::string_view name, return_info&& ri) {
-            return declare(name, {}, std::move(ri));
-        }
-        // 声明（普通成员）方法
-        template <value STATIC_METHOD(parameters& params) >
-        class_entry& declare(std::string_view name) {
-            return declare(name, {}, {});
-        }
         // 执行注册
         void do_register(int module) override {
             return class_entry_basic::register_class_entry<T>(module, this);
@@ -278,7 +201,8 @@ namespace php {
         zend_class_entry ce, *pce;
         memset(&ce, 0, sizeof(zend_class_entry));
 		ce.name = e->cname_;
-		ce.info.internal.builtin_functions = e->method_;
+        ce.info.internal.builtin_functions = e->method_.data();
+		ce.info.internal.builtin_functions = function_entry::finalize(e->method_);
         ce.create_object = class_entry<T>::create_object;
         // 注册过程调用 zend_initialize_class_data() 会重置部分设置
         pce = class_entry<T>::entry_ = zend_register_internal_class(&ce);
@@ -288,15 +212,12 @@ namespace php {
         for(auto& f : e->iface_) // 接口实现
             zend_do_implement_interface(pce, *f);
         e->iface_.clear();
-        for(auto& c : e->constant_) // 常量注册
-            zend_declare_class_constant_ex(pce, c.name, &c.value, ZEND_ACC_PUBLIC, c.comment);
-        e->constant_.clear();
-        for(auto& p : e->property_) // 属性注册
-            zend_declare_property_ex(pce, p.name, &p.value, p.v, p.comment);
-        e->property_.clear();
+        constant_entry::do_register(e->constant_, pce); // 常量注册
+        property_entry::do_register(e->property_, pce); // 属性注册
     }
+
     // 对象方法代理
-    template <class T, value (T::*FUNCTION)(parameters& params)>
+    template <class T, value (T::*M)(parameters& params)>
     void class_entry_basic::method(zend_execute_data* execute_data, zval* return_value) {
         parameters params(execute_data);
         value& rv = *reinterpret_cast<value*>(return_value);
@@ -306,7 +227,7 @@ namespace php {
                                 + std::to_string(execute_data->func->common.required_num_args) + " parameter(s), "
                                 + std::to_string(ZEND_NUM_ARGS()) + " given");
             }
-            rv = ( static_cast<T*>(class_entry<T>::native( Z_OBJ_P(getThis()) ))->*FUNCTION )(params);
+            rv = (static_cast<T*>( class_entry<T>::native(Z_OBJ_P(getThis())) )->*M)(params);
         }
         catch (const throwable& e) {
             php_rethrow(e);

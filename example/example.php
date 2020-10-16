@@ -34,8 +34,7 @@ var_dump(cpp_example::CONST_1);
 // 对象
 echo "--> class object\n";
 $x = new cpp_example();
-$y = new cpp_example2();
-var_dump($x, $y);
+var_dump($x);
 // 方法
 echo "--> method:\n";
 echo $x->hello("world"), "\n"; // 普通成员方法
@@ -49,19 +48,19 @@ var_dump($x->prop3); // 同步属性
 echo "--> attribute:\n";
 #[Attribute]
 class dummy {
-    function __construct($name, $data) {
-        echo $name, " ", $data, "\n";
+    function __construct($data) {
+        echo $data, "\n";
     }
 }
-#[dummy("POST", "/hello")]
-class example {}
 
-#[cpp_attribute("GET", "/hello")]
 #[dummy("hello")]
+#[cpp_attribute("GET", "/hello")]
 function hello() {
     $r = new ReflectionFunction("hello");
+    $r->getAttributes("dummy")[0]->newInstance();
     $r->getAttributes("cpp_attribute")[0]->newInstance();
 }
 hello();
+
 $r = new ReflectionClass("cpp_example");
 $r->getAttributes("cpp_attribute")[0]->newInstance();

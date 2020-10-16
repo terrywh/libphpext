@@ -1,7 +1,7 @@
 #include "object.h"
 #include "value.h"
 #include "exception.h"
-#include "property.h"
+#include "property_value.h"
 
 namespace php {
     // 创建制定名称的对象实例，并调用其 PHP 构造函数 (无参)
@@ -61,19 +61,19 @@ namespace php {
         return call(this, name, argv.size(), reinterpret_cast<zval *>(argv.data()));
     }
     // 属性（可设置）
-    property object::prop(const char* name) {
+    property_value object::prop(const char* name) {
         return prop(std::string_view(name));
     }
     // 属性（可设置）
-    property object::prop(std::string_view name) {
-        return property(this,
+    property_value object::prop(std::string_view name) {
+        return property_value(this,
                 // 内部字符串实际会按哈系查询复用
                 zend_string_init_interned(name.data(), name.size(), true));
     }
     // 属性（可设置）
-    property object::prop(const value& name) {
+    property_value object::prop(const value& name) {
         assert(name.is(TYPE_STRING));
-        return property(this, name);
+        return property_value(this, name);
     }
     // 属性设置
     void object::prop(std::string_view name, const value& data) {

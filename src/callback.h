@@ -11,8 +11,8 @@ namespace php {
     class callback {
     public:
         callback():fn_(nullptr) {}
-        // 注册
-        static void do_register(module_entry& module);
+        // 声明 callback 类型
+        static void declare(module_entry& module);
         using callback_type = std::function<php::value (php::parameters& params)>;
         // 设置回调
         void fn(callback_type cb);

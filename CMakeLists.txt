@@ -5,8 +5,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.16)
 # ---------------------------------------------------------------------------------------
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_INSTALL_PREFIX /data/vendor/phpext-4.0)
-set(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT TRUE)
+set(CMAKE_INSTALL_PREFIX /data/vendor/phpext-4.0 CACHE PATH "..." FORCE)
 ## 编译器
 set(GCC_TOOLCHAIN /data/server/gcc CACHE PATH "Compiler: gcc compiler prefix")
 
@@ -37,8 +36,10 @@ include_directories(SYSTEM ${VENDOR_PHP_INC_DIR})
 add_library(phpext STATIC
     src/array.cpp
     src/array_iterator.cpp
+    src/attribute_entry.cpp
     src/callable.cpp
     src/callback.cpp
+    src/class_entry.cpp
     src/constant_entry.cpp
     src/conversion.cpp
     src/encoding.cpp
@@ -46,13 +47,14 @@ add_library(phpext STATIC
     src/exception.cpp
     src/function_entry.cpp
     src/hash.cpp
+    src/hook_entry.cpp
     src/ini_entry.cpp
-    src/member.cpp
     src/module_entry.cpp
     src/object.cpp
     src/parameter.cpp
-    src/property.cpp
     src/property_entry.cpp
+    src/property_refer.cpp
+    src/property_value.cpp
     src/runtime.cpp
     src/string.cpp
     src/string_buffer.cpp
@@ -60,30 +62,34 @@ add_library(phpext STATIC
     src/util.cpp
     src/value.cpp)
 # 头文件
-set_property(TARGET phpext PROPERTY PUBLIC_HEADER src/phpext.h)
+set_property(TARGET phpext PROPERTY PUBLIC_HEADER phpext.h)
 set_property(TARGET phpext PROPERTY PRIVATE_HEADER
-    src/argument_info.h
+    src/argument_entry.h
     src/array.h
     src/array_iterator.h
+    src/attribute_entry.h
     src/callable.h
     src/class_basic.h
     src/class_entry.h
     src/callback.h
     src/constant_entry.h
     src/conversion.h
-    src/dependence.h
+    src/dependency_entry.h
     src/encoding.h
     src/environ.h
     src/exception.h
+    src/function_entry_method.h
     src/function_entry.h
     src/hash.h
+    src/hook_entry.h
     src/ini_entry.h
-    src/member.h
+    src/module_entry_hook.h
     src/module_entry.h
     src/object.h
     src/parameter.h
-    src/property.h
     src/property_entry.h
+    src/property_refer.h
+    src/property_value.h
     src/runtime.h
     src/string.h
     src/string_buffer.h
@@ -94,7 +100,9 @@ set_property(TARGET phpext PROPERTY PRIVATE_HEADER
     src/value_basic.h
     src/vendor.h)
 # 库（安装）
-install(TARGETS phpext ARCHIVE PUBLIC_HEADER DESTINATION include/phpext PRIVATE_HEADER DESTINATION include/phpext)
+install(TARGETS phpext ARCHIVE
+    PUBLIC_HEADER DESTINATION include
+    PRIVATE_HEADER DESTINATION include/src)
 # ---------------------------------------------------------------------------------------
 # 示例1
 # ---------------------------------------------------------------------------------------
@@ -124,8 +132,3 @@ add_dependencies(test example1 example2)
 # 预编译
 # ---------------------------------------------------------------------------------------
 target_precompile_headers(phpext PUBLIC src/vendor.h)
-target_precompile_headers(example1 PUBLIC src/phpext.h)
-target_precompile_headers(example2 PUBLIC src/phpext.h)
-
-
-

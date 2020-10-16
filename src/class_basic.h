@@ -3,7 +3,7 @@
 
 #include "value.h"
 #include "class_entry.h"
-#include "property.h"
+#include "property_value.h"
 
 namespace php {
     // PHP 类基类（可选，方便访问非同步属性等）
@@ -14,15 +14,15 @@ namespace php {
             return class_entry<T>::native( static_cast<const T*>(this) );
         }
         // 属性（可设置）
-        inline property prop(const char* name) {
+        inline property_value prop(const char* name) {
             return self()->prop(name);
         }
         // 属性（可设置）
-        inline property prop(std::string_view name) {
+        inline property_value prop(std::string_view name) {
             return self()->prop(name);
         }
         // 属性（可设置）
-        inline property prop(const value& name) {
+        inline property_value prop(const value& name) {
             return self()->prop(name);
         }
         // 属性设置

@@ -16,7 +16,6 @@ namespace php {
     ::php::value callable::operator ()() const {
         ::php::value rv;
         call_user_function(nullptr, nullptr, const_cast<callable*>(this), rv, 0, nullptr);
-        // _call_user_function_ex(nullptr, const_cast<callable*>(this), rv, 0, nullptr);
         cpp_rethrow();
         return rv;
     }
@@ -25,8 +24,6 @@ namespace php {
         ::php::value rv;
         call_user_function(nullptr, nullptr, const_cast<callable*>(this), rv, 
             argv.size(), reinterpret_cast<zval*>(argv.data()));
-        // _call_user_function_ex(nullptr, const_cast<callable*>(this), rv,
-        //     argv.size(), reinterpret_cast<zval*>(argv.data()));
         cpp_rethrow();
         return rv;
     }

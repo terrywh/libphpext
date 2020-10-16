@@ -4,6 +4,7 @@
 /** 系统头文件 **/
 #include <cstdint>
 #include <cstring>
+#include <algorithm>
 #include <exception>
 #include <functional>
 #include <iostream>

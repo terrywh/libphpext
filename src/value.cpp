@@ -8,7 +8,7 @@ namespace php {
     }
     // 构造回调
     value::value(std::function<value (parameters& params)> cb) {
-        object_init_ex(&value_, class_entry<callback>::entry());
+        object_init_ex(&value_, *class_entry<callback>::entry());
         class_entry<callback>::native(Z_OBJ(value_))->fn(cb);
     }
 }

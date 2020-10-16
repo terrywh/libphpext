@@ -5,8 +5,8 @@
 #include "value_basic.h"
 
 namespace php {
-    class property;
-    class member;
+    class property_value;
+    class property_refer;
     class parameters;
 
     class value;

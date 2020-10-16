@@ -6,7 +6,7 @@
 
 namespace php {
     class value;
-    class property;
+    class property_value;
     // 对象，对应 zend_object
     class object: public zend_object {
     public:
@@ -25,11 +25,11 @@ namespace php {
         // 调用成员函数（注意调用参数要求独立构建的 value / zval 容器）
         value call(const value& name, std::vector<value> argv);
         // 属性（可设置）
-        property prop(const char* name);
+        property_value prop(const char* name);
         // 属性（可设置）
-        property prop(std::string_view name);
+        property_value prop(std::string_view name);
         // 属性（可设置）
-        property prop(const value& name);
+        property_value prop(const value& name);
         // 属性设置
         void prop(const char* name, const value& data) {
             return prop(std::string_view(name), data);

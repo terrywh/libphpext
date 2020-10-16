@@ -5,31 +5,30 @@
 
 namespace php {
     // 定义 INI 配置项
-    class ini_entry: public zend_ini_entry_def {
+    class ini_entry {
     public:
-        ini_entry()
-        : zend_ini_entry_def {nullptr} {}
+        enum modifiable {
+            ALL = ZEND_INI_ALL,
+            USER = ZEND_INI_USER,
+            PERDIR = ZEND_INI_PERDIR,
+            SYSTEM = ZEND_INI_SYSTEM,
+        };
+        ini_entry() {}
         // 构建项
-        ini_entry(zend_string* key, std::string_view val);
+        ini_entry(std::string_view key, std::string_view val, modifiable = ALL);
         // 移动
         ini_entry(ini_entry&& e);
         // 释放
         ~ini_entry();
+        // 输出定义
+        static void do_register(std::vector<ini_entry>& entry, int module);
     private:
+        zend_string* field_;
+        zend_string* value_;
+        modifiable   modifiable_;
+
         // 修改回调
         static int on_modify(zend_ini_entry* entry, zend_string* nv, void* a1, void* a2, void* a3, int stage);
-    };
-
-    class ini_entries {
-    private:
-        std::vector<ini_entry> entry_;
-    public:
-        ini_entries& operator += (ini_entry&& e) {
-            entry_.emplace_back(std::move(e));
-            return *this;
-        }
-        // 输出定义
-        operator zend_ini_entry_def*();
     };
 }
 

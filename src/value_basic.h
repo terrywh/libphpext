@@ -364,13 +364,13 @@ namespace php {
 #undef DECLARE_OPERATOR_THAT
     };
 
-#define OVERRIDE_IMPLICIT_DECLARATION(NAME)            \
-        NAME(const NAME& v): value_basic(v) {}         \
-        NAME(NAME&& v): value_basic(std::move(v)) {}   \
-        NAME& operator =(const NAME& v) {              \
-            value_basic::operator=(v); return *this; } \
-        NAME& operator =(NAME&& v) {                   \
-            value_basic::operator=(std::move(v));      \
+#define OVERRIDE_IMPLICIT_DECLARATION(CLASS_NAME)                  \
+        CLASS_NAME(const CLASS_NAME& v): value_basic(v) {}         \
+        CLASS_NAME(CLASS_NAME&& v): value_basic(std::move(v)) {}   \
+        CLASS_NAME& operator =(const CLASS_NAME& v) {              \
+            value_basic::operator=(v); return *this; }             \
+        CLASS_NAME& operator =(CLASS_NAME&& v) {                   \
+            value_basic::operator=(std::move(v));                  \
             return *this; }
     // 自动序列化
     template <class R, typename T>

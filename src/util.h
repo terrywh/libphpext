@@ -23,7 +23,7 @@ namespace php {
     }
     // 当前用户
     inline std::string_view current_user() {
-        return {php_get_current_user(), SG(request_info).current_user_length};
+        return {php_get_current_user(), static_cast<std::size_t>(SG(request_info).current_user_length)};
     }
 }
 

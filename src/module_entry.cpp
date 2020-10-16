@@ -41,54 +41,53 @@ namespace php {
         assert(!repeat_guard);
         repeat_guard = true;
         // (1) 延迟设定依赖及函数表
-        module_.deps                  = dependence_;
-        module_.functions             = function_;
+        module_.deps      = dependency_entry::finalize(dependency_);
+        module_.functions = function_entry::finalize(function_);
 
         return &module_;
     }
     // PHP 回调：模块启动
     zend_result module_entry::on_module_startup  (int type, int module) {
         self()->module = module;
-        // 环境相关初始化
-        environ::init();
-        // 配置 ini 项
-        zend_register_ini_entries(self()->ini_, module);
-        // 注册 常量
-        for(auto& c : self()->constant_)  zend_register_constant(&c);
-        // 注册 内部 类
-        callback::do_register(*self());
-        // 注册 类
-        for(auto& c : self()->class_) c->do_register(module);
-        //
-        if(!self()->invoke_fwd(self()->module_startup_handler_))
-            return FAILURE;
+        environ::init(); // 环境相关初始化
+        
+        ini_entry::do_register(self()->ini_, module); // 配置 ini 项
+        constant_entry::do_register(self()->constant_, module); // 注册 常量
+
+        callback::declare(*self()); // 声明 内部 类
+        class_entry_basic::do_register(self()->class_, module); // 注册 类
+        
+        try { hook_entry::emit(self()->mstartup_, *self()); }
+        catch(const std::exception& ex) { return FAILURE; }
         return SUCCESS;
     }
-    // PHP 回调：请求启动
-    zend_result module_entry::on_request_startup (int type, int module) {
-        // 运行时相关初始化
-        runtime::init();
-        // 
-        self()->invoke_fwd(self()->request_startup_handler_);
+    zend_result module_entry::on_request_startup(int type, int module) {
+        runtime::init(); // 运行时数据初始化
+
+        try { hook_entry::emit(self()->mstartup_, *self()); }
+        catch(const std::exception& ex) { return FAILURE; }
         return SUCCESS;
     }
     // PHP 回调：请求终止
     zend_result module_entry::on_request_shutdown(int type, int module) {
-        self()->invoke_bwd(self()->request_shutdown_handler_);
+        try { hook_entry::fire(self()->rshutdown_, *self()); }
+        catch(const std::exception& ex) { return FAILURE; }
         return SUCCESS;
     }
     // PHP 回调：模块终止
     zend_result module_entry::on_module_shutdown (int type, int module) {
-        self()->invoke_bwd(self()->module_shutdown_handler_);
+        try { hook_entry::fire(self()->mshutdown_, *self()); }
+        catch(const std::exception& ex) { return FAILURE; }
         return SUCCESS;
     }
     // PHP 回调：模块信息
-    void module_entry::on_module_info(zend_module_entry *zend_module) {
+    void module_entry::on_module_info(zend_module_entry *module) {
         php_info_print_table_start();
         php_info_print_table_row(2, "version", self()->version_.c_str());
-        for(auto& i : self()->description_) {
+        for(auto& i : self()->info_) {
             php_info_print_table_row(2, i.first.c_str(), i.second.c_str());
         }
         php_info_print_table_end();
+        display_ini_entries(module);
     }
 }

@@ -1,8 +1,8 @@
 #ifndef LIBPHPEXT_ENCODING_H
 #define LIBPHPEXT_ENCODING_H
 
-#include "exception.h"
 #include "vendor.h"
+#include "exception.h"
 #include "value.h"
 #include "string.h"
 

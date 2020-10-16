@@ -4,15 +4,19 @@
 #include "value.h"
 #include "parameter.h"
 #include "exception.h"
+#include "function_entry_method.h"
 
 namespace php {
     // 注册
-    void callback::do_register(module_entry& module) {
-        module.declare<callback>("__callback__", ZEND_ACC_FINAL) // 禁止继承
-            .declare<&callback::__construct>(environ::key(method_name::__CONSTRUCTOR), {}, {})
-            .declare<&callback::__invoke>(environ::key(method_name::__INVOKE), {
+    void callback::declare(module_entry& module) {
+        auto& x = module.declare<callback>("__callback__", ZEND_ACC_FINAL) // 禁止继承
+            - method<&callback::__invoke>(environ::key(method_name::__INVOKE), {
                     {"argv", false, true, true}
-            }, {TYPE_MIXED});
+                }, {TYPE_MIXED})
+            - private_method<&callback::__construct>(environ::key(method_name::__CONSTRUCTOR), {
+                    {"test", TYPE_INTEGER},
+                }) // 禁止构造
+            ;
     }
     // 设置回调
     void callback::fn(std::function<php::value (php::parameters& params)> cb) {
