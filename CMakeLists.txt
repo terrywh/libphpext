@@ -29,7 +29,7 @@ execute_process(COMMAND ${VENDOR_PHP}/bin/php-config --extension-dir
 include_directories(SYSTEM ${VENDOR_PHP_INC_DIR})
 ## 静态链接时似乎会发生一些奇怪的问题，多个扩展之间会产生某种未定义行为的影响
 ## 静态链接 C++ 库，方便部署
-# link_libraries(-static-libgcc -static-libstdc++)
+link_libraries(-static-libgcc -static-libstdc++)
 # ---------------------------------------------------------------------------------------
 # 核心库
 # ---------------------------------------------------------------------------------------
@@ -47,7 +47,6 @@ add_library(phpext STATIC
     src/exception.cpp
     src/function_entry.cpp
     src/hash.cpp
-    src/hook_entry.cpp
     src/ini_entry.cpp
     src/module_entry.cpp
     src/object.cpp
@@ -83,7 +82,6 @@ set_property(TARGET phpext PROPERTY PRIVATE_HEADER
     src/hash.h
     src/hook_entry.h
     src/ini_entry.h
-    src/module_entry_hook.h
     src/module_entry.h
     src/object.h
     src/parameter.h

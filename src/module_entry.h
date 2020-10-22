@@ -77,11 +77,11 @@ namespace php {
             if(dynamic_cast<module_startup*>(&h)) 
                 mstartup_.push_back(std::move(h.cb_));
             else if(dynamic_cast<request_startup*>(&h)) 
-                mstartup_.push_back(std::move(h.cb_));
+                rstartup_.push_back(std::move(h.cb_));
             else if(dynamic_cast<request_shutdown*>(&h)) 
-                mstartup_.push_back(std::move(h.cb_));
+                rshutdown_.push_back(std::move(h.cb_));
             else if(dynamic_cast<module_shutdown*>(&h)) 
-                mstartup_.push_back(std::move(h.cb_));
+                mshutdown_.push_back(std::move(h.cb_));
             else 
                 throw php::type_error("unknown type of hook handler");
             return *this;

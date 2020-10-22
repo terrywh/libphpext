@@ -64,7 +64,7 @@ namespace php {
     zend_result module_entry::on_request_startup(int type, int module) {
         runtime::init(); // 运行时数据初始化
 
-        try { hook_entry::emit(self()->mstartup_, *self()); }
+        try { hook_entry::emit(self()->rstartup_, *self()); }
         catch(const std::exception& ex) { return FAILURE; }
         return SUCCESS;
     }

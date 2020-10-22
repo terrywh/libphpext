@@ -64,7 +64,7 @@ extern "C" {
             });
         // 声明一个类
         module.declare<example>("cpp_example") // 标记 attribute 定义
-            // - attribute("cpp_attribute", {"POST", "/hello"}) // 标记 attribute 定义
+            - attribute("cpp_attribute", {"POST", "/hello"}) // 标记 attribute 定义
             - constant("CONST_1", "abc") // 类常量
             - implement(&zend_ce_countable) // 实现接口
             - method<&example::count>("count", {}, {php::TYPE_INTEGER}) // 接口方法
