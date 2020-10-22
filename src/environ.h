@@ -40,7 +40,7 @@ namespace php {
             operator value() const;
             operator std::string() const;
             // 计算字节数量（单位）
-            std::int64_t bytes() const;
+            std::int64_t byte_size() const;
             bool exists() const {
                 return !!entry_;
             }

@@ -56,7 +56,7 @@ php::value walk(php::parameters& params) {
 }
 // 读取配置
 php::value conf_bytes(php::parameters& params) {
-    return php::environ::ini(params[0]).bytes();
+    return php::environ::ini(params[0]).byte_size();
 }
 // 访问属性
 php::value property(php::parameters& params) {

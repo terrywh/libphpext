@@ -27,9 +27,9 @@ execute_process(COMMAND ${VENDOR_PHP}/bin/php-config --extension-dir
     OUTPUT_VARIABLE VENDOR_PHP_EXT_DIR
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 include_directories(SYSTEM ${VENDOR_PHP_INC_DIR})
-## 静态链接时似乎会发生一些奇怪的问题，多个扩展之间会产生某种未定义行为的影响
 ## 静态链接 C++ 库，方便部署
-link_libraries(-static-libgcc -static-libstdc++)
+## 静态链接时似乎会发生一些奇怪的问题，多个扩展之间会产生某种未定义行为的影响
+# link_libraries(-static-libgcc -static-libstdc++)
 # ---------------------------------------------------------------------------------------
 # 核心库
 # ---------------------------------------------------------------------------------------

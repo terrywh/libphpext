@@ -51,7 +51,7 @@ namespace php {
     environ::ini::operator std::string() const {
         return entry_ ? std::string(ZSTR_VAL(entry_->value), ZSTR_LEN(entry_->value)) : std::string();
     }
-    int64_t environ::ini::bytes() const {
+    int64_t environ::ini::byte_size() const {
         return entry_? to_bytes({ZSTR_VAL(entry_->value), ZSTR_LEN(entry_->value)}) : 0;
     }
     // 环境初始化
