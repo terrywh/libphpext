@@ -4,6 +4,7 @@
 #include "vendor.h"
 
 namespace php {
+    const char* version();
     class value;
     class array;
     class string;

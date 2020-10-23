@@ -1,4 +1,4 @@
 .vscode
-.clangd
+.xmake
 build
 compile_commands.json

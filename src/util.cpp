@@ -3,6 +3,9 @@
 #include "callable.h"
 
 namespace php {
+    const char* version() {
+        return LIBPHPEXT_VERSION;
+    }
     // 解析 form-data 数据
     value& parse_form_data(std::string_view str, value& a) {
         if(!a.is(TYPE_ARRAY)) zend_try_array_init(a);
