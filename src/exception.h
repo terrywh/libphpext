@@ -105,6 +105,10 @@ namespace php {
     }
     // 将 PHP 中发生的异常（若存在）重新抛出到 CPP 中
     void cpp_rethrow();
+    // 存在异常或严重错误
+    inline bool has_error() {
+        return EG(exception) != nullptr || (PG(last_error_type) & E_FATAL_ERRORS) != 0;
+    }
 }
 
 #endif // LIBPHPEXT_EXCEPTION_H
