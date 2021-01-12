@@ -1,10 +1,8 @@
-local version = {major = "4", minor = "0", patch = "0"}
+local version = "4.0.0"
+local versions = version:split(".",{plain = true}) -- lua array index start from 1
  
-version.raw = format("%s.%s.%s", version.major, version.minor, version.patch)
-version.ver = format("%s.%s", version.major, version.minor)
-
 set_project("phpext")
-set_version(version.major .. "." .. version.minor .. "." .. version.patch)
+set_version(version)
 set_languages("c17","c++17")
 add_rules("mode.debug")
 add_rules("mode.release")
@@ -21,8 +19,20 @@ option("vendor-php")
 target("phpext")
     set_kind("static")
     add_files("src/*.cpp")
-    add_defines( format("LIBPHPEXT_VERSION=\"%s\"", version.raw) )
+    add_cxflags("-fPIC")
+    add_defines( format("LIBPHPEXT_VERSION=\"%s\"", version) )
     add_options("vendor-php")
-    set_installdir( format("/data/vendor/phpext-%s", version.ver) )
+    set_installdir( format("/data/vendor/phpext-%s.%s", versions[1], versions[2]) )
     add_headerfiles("src/*.h", {prefixdir="phpext"})
     add_headerfiles("phpext.h")
+
+target("example1")
+    set_kind("shared")
+    add_files("example/example1.cpp")
+    add_deps("phpext")
+    add_options("vendor-php")
+    on_load(function(target)
+        local vendor_php_extension_dir, _ = os.iorun("$(vendor-php)/bin/php-config --extension-dir")
+        target:set("installdir", vendor_php_extension_dir)
+    end)
+    set_filename("example1.so")
