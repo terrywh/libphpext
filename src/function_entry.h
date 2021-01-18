@@ -50,7 +50,7 @@ namespace php {
 
                 rv = fn(params);
             }
-            catch (const throwable& e) {
+            catch (const std::exception& e) {
                 php_rethrow(e);
             }
             // 非预期范围的异常继续在 C++ 侧抛出

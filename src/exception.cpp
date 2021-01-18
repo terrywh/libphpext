@@ -42,6 +42,6 @@ namespace php {
         else if(EG(exception)->ce == zend_ce_division_by_zero_error)
             throw php::division_by_zero_error(EG(exception));
         else
-            abort(); // 未知的异常类型
+            std::abort(); // 未知的异常类型
     }
 }

@@ -14,10 +14,10 @@ namespace php {
 	class argument_entry: public zend_internal_arg_info {
 	public:
 		// 无类型参数
-		argument_entry(const char* name, bool byref = false, bool nullable = false, bool variadic = false)
+		argument_entry(const char* name, bool nullable = false, bool byref = false, bool variadic = false)
 		: zend_internal_arg_info { name, ZEND_TYPE_INIT_CODE(TYPE_MIXED, nullable, _ZEND_ARG_INFO_FLAGS(byref, variadic)), nullptr } {}
 		// 基础类型参数
-		argument_entry(const char*  name, type_code_t type_hint, bool byref = false, bool nullable = false, bool variadic = false)
+		argument_entry(const char*  name, type_code_t type_hint, bool nullable = false, bool byref = false, bool variadic = false)
 		: zend_internal_arg_info { name, ZEND_TYPE_INIT_CODE(type_hint, nullable, _ZEND_ARG_INFO_FLAGS(byref, variadic)), nullptr } {}
 
 		// 类类型参数
@@ -34,7 +34,7 @@ namespace php {
 		return_entry()
 		: zend_internal_arg_info { (const char*)(zend_uintptr_t)-1, ZEND_TYPE_INIT_NONE(0), nullptr } {}
 		// 返回基础类型
-		return_entry(type_code_t type_hint, bool byref = false, bool nullable = false)
+		return_entry(type_code_t type_hint, bool nullable = false, bool byref = false)
 		: zend_internal_arg_info { (const char*)(zend_uintptr_t)-1, ZEND_TYPE_INIT_CODE(type_hint, nullable, _ZEND_ARG_INFO_FLAGS(byref, 0)), nullptr } {}
 		// 返回类类型
 		return_entry(zend_string* class_name, bool nullable = false)

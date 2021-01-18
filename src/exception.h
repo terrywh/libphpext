@@ -25,7 +25,7 @@ namespace php {
         std::string message_;
         int code_;
 
-        friend void php_rethrow(const throwable& ex);
+        friend void php_rethrow(const std::exception& ex);
         friend void cpp_rethrow();
     };
     // 异常：一般异常
@@ -100,8 +100,14 @@ namespace php {
         using arithmetic_error::arithmetic_error;
     };
     // 将 CPP 中捕获的异常重新抛出到 PHP 中
-    inline void php_rethrow(const throwable& ex) {
-        zend_throw_exception(ex.ce_, ex.message_.c_str(), ex.code_);
+    inline void php_rethrow(const std::exception& ex) {
+        try {
+            const php::throwable& e = dynamic_cast<const php::throwable&>(ex);
+            zend_throw_exception(e.ce_, e.what(), e.code_);
+        }
+        catch(const std::bad_cast& e) {
+            zend_throw_exception(zend_ce_error, ex.what(), -1);
+        }
     }
     // 将 PHP 中发生的异常（若存在）重新抛出到 CPP 中
     void cpp_rethrow();

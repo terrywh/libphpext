@@ -87,7 +87,7 @@ namespace php {
             return *this;
         }
         // 类
-        template <class T>
+        template <class T, typename EnableIf = typename std::is_default_constructible<T>::type>
         class_entry<T>& declare(std::string_view name, std::uint32_t flag = 0) {
             zend_string* zn = zend_string_init_interned(name.data(), name.size(), true);
             // 统一使用 PHP 内存管理
@@ -95,6 +95,12 @@ namespace php {
             new (x) class_entry<T>(zn, flag);
             class_.emplace_back(x); // 多态形式，将父类指针放入容器
             return *x;
+        }
+        // 使用类静态方法定义声明
+        template <class T, typename EnableIf = decltype(T::declare)>
+        module_entry& declare() {
+            T::declare(*this);
+            return *this;
         }
         // 实际模块地址
         operator zend_module_entry*();
