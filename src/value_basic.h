@@ -173,7 +173,7 @@ namespace php {
         }
         // 数据类型：可调用
         auto operator ()() const {
-            return as<callable>()->operator()();
+            return as<callable>().operator()();
         }
         // 数据类型：可调用
         auto operator ()(std::vector<R> argv) const {
