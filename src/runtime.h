@@ -15,6 +15,8 @@ namespace php {
     public:
         // 未定义引用
         static value undefined_value;
+        // null 引用
+        static value null_value;
         // 文本常量：路径
         static std::string_view path(path pn);
         // 文本常量：命令行

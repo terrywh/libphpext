@@ -32,29 +32,28 @@ namespace php {
         }
         return v;
     }
-    
     // 数组元素访问（引用，可能返回 undefined 值）
-    value array::get(int idx) const {
+    value& array::get(int idx) const {
         zval* v = zend_hash_index_find(this, idx);
-        return v ? *reinterpret_cast<value*>(v) : value();
+        return v ? *reinterpret_cast<value*>(v) : runtime::undefined_value;
     }
     // 数组元素访问（引用，可能返回 undefined 值）
-    value array::get(std::uint64_t idx) const {
+    value& array::get(std::uint64_t idx) const {
         zval* v = zend_hash_index_find(this, idx);
-        return v ? *reinterpret_cast<value*>(v) : value();
+        return v ? *reinterpret_cast<value*>(v) : runtime::undefined_value;
     }
-    value array::get(const char* key) const {
+    value& array::get(const char* key) const {
         return get(std::string_view(key));
     }
     // 数组元素访问（引用，可能返回 undefined 值）
-    value array::get(std::string_view key) const {
+    value& array::get(std::string_view key) const {
         zval* v = zend_hash_str_find(this, key.data(), key.size());
-        return v ? *reinterpret_cast<value*>(v) : value();
+        return v ? *reinterpret_cast<value*>(v) : runtime::undefined_value;
     }
     // 数组元素访问（引用，可能返回 undefined 值）
-    value array::get(const value& key) const {
+    value& array::get(const value& key) const {
         zval* v = find(this, key);
-        return v ? *reinterpret_cast<value*>(v): value();
+        return v ? *reinterpret_cast<value*>(v): runtime::undefined_value;
     }
     // 数组元素设置
     void array::set(std::uint64_t idx, const value& val) {
@@ -84,14 +83,14 @@ namespace php {
     value& array::operator [](std::uint64_t idx) {
         zval* v = zend_hash_index_find(this, idx);
         if(v == nullptr) // 不存在 -> 创建
-            v = zend_hash_index_update(this, idx, &EG(uninitialized_zval)); // add_index_zval
+            v = zend_hash_index_add_empty_element(this, idx);
         return *reinterpret_cast<value*>(v);
     }
     // 数组元素访问（不存在时创建）
     value& array::operator [](std::string_view key) {
         zval* v = zend_hash_str_find(this, key.data(), key.size());
         if(v == nullptr) // 不存在 -> 创建
-            v = zend_symtable_str_update(this, key.data(), key.size(), &EG(uninitialized_zval)); // add_asoc_zval
+            v = zend_hash_str_add_empty_element(this, key.data(), key.size());
         return *reinterpret_cast<value*>(v);
     }
     // 数组元素访问（不存在时创建）
@@ -99,8 +98,8 @@ namespace php {
         zval* v = find(this, key);
         if(v == nullptr) // 不存在 -> 创建
             v = key.is(TYPE_STRING)
-                    ? zend_symtable_update(this, key, &EG(uninitialized_zval))
-                    : zend_hash_index_update(this, key, &EG(uninitialized_zval));
+                    ? zend_hash_add_empty_element(this, key)
+                    : zend_hash_index_add_empty_element(this, key);
         return *reinterpret_cast<value*>(v);
     }
     // 检查指定 KEY 是否存在

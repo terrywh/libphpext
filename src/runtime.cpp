@@ -10,6 +10,8 @@ PHPAPI extern char *php_ini_opened_path;
 namespace php {
     // 未定义引用
     value runtime::undefined_value;
+    // null 引用
+    value runtime::null_value;
 
     static char* current_working_directory;
     // 文本常量：路径
@@ -42,12 +44,16 @@ namespace php {
     }
     // 环境初始化
     void runtime::init() {
+        null_value = nullptr;
+        // 工作路径
         current_working_directory = getcwd(nullptr, 0);
-        // 额外补充 ini 设置
+        // 可执行文件
+        argv_.push_back( PG(php_binary) );
+        // 参数信息，默认状态不包含 php 内置处理的参数，这里须额外补充 ini 设置
         argv_.push_back("-i");
         argv_.push_back(php_ini_opened_path);
         // 不含 PHP 内置参数
-        for(int i=1;i<SG(request_info).argc;++i) {
+        for(int i=0;i<SG(request_info).argc;++i) {
             argv_.push_back(SG(request_info).argv[i]);
         }
     }

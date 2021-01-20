@@ -24,15 +24,15 @@ namespace php {
             return nNumOfElements;
         }
         // 数组元素访问（引用，可能返回 undefined 值）
-        value get(int idx) const;
+        value& get(int idx) const;
         // 数组元素访问（引用，可能返回 undefined 值）
-        value get(std::uint64_t idx) const;
+        value& get(std::uint64_t idx) const;
         // 数组元素访问（引用，可能返回 undefined 值）
-        value get(const char* key) const;
+        value& get(const char* key) const;
         // 数组元素访问（引用，可能返回 undefined 值）
-        value get(std::string_view key) const;
+        value& get(std::string_view key) const;
         // 数组元素访问（引用，可能返回 undefined 值）
-        value get(const value& key) const;
+        value& get(const value& key) const;
         // 数组元素设置
         void set(int idx, const value& val) { return set(static_cast<std::uint64_t>(idx), val); }
         // 数组元素设置
