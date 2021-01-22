@@ -4,7 +4,6 @@
 #include "vendor.h"
 #include "value.h"
 #include "parameter.h"
-#include "argument_entry.h"
 #include "function_entry.h"
 #include "class_entry.h"
 
@@ -61,12 +60,12 @@ namespace php {
         protected_method(std::string_view name, std::initializer_list<type_desc> desc)
         : entry_{ class_entry_basic::method<T,M>, name, std::move(desc), ZEND_ACC_PROTECTED } {}
         protected_method(std::string_view name)
-        : entry_{ class_entry_basic::method<T,M>, name, {}, ZEND_ACC_PROTECTED } {}
+        : entry_{ class_entry_basic::method<T,M>, name, { {TYPE_UNDEFINED} }, ZEND_ACC_PROTECTED } {}
 
         protected_method(zend_string* name, std::initializer_list<type_desc> desc)
         : entry_{ class_entry_basic::method<T,M>, name, std::move(desc), ZEND_ACC_PROTECTED } {}
         protected_method(zend_string* name)
-        : entry_{ class_entry_basic::method<T,M>, name, {}, ZEND_ACC_PROTECTED } {}
+        : entry_{ class_entry_basic::method<T,M>, name, { {TYPE_UNDEFINED} }, ZEND_ACC_PROTECTED } {}
         
         operator zend_function_entry() const {
             return std::move(entry_);

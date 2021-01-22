@@ -3,7 +3,6 @@
 
 #include "phpext/vendor.h"
 #include "phpext/type.h"
-#include "phpext/argument_entry.h"
 #include "phpext/array.h"
 #include "phpext/array_iterator.h"
 #include "phpext/attribute_entry.h"

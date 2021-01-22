@@ -17,8 +17,8 @@ namespace php {
         // 函数必要参数个数、返回值
         argv_[0] = zend_internal_arg_info { (const char*)(zend_uintptr_t)r, desc[0], nullptr };
     }
-
-    static std::vector< argument_entry_ref > refs; // 参数引用
+    // 参数引用, 需要保证在进程运行期间有效
+    static std::vector< std::vector<zend_internal_arg_info> > refs; 
     // 保留参数描述引用数据后构建 entry
     function_entry::operator zend_function_entry() const {
         // 使用容器保存参数描述信息的引用

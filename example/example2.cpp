@@ -59,6 +59,7 @@ extern "C" {
         module.declare<cpp_attribute>("cpp_attribute")
             - php::attribute() // 当前类型可用于 attribute 元数据描述
             - method<&cpp_attribute::__construct>("__construct", {
+                {php::TYPE_UNDEFINED},   // return
                 {php::TYPE_STRING}, // method
                 {php::TYPE_STRING}, // path
             });

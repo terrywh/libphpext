@@ -5,7 +5,6 @@
 #include "type.h"
 #include "value.h"
 #include "parameter.h"
-#include "argument_entry.h"
 #include "exception.h"
 
 namespace php {
@@ -69,7 +68,7 @@ namespace php {
     // 模块函数
     template <value fn(parameters& params)>
     function_entry function(std::string_view name) {
-        return function<fn>(name, {});
+        return function<fn>(name, { {TYPE_UNDEFINED} });
     }
     // 静态方法（注意，由于实际指针数据等由对应对象持有，需要原始指针地址）
     template <value fn(parameters& params)>
@@ -79,7 +78,7 @@ namespace php {
     // 静态方法
     template <value fn(parameters& params)>
     function_entry static_method(std::string_view name) {
-        return static_method<fn>(name, {});
+        return static_method<fn>(name, { {TYPE_UNDEFINED} });
     }
 }
 
