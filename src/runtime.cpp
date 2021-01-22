@@ -50,7 +50,7 @@ namespace php {
         // 可执行文件
         argv_.push_back( PG(php_binary) );
         // 参数信息，默认状态不包含 php 内置处理的参数，这里须额外补充 ini 设置
-        argv_.push_back("-i");
+        argv_.push_back("-c");
         argv_.push_back(php_ini_opened_path);
         // 不含 PHP 内置参数
         for(int i=0;i<SG(request_info).argc;++i) {

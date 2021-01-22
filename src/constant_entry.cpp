@@ -13,7 +13,7 @@ namespace php {
 	constant_entry::constant_entry(std::string_view key, const ::php::value& val)
 	/*: comment(nullptr) */ {
         name = zend_string_init_interned(key.data(), key.size(), true);
-        switch(val.type_code()) {
+        switch(val.type()) {
         case TYPE_NULL:
         case TYPE_TRUE:
         case TYPE_FALSE:

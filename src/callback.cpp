@@ -11,11 +11,10 @@ namespace php {
     void callback::declare(module_entry& module) {
         auto& x = module.declare<callback>("__callback__", ZEND_ACC_FINAL) // 禁止继承
             - method<&callback::__invoke>(environ::key(method_name::__INVOKE), {
-                    {"argv", false, true, true}
-                }, {TYPE_MIXED})
-            - private_method<&callback::__construct>(environ::key(method_name::__CONSTRUCTOR), {
-                    {"test", TYPE_INTEGER},
-                }) // 禁止构造
+                    {TYPE_MIXED}, // return
+                    {TYPE_MIXED, false, true, true}
+                })
+            - private_method<&callback::__construct>(environ::key(method_name::__CONSTRUCTOR)) // 禁止构造
             ;
     }
     // 设置回调

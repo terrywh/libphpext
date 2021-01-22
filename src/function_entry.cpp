@@ -3,20 +3,19 @@
 namespace php {
     // 构建函数项
     function_entry::function_entry(zif_handler fn, zend_string* name, 
-            std::initializer_list<argument_entry>&& pi, return_entry&& ri, uint32_t flag)
+            std::vector<type_desc>&& desc, uint32_t flag)
     : handler_(fn)
     , name_(name)
     , argv_(1)
     , flag_(flag) {
         // 计算必要参数信息
-        int required = 0;
-        for(auto i=pi.begin(); i!=pi.end(); ++i) {
-            if(!ZEND_TYPE_ALLOW_NULL(i->type)) ++required;
-            argv_.emplace_back( *i );
+        int r = 0;
+        for(int i=1; i<desc.size(); ++i) {
+            if(!ZEND_TYPE_ALLOW_NULL( static_cast<zend_type>(desc[i]) )) ++r;
+            argv_.push_back(zend_internal_arg_info {"argument", desc[i], nullptr});
         }
-        // 设置必要参数个数
-        ri.required(required);
-        argv_[0] = ri; // 参数信息缓冲
+        // 函数必要参数个数、返回值
+        argv_[0] = zend_internal_arg_info { (const char*)(zend_uintptr_t)r, desc[0], nullptr };
     }
 
     static std::vector< argument_entry_ref > refs; // 参数引用
@@ -39,7 +38,6 @@ namespace php {
     zend_function_entry* function_entry::finalize(std::vector<zend_function_entry>& entry) {
         if(entry.empty() || entry.back().fname) // 补充函数表结束标志
             entry.push_back({nullptr});
-        
         // Zend 引擎将使用下述内存区域
         return entry.data();
     }

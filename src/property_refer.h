@@ -2,7 +2,7 @@
 #define LIBPHPEXT_PROPERTY_REFER_H
 
 #include "vendor.h"
-#include "value_basic.h"
+#include "value.h"
 
 namespace php {
     class property_refer;
@@ -11,7 +11,7 @@ namespace php {
         static void  pointer(const property_refer* v, zval* z); // 特化用于同步指向
     };
     // C++ 属性（同步快速访问）
-    class property_refer: public value_basic<property_refer, property_refer_traits> {
+    class property_refer: public basic_value<property_refer, property_refer_traits> {
     private:
         using value_traits = property_refer_traits;
         mutable zval* refer_;

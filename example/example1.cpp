@@ -111,29 +111,38 @@ extern "C" {
             - constant("CPP_CONSTANT_2", 123456);
         // 函数声明
         module
-            - function<hello>("cpp_hello", {php::TYPE_STRING})
+            - function<hello>("cpp_hello", {
+                    {php::TYPE_STRING}
+                })
             - function<plus_5>("cpp_plus_5", {
-                    {"i1", php::TYPE_INTEGER, true} // 接受一个整数参数
-                }, {php::TYPE_INTEGER}) // 返回一个整数
+                    {php::TYPE_INTEGER}, // 返回一个整数
+                    {php::TYPE_INTEGER, true} // 接受一个整数参数
+                })
             - function<call_method>("cpp_call_method", {
-                    {"o1", "DateTime"}
-                }, {php::TYPE_STRING})
+                    {php::TYPE_STRING}, // 返回整数
+                    {"DateTime"} // 指定名称的类作为参数类型
+                })
             - function<container>("cpp_container", {
-                    {"k", php::TYPE_STRING},
-                    {"v", php::TYPE_MIXED}
-                }, {php::TYPE_INTEGER})
+                    {php::TYPE_INTEGER},
+                    {php::TYPE_STRING},
+                    {php::TYPE_MIXED}
+                })
             - function<invoke>("cpp_invoke", {
-                    {"cb", php::FAKE_CALLABLE}
-                }, {php::TYPE_MIXED})
+                    {php::TYPE_MIXED}, // 有返回值，但类型任意
+                    {php::FAKE_CALLABLE}, // 虚拟的 Callable 类型作为参数
+                })
             - function<walk>("cpp_walk", {
-                    {"a", php::TYPE_ARRAY}
-                }, {php::TYPE_INTEGER})
+                    {php::TYPE_INTEGER},
+                    {php::TYPE_ARRAY}, // 数组参数
+                })
             - function<conf_bytes>("cpp_conf_bytes", {
-                    {"name", php::TYPE_STRING}
-                }, {php::TYPE_INTEGER})
+                    {php::TYPE_INTEGER},
+                    {php::TYPE_STRING},
+                })
             - function<property>("cpp_property", {
-                    {"interval", "DateInterval"}
-                }, {php::TYPE_MIXED});
+                    {php::TYPE_MIXED},
+                    {"DateInterval"},
+                });
         
         return module;
     }

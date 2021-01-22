@@ -6,7 +6,7 @@ namespace php {
     void attribute_entry::finalize(zend_array** attributes) {
             zend_attribute* attr = zend_add_attribute(attributes, name_, argv_.size(), ZEND_ATTRIBUTE_PERSISTENT, 0, 0);
             for(int i=0;i<argv_.size();++i) {
-                switch(argv_[i].type_code()) {
+                switch(argv_[i].type()) {
                 case TYPE_NULL:
                 case TYPE_TRUE:
                 case TYPE_FALSE:

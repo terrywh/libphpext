@@ -2,7 +2,7 @@
 #define LIBPHPEXT_ARRAY_H
 
 #include "vendor.h"
-#include "type_code.h"
+#include "type.h"
 
 namespace php {
     class value;
@@ -12,7 +12,7 @@ namespace php {
     // 数组
     class array: public zend_array {
     public:
-        static constexpr type_code_t TYPE_CODE = TYPE_ARRAY;
+        static constexpr type_code TYPE_CODE = TYPE_ARRAY;
         // 创建数组
         static value create(std::size_t size = 0);
         // 归并

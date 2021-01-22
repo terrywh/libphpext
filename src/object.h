@@ -2,7 +2,7 @@
 #define LIBPHPEXT_OBJECT_H
 
 #include "vendor.h"
-#include "type_code.h"
+#include "type.h"
 
 namespace php {
     class value;
@@ -11,7 +11,7 @@ namespace php {
     class object: public zend_object {
     public:
         // 对象类型
-        static constexpr type_code_t TYPE_CODE = TYPE_OBJECT;
+        static constexpr type_code TYPE_CODE = TYPE_OBJECT;
         // 创建制定名称的对象实例
         static value create(std::string_view name);
         // 创建指定类型的对象实例

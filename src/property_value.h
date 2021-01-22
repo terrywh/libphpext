@@ -1,8 +1,7 @@
 #ifndef LIBPHPEXT_PROPERTY_VALUE_H
 #define LIBPHPEXT_PROPERTY_VALUE_H
 
-#include "value_basic.h"
-
+#include "value.h"
 namespace php {
     class  value;
     class  property_value;
@@ -10,7 +9,7 @@ namespace php {
         static zval* pointer(const property_value* v);
     };
     // 对象属性（不增加引用，存在动态计算故重定义赋值操作）
-    class property_value: public value_basic<property_value, property_value_traits> {
+    class property_value: public basic_value<property_value, property_value_traits> {
     private:
         using value_traits = property_value_traits;
         mutable zval value_;

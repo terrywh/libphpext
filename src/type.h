@@ -1,11 +1,11 @@
-#ifndef LIBPHPEXT_TYPE_CODE_H
-#define LIBPHPEXT_TYPE_CODE_H
+#ifndef LIBPHPEXT_TYPE_H
+#define LIBPHPEXT_TYPE_H
 
 #include "vendor.h"
 
 namespace php {
     // 变量类型
-    enum type_code_t {
+    enum type_code: unsigned int {
         TYPE_MIXED     = IS_MIXED,
         // 标准类型
         TYPE_UNDEFINED = IS_UNDEF,
@@ -56,5 +56,29 @@ namespace php {
         // 实际不存在次类型，仅用于参数说明
         FAKE_NUMBER    = _IS_NUMBER,
     };
+    class type_list;
+    // 简单对 zend_type 封装
+    class type_desc {
+    public:
+        type_desc(type_code    type_hint, bool nullable = false, bool byref = false, bool variadic = false);
+        type_desc(zend_class_entry*   ce, bool nullable = false);
+        type_desc(const char* class_name, bool nullable = false);
+        operator zend_type() const {
+            return type_;
+        }
+        type_list operator |(const type_desc& desc) const;
+    private:
+        zend_type type_;
+    };
+    // 实现对 zend_type_list 的封装
+    class type_list {
+    public:
+        type_list() {}
+        type_list(type_list&& type_list) = default;
+        type_list operator |(const type_desc& desc) const;
+        operator zend_type() const;
+    private:
+        std::vector<type_desc> types_;
+    };
 }
-#endif  // LIBPHPEXT_TYPE_CODE_H
+#endif  // LIBPHPEXT_TYPE_H

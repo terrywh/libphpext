@@ -59,18 +59,21 @@ extern "C" {
         module.declare<cpp_attribute>("cpp_attribute")
             - php::attribute() // 当前类型可用于 attribute 元数据描述
             - method<&cpp_attribute::__construct>("__construct", {
-                {"method", php::TYPE_STRING},
-                {"path", php::TYPE_STRING},
+                {php::TYPE_STRING}, // method
+                {php::TYPE_STRING}, // path
             });
         // 声明一个类
         module.declare<example>("cpp_example") // 标记 attribute 定义
             - attribute("cpp_attribute", {"POST", "/hello"}) // 标记 attribute 定义
             - constant("CONST_1", "abc") // 类常量
             - implement(&zend_ce_countable) // 实现接口
-            - method<&example::count>("count", {}, {php::TYPE_INTEGER}) // 接口方法
+            - method<&example::count>("count", { // 接口方法
+                {php::TYPE_INTEGER},
+            }) 
             - method<&example::hello>("hello", { // 普通方法
-                    {"name", php::TYPE_STRING}
-                }, {php::TYPE_STRING})
+                    {php::TYPE_STRING}, // return
+                    {php::TYPE_STRING}, // argv
+                })
             - static_method<example::number>("number", {php::TYPE_INTEGER}) // 静态方法
             - property("prop1", 123) // 属性
             - static_property("prop2", "static_value") // 静态属性

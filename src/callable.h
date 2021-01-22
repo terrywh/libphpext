@@ -2,7 +2,7 @@
 #define LIBPHPEXT_CALLABLE_H
 
 #include "vendor.h"
-#include "type_code.h"
+#include "type.h"
 
 namespace php {
     class value;
@@ -10,7 +10,7 @@ namespace php {
     class callable: public zval {
     public:
         // 可调用类型（虚拟类型）
-        static constexpr type_code_t TYPE_CODE = FAKE_CALLABLE;
+        static constexpr type_code TYPE_CODE = FAKE_CALLABLE;
         // 构建：可调用对象
         callable(const ::php::value& cb);
         // 销毁

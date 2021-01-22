@@ -8,7 +8,7 @@ namespace php {
         : name(zend_string_init_interned(key.data(), key.size(), true))
         , v(v), comment(doc) {
 
-        switch(val.type_code()) {
+        switch(val.type()) {
         case TYPE_NULL:
         case TYPE_TRUE:
         case TYPE_FALSE:
