@@ -46,12 +46,12 @@ namespace php {
         }
         // 构造：复制
         basic_value(const basic_value& v) {
-            ZVAL_COPY(ptr(this), v.is(TYPE_REFERENCE) ? Z_REFVAL_P(ptr(v)) : ptr(v));
+            ZVAL_COPY(ptr(this), v.is(FAKE_REFERENCE) ? Z_REFVAL_P(ptr(v)) : ptr(v));
         }
         // 构造：移动
         basic_value(basic_value&& v) {
             // 不要在 PHP 引用类型中使用移动构造
-            assert(zval_get_type(ptr(this)) != TYPE_REFERENCE);
+            assert(zval_get_type(ptr(this)) != FAKE_REFERENCE);
             ZVAL_COPY_VALUE(ptr(this), ptr(v));
             ZVAL_UNDEF(ptr(v));
         }
@@ -227,7 +227,7 @@ namespace php {
                 return Z_STRLEN_P(ptr(this)) == 0;
             case TYPE_ARRAY:
                 return Z_ARRVAL_P(ptr(this))->nNumOfElements == 0;
-            case TYPE_REFERENCE:
+            case FAKE_REFERENCE:
                 code = static_cast<type_code>(zval_get_type(Z_REFVAL_P(ptr(this))));
                 goto RECHECK_EMPTY;
             case TYPE_TRUE:
@@ -252,7 +252,7 @@ namespace php {
                 return Z_STRLEN_P(self);
             case TYPE_ARRAY:
                 return Z_ARRVAL_P(self)->nNumOfElements;
-            case TYPE_REFERENCE:
+            case FAKE_REFERENCE:
                 self = Z_REFVAL_P(self);
                 code = static_cast<type_code>(zval_get_type(self));
                 goto RECALC_SIZE;

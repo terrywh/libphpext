@@ -13,9 +13,9 @@ namespace php {
     template <class T, value (T::*M)(parameters& params)>
     class method<M> {
     public:
-        method(std::string_view name, std::initializer_list<type_desc> desc)
+        method(const char* name, std::initializer_list<type_desc> desc)
         : entry_{ class_entry_basic::method<T,M>, name, std::move(desc), ZEND_ACC_PUBLIC } {}
-        method(std::string_view name)
+        method(const char* name)
         : entry_{ class_entry_basic::method<T,M>, name, {}, ZEND_ACC_PUBLIC } {}
 
         method(zend_string* name, std::initializer_list<type_desc> desc)
@@ -35,9 +35,9 @@ namespace php {
     template <class T, value (T::*M)(parameters& params)>
     class private_method<M> {
     public:
-        private_method(std::string_view name, std::initializer_list<type_desc> desc)
+        private_method(const char* name, std::initializer_list<type_desc> desc)
         : entry_{ class_entry_basic::method<T,M>, name, std::move(desc), ZEND_ACC_PRIVATE } {}
-        private_method(std::string_view name)
+        private_method(const char* name)
         : entry_{ class_entry_basic::method<T,M>, name, {}, ZEND_ACC_PRIVATE } {}
 
         private_method(zend_string* name, std::initializer_list<type_desc> desc)
@@ -57,9 +57,9 @@ namespace php {
     template <class T, value (T::*M)(parameters& params)>
     class protected_method<M> {
     public:
-        protected_method(std::string_view name, std::initializer_list<type_desc> desc)
+        protected_method(const char* name, std::initializer_list<type_desc> desc)
         : entry_{ class_entry_basic::method<T,M>, name, std::move(desc), ZEND_ACC_PROTECTED } {}
-        protected_method(std::string_view name)
+        protected_method(const char* name)
         : entry_{ class_entry_basic::method<T,M>, name, { {TYPE_UNDEFINED} }, ZEND_ACC_PROTECTED } {}
 
         protected_method(zend_string* name, std::initializer_list<type_desc> desc)
