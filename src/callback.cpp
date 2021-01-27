@@ -12,7 +12,7 @@ namespace php {
         auto& x = module.declare<callback>("__callback__", ZEND_ACC_FINAL) // 禁止继承
             - method<&callback::__invoke>(environ::key(method_name::__INVOKE), {
                     FAKE_MIXED, // return
-                    FAKE_MIXED | ALLOW_NULL | VARIADIC,
+                    FAKE_MIXED,
                 })
             - private_method<&callback::__construct>(environ::key(method_name::__CONSTRUCTOR)) // 禁止构造
             ;

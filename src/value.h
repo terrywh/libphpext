@@ -111,7 +111,7 @@ namespace php {
             else ZVAL_COPY_VALUE(ptr(this), val);
         }
         operator zval*() const {
-             return ptr(this);
+            return ptr(this);
         }
         // 转换为 bool 类型数据
         // 注意: operator bool 用于条件判定，等价于 !empty()

@@ -9,7 +9,8 @@ namespace php {
         FAKE_MIXED     = IS_MIXED,
         // 标准类型
         TYPE_UNDEFINED = IS_UNDEF,
-        TYPE_VOID      = IS_UNDEF,
+        // 
+        TYPE_VOID      = IS_NULL,
         // 标准类型
         TYPE_NULL      = IS_NULL,
         // 标准类型

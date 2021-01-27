@@ -19,6 +19,10 @@ namespace php {
         static void merge(zend_array* target, zend_array* source, bool recursive = false);
         // 数组项查找
         static zval* find(const zend_array* a, const zval* k);
+        // 设置指定项（多级 a.b.c 键）
+        static void set(zend_array* array, std::string key, zval* v);
+        // 读取指定项（多级 a.b.c 键）
+        static zval* get(zend_array* array, std::string key);
         // 元素个数
         inline std::size_t size() {
             return nNumOfElements;
