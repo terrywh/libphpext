@@ -8,10 +8,9 @@ namespace php {
     // 创建数组
     value array::create(std::size_t size) {
         value v;
-        ZVAL_NEW_ARR(v);
+        ZVAL_ARR(v, _zend_new_array(size));
         // 空数组初始的引用计数标记为 2 故在进行任何更新型操作时会进行分离复制
         // if(size == 0) return const_cast<zend_array*>(&zend_empty_array);
-		zend_hash_init(v, size, nullptr, ZVAL_PTR_DTOR, 0);
         return v;
     }
     
@@ -21,7 +20,7 @@ namespace php {
         else php_array_merge(target, source);
     }
     // 数组项查找
-    zval* array::find(const zend_array* a, const zval* k) {
+    value& array::find(const zend_array* a, const zval* k) {
         zval* v;
         switch (zval_get_type(k)) {
         case TYPE_STRING: // 内部（可能）存在 hash 缓存
@@ -31,19 +30,20 @@ namespace php {
         default:
             throw type_error("Only Int or String can be used as Array indices", -1); // 不支持的类型
         }
-        return v;
+        return v ? *reinterpret_cast<value*>(v) : runtime::undefined_value;
     }
     // 设置指定项（多级 a.b.c 键）
     void array::set(zend_array* array, std::string key, zval* v) {
         auto p = key.find_last_of('.');
         std::string last_key = key.substr(p+1);
         std::istringstream ss {key.substr(0, p)};
-        zval* tmp;
+        zval* tmp, arr;
         while(std::getline(ss, key, '.')) {
             tmp = zend_hash_str_find(array, key.data(), key.size());
             if(tmp == nullptr) {
-                ZVAL_NEW_ARR(tmp);
-                zend_symtable_str_update(array, key.data(), key.size(), tmp);
+                tmp = &arr;
+                ZVAL_ARR(tmp, _zend_new_array(2));
+                tmp = zend_symtable_str_update(array, key.data(), key.size(), tmp);
                 array = Z_ARR_P(tmp);
             }
             else if(zval_get_type(tmp) == IS_ARRAY)
@@ -55,17 +55,17 @@ namespace php {
         zval_add_ref(v);
     }
     // 读取指定项（多级 a.b.c 键）
-    zval* array::get(zend_array* array, std::string key) {
-        std::stringstream ss (key);
+    value array::get(zend_array* array, std::string key) {
+        std::istringstream ss {key};
         zval* tmp;
         while(std::getline(ss, key, '.')) {
+            if(!array) return value(nullptr);
             tmp = zend_hash_str_find(array, key.data(), key.size());
-            if(tmp != nullptr && zval_get_type(tmp) == IS_ARRAY)
-                array = Z_ARR_P(tmp);
-            else
-                return nullptr;
+            if(tmp == nullptr) return value(nullptr);
+            else if(zval_get_type(tmp) == IS_ARRAY) array = Z_ARR_P(tmp);
+            else array = nullptr;
         }
-        return tmp;
+        return value(tmp);
     }
     // 数组元素访问（引用，可能返回 undefined 值）
     value& array::get(int idx) const {
@@ -87,8 +87,7 @@ namespace php {
     }
     // 数组元素访问（引用，可能返回 undefined 值）
     value& array::get(const value& key) const {
-        zval* v = find(this, key);
-        return v ? *reinterpret_cast<value*>(v): runtime::undefined_value;
+        return find(this, key);
     }
     // 数组元素设置
     void array::set(std::uint64_t idx, const value& val) {
@@ -139,7 +138,7 @@ namespace php {
     }
     // 检查指定 KEY 是否存在
     bool array::contains(const value& key) const {
-        return find(this, key) != nullptr;
+        return !find(this, key).is(php::TYPE_UNDEFINED);
     }
     // 追加元素
     void array::append(const value& val) {

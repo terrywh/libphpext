@@ -34,8 +34,11 @@ namespace php {
 		}
 		// 获取参数
 		parameter& get(std::uint8_t index) const {
-			if(Z_ISREF(argv_[index])) // 引用引用变量的内容
-				return *reinterpret_cast<parameter*>( Z_REFVAL_P(argv_ + index) );
+			if(Z_ISREF(argv_[index])) { // 引用引用变量的内容
+				zval* refv = Z_REFVAL(argv_[index]);
+				SEPARATE_ZVAL_IF_NOT_REF(refv);
+				return *reinterpret_cast<parameter*>(refv);
+			}
 			else
 				return *reinterpret_cast<parameter*>(argv_ + index);
 		}

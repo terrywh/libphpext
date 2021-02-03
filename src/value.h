@@ -107,7 +107,8 @@ namespace php {
             if(add_reference) addref();
         }
         explicit basic_value(zval* val, bool add_reference = true) {
-            if(add_reference) ZVAL_COPY(ptr(this), val);
+            if(!val) ZVAL_NULL(ptr(this));
+            else if(add_reference) ZVAL_COPY(ptr(this), val);
             else ZVAL_COPY_VALUE(ptr(this), val);
         }
         operator zval*() const {

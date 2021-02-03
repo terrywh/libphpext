@@ -81,15 +81,15 @@ namespace php {
         type_item operator |(const type_attr& attr) const;
         //
         inline std::uint32_t allow_null() const {
-            return attr_ & ALLOW_NULL;
+            return (attr_ & ALLOW_NULL) ? 1 : 0;
         }
         //
         inline std::uint32_t pass_byref() const {
-            return attr_ & BYREF;
+            return (attr_ & BYREF) ? 1 : 0;
         }
         //
         inline std::uint32_t is_variadic() const {
-            return attr_ & VARIADIC;
+            return (attr_ & VARIADIC) ? 1 : 0;
         }
     private:
         uint32_t  attr_ = 0;
