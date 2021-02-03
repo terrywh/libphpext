@@ -4,9 +4,9 @@ namespace php {
     //
     type_item::operator zend_type() const {
         if(attr_ & IS_CLASS_NAME) 
-            return zend_type ZEND_TYPE_INIT_CODE(code_, allow_null(), _ZEND_ARG_INFO_FLAGS(pass_byref(), is_variadic()));
-        else
             return zend_type ZEND_TYPE_INIT_CLASS_CONST(name_, allow_null(), 0u);
+        else
+            return zend_type ZEND_TYPE_INIT_CODE(code_, allow_null(), _ZEND_ARG_INFO_FLAGS(pass_byref(), is_variadic()));
     }
     //
     type_item type_item::operator |(const type_attr& attr) const {
