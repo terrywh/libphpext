@@ -17,8 +17,6 @@ namespace php {
     value to_array(const value& val);
     // 转换（复制）一个对象
     value to_object(const value& val);
-    // 计算 T/t G/g M/m K/k 单位
-    std::int64_t to_bytes(std::string_view str);
 }
 
 #endif // LIBPHPEXT_CONVERT_H

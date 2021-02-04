@@ -2,12 +2,11 @@
 #define LIBPHPEXT_UTIL_H
 
 #include "vendor.h"
+#include "value.h"
 
 namespace php {
+    // 
     const char* version();
-    class value;
-    class array;
-    class string;
     // 解析 form-data 数据
     value& parse_form_data(std::string_view str, value& array);
     // 解析 form-data 数据
@@ -26,6 +25,8 @@ namespace php {
     inline std::string_view current_user() {
         return {php_get_current_user(), static_cast<std::size_t>(SG(request_info).current_user_length)};
     }
+    // 计算 T/t G/g M/m K/k 单位
+    std::int64_t str2bytes(std::string_view str);
 }
 
 #endif // LIBPHPEXT_UTIL_H

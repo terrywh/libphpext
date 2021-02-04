@@ -8,14 +8,14 @@ namespace php {
     class value;
     class parameters;
     // 包裹 C++ 回调
-    class callback {
+    class class_closure {
     public:
-        callback():fn_(nullptr) {}
-        // 声明 callback 类型
+        class_closure():fn_(nullptr) {}
+        // 声明 class_closure 类型
         static void declare(module_entry& module);
         using callback_type = std::function<php::value (php::parameters& params)>;
         // 设置回调
-        void fn(callback_type cb);
+        void set(callback_type cb);
         // 构造函数（禁用）
         php::value __construct(php::parameters& params);
         // 实际执行过程

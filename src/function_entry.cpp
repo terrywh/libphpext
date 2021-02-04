@@ -16,7 +16,7 @@ namespace php {
         }
         // 函数必要参数个数、返回值
         if(args.empty()) 
-            argv_[0] = zend_internal_arg_info { nullptr/* (const char*)(zend_uintptr_t)0 */, ZEND_TYPE_INIT_NONE(_ZEND_ARG_INFO_FLAGS(0u, 0u)), nullptr };
+            argv_[0] = zend_internal_arg_info { nullptr/* (const char*)(zend_uintptr_t)0 */, ZEND_TYPE_INIT_NONE(0u)/* ZEND_TYPE_INIT_NONE(_ZEND_ARG_INFO_FLAGS(0u, 0u))*/, nullptr };
         else {
             argv_[0] = args[0];
             argv_[0].name = nullptr; // (const char*)(zend_uintptr_t)0;

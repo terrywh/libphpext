@@ -2,13 +2,14 @@
 #define LIBPHPEXT_CLASS_ENTRY_H
 
 #include "vendor.h"
-#include "attribute_entry.h"
+#include "value.h"
 #include "object.h"
-#include "constant_entry.h"
 #include "parameter.h"
 #include "exception.h"
+#include "attribute_entry.h"
+#include "constant_entry.h"
 #include "property_entry.h"
-#include "function_entry.h"
+#include "method_entry.h"
 
 namespace php {
     template <typename T1, typename T2>
@@ -74,7 +75,7 @@ namespace php {
                 // 参考 object_properties_init_ex 对属性的初始化过程
                 // 已声明的属性实际位于 obj.property_table 中，在 obj.properties 数组（哈系表）中存在 INDIRECT 引用
                 // 所以，其实际位置在对象生存周期内不会改变
-                property_refer_traits::pointer(v, p);
+                property_refer_traits::ptr(v, p);
             } ZEND_HASH_FOREACH_END();
         }
         // handler:

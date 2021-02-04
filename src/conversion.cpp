@@ -43,26 +43,4 @@ namespace php {
         convert_to_object(rv);
         return rv;
     }
-    // 计算 T/t G/g M/m K/k 单位
-    std::int64_t to_bytes(std::string_view str) {
-        std::int64_t size = std::strtoul(str.data(), nullptr, 10);
-        std::size_t  npos = str.find_last_not_of(' ');
-        if(npos != str.npos) {
-            switch(str[npos]) {
-            case 't':
-            case 'T':
-                size *= 1024;
-            case 'g':
-            case 'G':
-                size *= 1024;
-            case 'm':
-            case 'M':
-                size *= 1024;
-            case 'k':
-            case 'K':
-                size *= 1024;
-            }
-        }
-        return size;
-    }
 }

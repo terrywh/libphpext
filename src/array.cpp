@@ -5,15 +5,6 @@
 #include "runtime.h"
 
 namespace php {
-    // 创建数组
-    value array::create(std::size_t size) {
-        value v;
-        ZVAL_ARR(v, _zend_new_array(size));
-        // 空数组初始的引用计数标记为 2 故在进行任何更新型操作时会进行分离复制
-        // if(size == 0) return const_cast<zend_array*>(&zend_empty_array);
-        return v;
-    }
-    
     // 归并
     void array::merge(zend_array* target, zend_array* source, bool recursive) {
         if(recursive) php_array_merge_recursive(target, source);
@@ -33,10 +24,10 @@ namespace php {
         return v ? *reinterpret_cast<value*>(v) : runtime::undefined_value;
     }
     // 设置指定项（多级 a.b.c 键）
-    void array::set(zend_array* array, std::string key, zval* v) {
-        auto p = key.find_last_of('.');
-        std::string last_key = key.substr(p+1);
-        std::istringstream ss {key.substr(0, p)};
+    void array::set(zend_array* array, std::string_view keys, zval* v) {
+        auto p = keys.find_last_of('.');
+        std::string last_key { keys.substr(p+1) }, key;
+        std::istringstream ss { std::string(keys.substr(0, p)) };
         zval* tmp, arr;
         while(std::getline(ss, key, '.')) {
             tmp = zend_hash_str_find(array, key.data(), key.size());
@@ -55,8 +46,9 @@ namespace php {
         zval_add_ref(v);
     }
     // 读取指定项（多级 a.b.c 键）
-    value array::get(zend_array* array, std::string key) {
-        std::istringstream ss {key};
+    value array::get(zend_array* array, std::string_view keys) {
+        std::istringstream ss { std::string(keys) };
+        std::string key;
         zval* tmp;
         while(std::getline(ss, key, '.')) {
             if(!array) return value(nullptr);

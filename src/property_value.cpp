@@ -2,9 +2,6 @@
 #include "value.h"
 
 namespace php {
-    zval* property_value_traits::pointer(const property_value* v) {
-        return &v->value_;
-    }
     // 构建对象 (读取赋值属性值）
     property_value::property_value(zend_object* obj, zend_string* key)
     : obj_(obj), key_(key) {
@@ -19,7 +16,7 @@ namespace php {
     }
     // 转换 value 通用类型
     property_value::operator value() {
-        return value{property_value_traits::pointer(this) };
+        return value{property_value_traits::ptr(this) };
     }
     // 属性更新的通用实现，内部已进行引用计数
 #define UPDATE_PROPERTY(v) do {                                                     \

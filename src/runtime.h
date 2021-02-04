@@ -2,7 +2,6 @@
 #define LIBPHPEXT_RUNTIME_H
 
 #include "vendor.h"
-
 namespace php {
     class value;
     // 常量标识：路径

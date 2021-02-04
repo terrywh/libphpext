@@ -3,7 +3,6 @@
 #include "conversion.h"
 #include "array.h"
 #include "array_iterator.h"
-#include <sstream>
 
 PHPAPI extern char *php_ini_opened_path;
 

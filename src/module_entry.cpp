@@ -1,7 +1,7 @@
 #include "module_entry.h"
 #include "environ.h"
 #include "runtime.h"
-#include "callback.h"
+#include "class_closure.h"
 
 namespace php {
     // 当前实例
@@ -54,7 +54,7 @@ namespace php {
         ini_entry::do_register(self()->ini_, module); // 配置 ini 项
         constant_entry::do_register(self()->constant_, module); // 注册 常量
 
-        callback::declare(*self()); // 声明 内部 类
+        class_closure::declare(*self()); // 声明 内部 类
         class_entry_basic::do_register(self()->class_, module); // 注册 类
         
         try { hook_entry::emit(self()->mstartup_, *self()); }

@@ -37,7 +37,7 @@ class example2: public php::class_basic<example2> {
 public:
     php::value __construct(php::parameters& params) {
         // 获取 PHP 对象属性（方法3）
-        std::cout << prop("prop1") << std::endl;
+        std::cout << self()->prop("prop1") << std::endl;
         return nullptr;
     }
 };

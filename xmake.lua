@@ -18,6 +18,7 @@ option("vendor-php")
     
 target("phpext")
     set_kind("static")
+    set_pcxxheader("phpext.h")
     add_files("src/*.cpp")
     add_cxflags("-fPIC")
     add_defines( format("LIBPHPEXT_VERSION=\"%s\"", version) )

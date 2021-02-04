@@ -19,7 +19,7 @@ php::value plus_5(php::parameters& params) {
 }
 // 调用对象函数
 php::value call_method(php::parameters& params) {
-    return params[0].as<php::object>().call("format", {"Y-m-d H:i:s"});
+    return php::cast<php::object>(params[0]).call("format", {"Y-m-d H:i:s"});
 }
 // 放入 C++ 容器
 php::value container(php::parameters& params) {
@@ -33,11 +33,11 @@ php::value container(php::parameters& params) {
 }
 // 调用回调
 php::value invoke(php::parameters& params) {
-    return params[0]({"world"});
+    return php::value(params[0]({"world"}));
 }
 // 遍历数组
 php::value walk(php::parameters& params) {
-    auto& array = params[0].as<php::array>();
+    auto& array = php::cast<php::array>(params[0]);
     int count = array.size();
     // >= C++11
     // for(auto x : array) {
@@ -61,9 +61,9 @@ php::value conf_bytes(php::parameters& params) {
 // 访问属性
 php::value property(php::parameters& params) {
     // 假设 d 原始值为 1
-    auto d = params[0].as<php::object>().prop("d");
+    auto d = php::cast<php::object>(params[0]).prop("d");
     // 函数设置：不会出发上述 d 值刷新
-    params[0].as<php::object>().prop("d", 3);
+    php::cast<php::object>(params[0]).prop("d", 3);
     // 原地设置 -> 1 + 1 = 2
     d += 1;
     std::cout << d << " days\n";

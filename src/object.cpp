@@ -4,20 +4,6 @@
 #include "property_value.h"
 
 namespace php {
-    // 创建制定名称的对象实例，并调用其 PHP 构造函数 (无参)
-    value object::create(std::string_view name) {
-        // ??? 类名是否应该使用内部持久型字符串
-        // zend_string* str = zend_string_init_interned(name.data(), name.size(), 1);
-        zend_string* str = zend_string_init(name.data(), name.size(), 1);
-        zend_class_entry* ce = zend_lookup_class(str);
-        return create(ce);
-    }
-    // 创建指定类型的对象实例，并调用其 PHP 构造函数 (无参)
-    value object::create(zend_class_entry* ce) {
-        value obj;
-        object_init_ex(obj, ce);
-        return obj;
-    }
     // 调用成员函数（无参）
     value object::call(zend_object* obj, const zend_string* name) {
         value rv;

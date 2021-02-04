@@ -1,8 +1,8 @@
 #include "util.h"
-#include "value.h"
-#include "callable.h"
+#include "cast.h"
 
 namespace php {
+    // 
     const char* version() {
         return LIBPHPEXT_VERSION;
     }
@@ -16,7 +16,7 @@ namespace php {
     }
     // 解析 form-data 数据
     value parse_form_data(std::string_view str) {
-        php::value a = array::create(4);
+        php::value a = create_array(4);
         return parse_form_data(str, a);
     }
     // 生成 form-data 数据
@@ -41,6 +41,28 @@ namespace php {
     // 设置进程标题
     void process_title(std::string_view name) {
         // PHP 未导出相关设置函数
-        callable("cli_set_process_title")({name});
+        create_callable("cli_set_process_title")({name});
+    }
+    // 计算 T/t G/g M/m K/k 单位
+    std::int64_t str2bytes(std::string_view str) {
+        std::int64_t size = std::strtoul(str.data(), nullptr, 10);
+        std::size_t  npos = str.find_last_not_of(' ');
+        if(npos != str.npos) {
+            switch(str[npos]) {
+            case 't':
+            case 'T':
+                size *= 1024;
+            case 'g':
+            case 'G':
+                size *= 1024;
+            case 'm':
+            case 'M':
+                size *= 1024;
+            case 'k':
+            case 'K':
+                size *= 1024;
+            }
+        }
+        return size;
     }
 }

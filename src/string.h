@@ -13,10 +13,7 @@ namespace php {
     public:
         // 字符串类型
         static constexpr type_code TYPE_CODE = TYPE_STRING;
-        // 创建指定长度的字符串
-        static value create(std::size_t size, bool persist = false);
-        // 创建字符串（复制）
-        static value create(std::string_view str, bool persist = false);
+        
         // 开始构建字符串
         static string_builder build();
         // 

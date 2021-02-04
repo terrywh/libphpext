@@ -1,5 +1,5 @@
-#ifndef PHP_ARGUMENT_ENTRY_H
-#define PHP_ARGUMENT_ENTRY_H
+#ifndef LIBPHPEXT_ARGUMENT_ENTRY_H
+#define LIBPHPEXT_ARGUMENT_ENTRY_H
 
 #include "vendor.h"
 #include "type.h"
@@ -31,4 +31,4 @@ namespace php {
     using return_entry = argument_entry;
 }
 
-#endif // PHP_ARGUMENT_ENTRY_H
+#endif // LIBPHPEXT_ARGUMENT_ENTRY_H

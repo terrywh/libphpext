@@ -4,7 +4,6 @@
 #include "vendor.h"
 
 namespace php {
-    class array;
     // 抛出的异常对象
     // 注意：异常对象不在 C++ 侧进行内存控制管理（由 PHP Zend 引擎负责释放）
     class throwable: public std::exception {

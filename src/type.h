@@ -55,6 +55,8 @@ namespace php {
         FAKE_VOID      = IS_VOID,
         // 实际不存在次类型，仅用于参数说明
         FAKE_NUMBER    = _IS_NUMBER,
+        // 
+        FAKE_NONE      = IS_UNDEF,
     };
     // 类型属性补充
     enum type_attr {
@@ -90,7 +92,10 @@ namespace php {
         }
         // 
         operator zend_type() const {
-            return zend_type ZEND_TYPE_INIT_CODE(code_, allow_null(), _ZEND_ARG_INFO_FLAGS(pass_byref(), is_variadic()));
+            if(code_ > 0)
+                return zend_type ZEND_TYPE_INIT_CODE(code_, allow_null(), _ZEND_ARG_INFO_FLAGS(pass_byref(), is_variadic()));
+            else
+                return zend_type ZEND_TYPE_INIT_NONE(0u);
         }
     private:
         uint32_t code_;
@@ -164,7 +169,7 @@ namespace php {
     public:
         //
         type_desc(const type_code& code)
-        : type_ ZEND_TYPE_INIT_CODE(code, 0u, _ZEND_ARG_INFO_FLAGS(0u, 0u)) { }
+        : type_ (base_type{code}) {}
         // 
         type_desc(const base_type& base)
         : type_ (static_cast<zend_type>(base)) {}

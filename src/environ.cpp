@@ -1,9 +1,5 @@
 #include "environ.h"
-#include "value.h"
-#include "conversion.h"
-#include "array.h"
-#include "array_iterator.h"
-#include <sstream>
+#include "util.h"
 
 PHPAPI extern char *php_ini_opened_path;
 
@@ -52,7 +48,7 @@ namespace php {
         return entry_ ? std::string(ZSTR_VAL(entry_->value), ZSTR_LEN(entry_->value)) : std::string();
     }
     int64_t environ::ini::byte_size() const {
-        return entry_? to_bytes({ZSTR_VAL(entry_->value), ZSTR_LEN(entry_->value)}) : 0;
+        return entry_? str2bytes({ZSTR_VAL(entry_->value), ZSTR_LEN(entry_->value)}) : 0;
     }
     // 环境初始化
     void environ::init() {

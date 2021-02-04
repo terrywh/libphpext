@@ -5,15 +5,20 @@
 namespace php {
     class  value;
     class  property_value;
+    
     struct property_value_traits {
-        static zval* pointer(const property_value* v);
+        static inline zval* ptr(const property_value* v) {
+            return reinterpret_cast<zval*>(const_cast<property_value*>(v));
+        }
     };
+    
     // 对象属性（不增加引用，存在动态计算故重定义赋值操作）
     class property_value: public basic_value<property_value, property_value_traits> {
     private:
-        using value_traits = property_value_traits;
         mutable zval value_;
     public:
+        using value_traits = property_value_traits;
+
         ~property_value() {
             // 不做释放操作
         }
@@ -25,7 +30,7 @@ namespace php {
         // 赋值
         property_value& operator =(const value& v);
         // 不支持 移动赋值
-        // 运算符（存在缓存）
+        // 运算符（存在缓存，由于存在动态计算故重定义赋值操作）
 #define DECLARE_OPERATOR(TYPE, OPR) property_value& operator OPR(TYPE x)
         property_value& operator ++();
         property_value& operator --();

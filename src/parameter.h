@@ -6,7 +6,6 @@
 
 namespace php {
 	using parameter = value;
-
 	class parameter_iterator;
 	class parameter_reverse_iterator;
 	// 参数表
@@ -29,29 +28,17 @@ namespace php {
 		: argc_(v.size())
 		, argv_(reinterpret_cast<zval*>(v.data())) {}
 		// 获取参数
-		parameter& operator[](std::uint8_t index) const {
-			return get(index);
-		}
+		parameter& operator[](std::uint8_t index) const;
 		// 获取参数
-		parameter& get(std::uint8_t index) const {
-			if(Z_ISREF(argv_[index])) { // 引用引用变量的内容
-				zval* refv = Z_REFVAL(argv_[index]);
-				SEPARATE_ZVAL_IF_NOT_REF(refv);
-				return *reinterpret_cast<parameter*>(refv);
-			}
-			else
-				return *reinterpret_cast<parameter*>(argv_ + index);
-		}
+		parameter& get(std::uint8_t index) const;
 		// 设置参数
-		void set(std::uint8_t index, const value& v) {
-			// 仅对引用有效
-			assert(zval_get_type(argv_ + index) == IS_REFERENCE);
-			ZVAL_COPY(Z_REFVAL(argv_[index]), static_cast<zval*>(v));
-		}
-		std::uint8_t length() const {
+		void set(std::uint8_t index, const value& v);
+		//
+		inline std::uint8_t length() const {
 			return argc_;
 		}
-		std::uint8_t size() const {
+		//
+		inline std::uint8_t size() const {
 			return argc_;
 		}
 
@@ -60,10 +47,7 @@ namespace php {
 		parameter_reverse_iterator rbegin() const;
 		parameter_reverse_iterator rend() const;
 
-		operator std::vector<value>() const {
-			return std::vector<value>(
-				reinterpret_cast<value*>(argv_), reinterpret_cast<value*>(argv_ + argc_));
-		}
+		operator std::vector<value>() const;
 	private:
 		zval*        argv_;
 		std::uint8_t argc_;
@@ -76,26 +60,26 @@ namespace php {
 		, index_(index) {
 
 		}
-		 // 访问数据项
-        value& operator*() const {
+		// 访问数据项
+        parameter& operator*() const {
             return params_->get(index_);
         }
         // 访问数据项
-        value* operator->() const {
+        parameter* operator->() const {
             return & params_->get(index_);
         }
-
+		//
 		parameter_iterator& operator ++() {
 			++index_;
 			return *this;
 		}
-
+		//
 		parameter_iterator operator ++(int) const {
 			parameter_iterator i(*this);
 			++i;
 			return i;
 		}
-
+		//
 		bool operator ==(const parameter_iterator& i) const {
 			return params_ == i.params_ && index_ == i.index_;
 		}
@@ -117,26 +101,29 @@ namespace php {
 		: params_(ri.params_)
 		, index_(ri.index_) {}
 		 // 访问数据项
-        value& operator*() const {
+        parameter& operator*() const {
             return params_->get(index_);
         }
         // 访问数据项
-        value* operator->() const {
+        parameter* operator->() const {
             return & params_->get(index_);
         }
-
+		//
 		parameter_reverse_iterator& operator ++() {
 			--index_;
 			return *this;
 		}
+		//
 		parameter_reverse_iterator operator ++(int) const {
 			parameter_reverse_iterator ri(*this);
 			--ri.index_;
 			return ri;
 		}
+		//
 		bool operator ==(const parameter_reverse_iterator& i) const {
 			return params_ == i.params_ && index_ == i.index_;
 		}
+		//
 		bool operator !=(const parameter_reverse_iterator& i) const {
 			return params_ != i.params_ || index_ != i.index_;
 		}

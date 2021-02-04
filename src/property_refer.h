@@ -7,15 +7,18 @@
 namespace php {
     class property_refer;
     struct property_refer_traits {
-        static zval* pointer(const property_refer* v);
-        static void  pointer(const property_refer* v, zval* z); // 特化用于同步指向
+        //
+        static zval* ptr(const property_refer* v);
+        // 特化用于同步指向
+        static void  ptr(const property_refer* v, zval* z);
     };
     // C++ 属性（同步快速访问）
     class property_refer: public basic_value<property_refer, property_refer_traits> {
     private:
-        using value_traits = property_refer_traits;
         mutable zval* refer_;
     public:
+        using value_traits = property_refer_traits;
+        //
         property_refer()
         // 注意：基类默认构造需要检查
         : refer_(nullptr) { }
@@ -28,27 +31,7 @@ namespace php {
         // 赋值
         property_refer& operator =(const value& v); // 赋值
         property_refer& operator =(value&& v); // 赋值
-        // 运算符（存在缓存）
-#define DECLARE_OPERATOR(TYPE, OPR) property_value& operator OPR(TYPE x)
-        property_value& operator ++();
-        property_value& operator --();
-        DECLARE_OPERATOR(int,+=);
-        DECLARE_OPERATOR(int,-=);
-        DECLARE_OPERATOR(int,*=);
-        DECLARE_OPERATOR(int,/=);
-        DECLARE_OPERATOR(std::int64_t,+=);
-        DECLARE_OPERATOR(std::int64_t,-=);
-        DECLARE_OPERATOR(std::int64_t,*=);
-        DECLARE_OPERATOR(std::int64_t,/=);
-        DECLARE_OPERATOR(float,+=);
-        DECLARE_OPERATOR(float,-=);
-        DECLARE_OPERATOR(float,*=);
-        DECLARE_OPERATOR(float,/=);
-        DECLARE_OPERATOR(double,+=);
-        DECLARE_OPERATOR(double,-=);
-        DECLARE_OPERATOR(double,*=);
-        DECLARE_OPERATOR(double,/=);
-#undef DECLARE_OPERATOR
+        
         friend struct property_refer_traits;
     };
 }
