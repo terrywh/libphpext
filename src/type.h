@@ -63,72 +63,114 @@ namespace php {
         BYREF      = 0x20,
         VARIADIC   = 0x40,
     };
-    class type_desc;
-    //
-    class type_item {
-        const std::uint32_t IS_CLASS_NAME = 0x01;
+    class base_type {
     public:
-        explicit type_item(const char* name)
-        : attr_(IS_CLASS_NAME),name_(name) {}
+        base_type(const type_code& code)
+        : code_(code)
+        , attr_(0) {}
 
-        type_item(const type_code& code)
-        : attr_(NONE), code_(code) {}
-        // 
-        type_item(const type_item& ti) = default;
-        // 
-        operator zend_type() const;
+        base_type(const base_type& bt) = default;
         //
-        type_item operator |(const type_attr& attr) const;
+        base_type operator |(const type_attr& attr) const {
+            base_type bt(*this);
+            bt.attr_ |= static_cast<int>(attr);
+            return bt;
+        }
         //
         inline std::uint32_t allow_null() const {
-            return (attr_ & ALLOW_NULL) ? 1 : 0;
+            return (attr_ & ALLOW_NULL) ? 1u : 0u;
         }
         //
         inline std::uint32_t pass_byref() const {
-            return (attr_ & BYREF) ? 1 : 0;
+            return (attr_ & BYREF) ? 1u : 0u;
         }
         //
         inline std::uint32_t is_variadic() const {
-            return (attr_ & VARIADIC) ? 1 : 0;
+            return (attr_ & VARIADIC) ? 1u : 0u;
+        }
+        // 
+        operator zend_type() const {
+            return zend_type ZEND_TYPE_INIT_CODE(code_, allow_null(), _ZEND_ARG_INFO_FLAGS(pass_byref(), is_variadic()));
         }
     private:
-        uint32_t  attr_ = 0;
-        union {
-            uint32_t    code_;
-            const char* name_;
-        };
-        friend type_item operator|(const type_code& code, const type_attr& attr);
+        uint32_t code_;
+        uint32_t attr_;
     };
-    using class_type = type_item;
+    class user_type {
+    public:
+        user_type(const char* name)
+        : name_(name)
+        , attr_(0) {}
+        //
+        user_type(const user_type& ut) = default;
+        //
+        user_type operator |(const type_attr& attr) const {
+            user_type ut(*this);
+            ut.attr_ |= static_cast<int>(attr);
+            return ut;
+        }
+        // 用户 类 类型仅支持 ALLOW_NULL 标记
+        inline std::uint32_t allow_null() const {
+            return (attr_ & ALLOW_NULL) ? 1u : 0u;
+        }
+        // 用户 类 类型不支持 BYREF 标记
+        inline std::uint32_t pass_byref() const {
+            return 0u;
+        }
+        // 用户 类 类型不支持 VARIADIC 标记
+        inline std::uint32_t is_variadic() const {
+            return 0u;
+        }
+        // 
+        operator zend_type() const {
+            return zend_type ZEND_TYPE_INIT_CLASS_CONST(name_, allow_null(), 0u);
+        }
+    private:
+        const char* name_;
+        uint32_t    attr_;
+    };
+    using class_type = user_type;
     //
-    type_item operator|(const type_code& code, const type_attr& attr);
+    base_type operator|(const type_code& code, const type_attr& attr);
     // 实现对 zend_type_list 的封装
     class type_list {
     public:
-        type_list() = default;
         type_list(const type_list& type_list) = default;
-        operator zend_type() const;
+        operator zend_type() const {
+            zend_type type { nullptr, 0u };
+            zend_type_list* list = static_cast<zend_type_list*>(pemalloc(ZEND_TYPE_LIST_SIZE(types_.size()), true));
+            list->num_types = types_.size();
+            std::memcpy(&list->types, types_.data(), sizeof(zend_type) * types_.size());
+            ZEND_TYPE_SET_LIST(type, list);
+            return type;
+        }
     private:
         std::vector<zend_type> types_;
-        friend type_list operator |(const type_code& code1, const type_code& code2);
-        friend type_list operator |(const type_desc& code1, const type_code& code2);
-        friend type_list operator |(const type_list& list,  const type_code& code2);
+        type_list() = default;
+        // 参见 zend_API.c:2457 暂不支持此种类型注册内部函数
+        // friend type_list operator |(const type_code& code1, const type_code& code2);
+        // friend type_list operator |(const user_type& ut1,   const user_type& ut2);
+        // friend type_list operator |(const type_list& tl1,  const user_type& ut2);
     };
     // 构建 union type
-    type_list operator |(const type_code& code1, const type_code& code2);
+    // 参见 zend_API.c:2457 内部函数暂不支持此种类型注册内部函数
     // 构建 union type
-    type_list operator |(const type_desc& code1, const type_code& code2);
+    // type_list operator |(const type_code& code1, const type_code& code2);
+    // 构建 union type
+    // type_list operator |(const user_type& ut1, const user_type& ut2);
     // 加入 union type
-    type_list operator |(const type_list& list,  const type_code& code2);
-
+    // type_list operator |(const type_list& tl1, const user_type& ut2);
     class type_desc {
     public:
         //
         type_desc(const type_code& code)
         : type_ ZEND_TYPE_INIT_CODE(code, 0u, _ZEND_ARG_INFO_FLAGS(0u, 0u)) { }
         // 
-        type_desc(const type_item& item)
-        : type_ (static_cast<zend_type>(item)) {}
+        type_desc(const base_type& base)
+        : type_ (static_cast<zend_type>(base)) {}
+        //
+        type_desc(const user_type& user)
+        : type_ (static_cast<zend_type>(user)) {}
         // 
         type_desc(const type_list& list)
         : type_ (static_cast<zend_type>(list)) {}
@@ -140,4 +182,5 @@ namespace php {
         zend_type type_;
     };
 }
+
 #endif  // LIBPHPEXT_TYPE_H
