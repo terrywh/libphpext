@@ -13,13 +13,13 @@ namespace php {
     template <class T, value (T::*M)(parameters& params)>
     class method<M> {
     public:
-        method(const char* name, std::initializer_list<type_desc> desc)
-        : entry_{ class_entry_basic::method<T,M>, name, std::move(desc), ZEND_ACC_PUBLIC } {}
+        method(const char* name, std::initializer_list<argument_entry> args)
+        : entry_{ class_entry_basic::method<T,M>, name, std::move(args), ZEND_ACC_PUBLIC } {}
         method(const char* name)
         : entry_{ class_entry_basic::method<T,M>, name, {}, ZEND_ACC_PUBLIC } {}
 
-        method(zend_string* name, std::initializer_list<type_desc> desc)
-        : entry_{ class_entry_basic::method<T,M>, name, std::move(desc), ZEND_ACC_PUBLIC } {}
+        method(zend_string* name, std::initializer_list<argument_entry> args)
+        : entry_{ class_entry_basic::method<T,M>, name, std::move(args), ZEND_ACC_PUBLIC } {}
         method(zend_string* name)
         : entry_{ class_entry_basic::method<T,M>, name, {}, ZEND_ACC_PUBLIC } {}
         
@@ -35,13 +35,13 @@ namespace php {
     template <class T, value (T::*M)(parameters& params)>
     class private_method<M> {
     public:
-        private_method(const char* name, std::initializer_list<type_desc> desc)
-        : entry_{ class_entry_basic::method<T,M>, name, std::move(desc), ZEND_ACC_PRIVATE } {}
+        private_method(const char* name, std::initializer_list<argument_entry> args)
+        : entry_{ class_entry_basic::method<T,M>, name, std::move(args), ZEND_ACC_PRIVATE } {}
         private_method(const char* name)
         : entry_{ class_entry_basic::method<T,M>, name, {}, ZEND_ACC_PRIVATE } {}
 
-        private_method(zend_string* name, std::initializer_list<type_desc> desc)
-        : entry_{ class_entry_basic::method<T,M>, name, std::move(desc), ZEND_ACC_PRIVATE } {}
+        private_method(zend_string* name, std::initializer_list<argument_entry> args)
+        : entry_{ class_entry_basic::method<T,M>, name, std::move(args), ZEND_ACC_PRIVATE } {}
         private_method(zend_string* name)
         : entry_{ class_entry_basic::method<T,M>, name, {}, ZEND_ACC_PRIVATE } {}
         
@@ -57,13 +57,13 @@ namespace php {
     template <class T, value (T::*M)(parameters& params)>
     class protected_method<M> {
     public:
-        protected_method(const char* name, std::initializer_list<type_desc> desc)
-        : entry_{ class_entry_basic::method<T,M>, name, std::move(desc), ZEND_ACC_PROTECTED } {}
+        protected_method(const char* name, std::initializer_list<argument_entry> args)
+        : entry_{ class_entry_basic::method<T,M>, name, std::move(args), ZEND_ACC_PROTECTED } {}
         protected_method(const char* name)
         : entry_{ class_entry_basic::method<T,M>, name, { {TYPE_UNDEFINED} }, ZEND_ACC_PROTECTED } {}
 
-        protected_method(zend_string* name, std::initializer_list<type_desc> desc)
-        : entry_{ class_entry_basic::method<T,M>, name, std::move(desc), ZEND_ACC_PROTECTED } {}
+        protected_method(zend_string* name, std::initializer_list<argument_entry> args)
+        : entry_{ class_entry_basic::method<T,M>, name, std::move(args), ZEND_ACC_PROTECTED } {}
         protected_method(zend_string* name)
         : entry_{ class_entry_basic::method<T,M>, name, { {TYPE_UNDEFINED} }, ZEND_ACC_PROTECTED } {}
         

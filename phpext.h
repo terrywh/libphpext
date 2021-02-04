@@ -3,6 +3,7 @@
 
 #include "phpext/vendor.h"
 #include "phpext/type.h"
+#include "phpext/argument_entry.h"
 #include "phpext/array.h"
 #include "phpext/array_iterator.h"
 #include "phpext/attribute_entry.h"
@@ -17,7 +18,7 @@
 #include "phpext/environ.h"
 #include "phpext/exception.h"
 #include "phpext/function_entry.h"
-#include "phpext/function_entry_method.h"
+#include "phpext/method_entry.h"
 #include "phpext/hash.h"
 #include "phpext/hook_entry.h"
 #include "phpext/ini_entry.h"

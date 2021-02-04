@@ -1,43 +1,26 @@
 #include "function_entry.h"
 
 namespace php {
-    static const char* argument_names[] = {
-        // "argument_00",
-        "argument_01",
-        "argument_02",
-        "argument_03",
-        "argument_04",
-        "argument_05",
-        "argument_06",
-        "argument_07",
-        "argument_08",
-        "argument_09",
-        "argument_10",
-        "argument_11",
-        "argument_12",
-        "argument_13",
-        "argument_14",
-        "argument_15",
-        "argument_16",
-    };
     // 构建函数项
     function_entry::function_entry(zif_handler fn, zend_string* name, 
-            std::vector<type_desc>&& desc, uint32_t flag)
+            std::vector<argument_entry>&& args, uint32_t flag)
     : handler_(fn)
     , name_(name)
     , argv_(1)
     , flag_(flag) {
         // 计算必要参数信息
         int r = 0;
-        for(int i=1; i<desc.size(); ++i) {
-            if(!ZEND_TYPE_ALLOW_NULL( static_cast<zend_type>(desc[i]) )) ++r;
-            argv_.push_back(zend_internal_arg_info {argument_names[i], desc[i], nullptr});
+        for(int i=1;i<args.size();++i) {
+            if(!args[i].allow_null()) ++r;
+            argv_.push_back(args[i]);
         }
         // 函数必要参数个数、返回值
-        if(desc.empty()) 
-            argv_[0] = zend_internal_arg_info { (const char*)(zend_uintptr_t)0, ZEND_TYPE_INIT_NONE(_ZEND_ARG_INFO_FLAGS(0u, 0u)), nullptr };
-        else
-            argv_[0] = zend_internal_arg_info { (const char*)(zend_uintptr_t)r, desc[0], nullptr };
+        if(args.empty()) 
+            argv_[0] = zend_internal_arg_info { nullptr/* (const char*)(zend_uintptr_t)0 */, ZEND_TYPE_INIT_NONE(_ZEND_ARG_INFO_FLAGS(0u, 0u)), nullptr };
+        else {
+            argv_[0] = args[0];
+            argv_[0].name = nullptr; // (const char*)(zend_uintptr_t)0;
+        }
     }
     // 参数引用, 需要保证在进程运行期间有效
     static std::vector< std::vector<zend_internal_arg_info> > refs; 

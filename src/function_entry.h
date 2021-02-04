@@ -3,6 +3,7 @@
 
 #include "vendor.h"
 #include "type.h"
+#include "argument_entry.h"
 #include "value.h"
 #include "parameter.h"
 #include "exception.h"
@@ -22,10 +23,10 @@ namespace php {
         uint32_t                            flag_; // 标志位
         // 
         function_entry(zif_handler fn, zend_string* name, 
-            std::vector<type_desc>&& desc, uint32_t flag);
+            std::vector<argument_entry>&& desc, uint32_t flag);
         // 构建函数项
         function_entry(zif_handler fn, const char* name, 
-            std::vector<type_desc>&& desc, uint32_t flag)
+            std::vector<argument_entry>&& desc, uint32_t flag)
         : function_entry(fn, zend_string_init_interned(name, std::strlen(name), true), std::move(desc), flag) {}
         // PHP 回调
         template <value fn(parameters& params)>
@@ -47,10 +48,10 @@ namespace php {
         }
         // 普通方法
         template <value fn(parameters& params)>
-        friend function_entry function(const char* name, std::initializer_list<type_desc> desc);
+        friend function_entry function(const char* name, std::initializer_list<argument_entry> desc);
         // 静态方法（类）
         template <value fn(parameters& params)>
-        friend function_entry static_method(const char* name, std::initializer_list<type_desc> desc);
+        friend function_entry static_method(const char* name, std::initializer_list<argument_entry> desc);
         template <auto>
         friend class method;
 
@@ -62,8 +63,8 @@ namespace php {
     };
     // 模块函数（注意，由于实际指针数据等由对应对象持有，需要原始指针地址）
     template <value fn(parameters& params)>
-    function_entry function(const char* name, std::initializer_list<type_desc> desc) {
-        return { function_entry::function<fn>, name, std::move(desc), 0 };
+    function_entry function(const char* name, std::initializer_list<argument_entry> args) {
+        return { function_entry::function<fn>, name, std::move(args), 0 };
     }
     // 模块函数
     template <value fn(parameters& params)>
@@ -72,8 +73,8 @@ namespace php {
     }
     // 静态方法（注意，由于实际指针数据等由对应对象持有，需要原始指针地址）
     template <value fn(parameters& params)>
-    function_entry static_method(const char* name, std::initializer_list<type_desc> desc) {
-        return { function_entry::function<fn>, name, std::move(desc), ZEND_ACC_PUBLIC | ZEND_ACC_STATIC };
+    function_entry static_method(const char* name, std::initializer_list<argument_entry> args) {
+        return { function_entry::function<fn>, name, std::move(args), ZEND_ACC_PUBLIC | ZEND_ACC_STATIC };
     }
     // 静态方法
     template <value fn(parameters& params)>
